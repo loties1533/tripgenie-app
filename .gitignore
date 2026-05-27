@@ -1,0 +1,26 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+dist/
+dist-server/
+.vercel/
+
+# npm cache
+**/.npm-cache/
+.npm-cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Docs personnels / internes
+Dossier_Professionnel*.md
+Dossier_Projet*.md
+MASTER_PLAN.md
+_archives/
+
+# OS
+Thumbs.db
