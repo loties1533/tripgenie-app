@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Tests et TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Recuperer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Generer le client Prisma
+        run: npx prisma generate
+
+      - name: Verifier le typage TypeScript
+        run: npx tsc --noEmit
+
+      - name: Lancer la suite de tests
+        run: npm run test:all
+        env:
+          NODE_ENV: test
+          JWT_SECRET: test-secret-ci
