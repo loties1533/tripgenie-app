@@ -5,7 +5,7 @@
 //   - propriété du voyage vérifiée avant toute action (404 sinon)
 //   - POST : email valide, utilisateur existant, pas d'auto-invitation
 //   - DELETE : retrait d'un collaborateur
-// Supabase et rate-limiters mockés — seul le middleware auth tourne réellement.
+// Prisma et rate-limiters mockés — seul le middleware auth tourne réellement.
 // =============================================
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';

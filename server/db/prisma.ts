@@ -1,10 +1,9 @@
 // =============================================
 // TRIPGENIE — server/db/prisma.ts
-// Client Prisma singleton (branche mvp-DEMODAY).
+// Client Prisma singleton.
 //
-// Remplace l'ancienne couche pg.ts (query/withUser + RLS maison).
 // Sécurité d'isolation des données : filtre applicatif systématique
-// `where: { userId }` dans chaque route protégée (le JWT fournit l'id).
+// `where: { user_id }` dans chaque route protégée (le JWT fournit l'id).
 //
 // Pattern singleton : en dev (nodemon/tsx recharge à chaque sauvegarde),
 // on réutilise l'instance stockée sur globalThis pour éviter d'épuiser
