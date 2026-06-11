@@ -16,11 +16,16 @@ dist-server/
 .vscode/
 .idea/
 
-# Docs personnels / internes
+# Docs personnels / internes (jamais sur le repo public)
 Dossier_Professionnel*.md
 Dossier_Projet*.md
 MASTER_PLAN.md
 _archives/
+CLAUDE.md
+DEPLOY.md
+README_DEMODAY.md
+docs/
+scripts/
 
 # OS
 Thumbs.db
