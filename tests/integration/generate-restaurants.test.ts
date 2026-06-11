@@ -31,7 +31,7 @@ vi.mock('../../server/services/smartSearch.js', () => ({
 }));
 vi.mock('../../server/services/weather.js', () => ({ getRealWeather: vi.fn().mockResolvedValue(null) }));
 vi.mock('../../server/services/photo.js',   () => ({ getDestinationPhoto: vi.fn().mockResolvedValue(null) }));
-// (mock supabase retiré — la couche DB est 100 % pg/RLS maison)
+// (couche DB = Prisma, mockée au niveau des routes si nécessaire)
 
 // ---- Restaurants mock — vi.hoisted() car vi.mock est hoisté avant les const ----
 const { mockFSQ, mockYelp } = vi.hoisted(() => {

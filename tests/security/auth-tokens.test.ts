@@ -118,8 +118,8 @@ describe('JWT — isolation des données entre utilisateurs', () => {
 
   it('User A ne peut pas accéder au voyage de User B', async () => {
     const tokenA = makeToken(USER_A);
-    // GET /:id migré : withUser() + RLS PostgreSQL + filtre WHERE user_id = $2
-    // → 0 ligne pour le voyage d'un autre utilisateur.
+    // GET /:id : filtre applicatif Prisma where: { user_id }
+    // → aucune ligne renvoyee pour le voyage d'un autre utilisateur.
     const res = await request(app)
       .get(`/api/trips/${TRIP_B}`)
       .set('Authorization', `Bearer ${tokenA}`);
@@ -145,7 +145,7 @@ describe('JWT — claims requis', () => {
 
   it('token sans "id" → rejeté ou accès refusé', async () => {
     const noId = makeToken({ email: 'alice@test.com' }); // pas de id
-    // GET /trips passe par pg/withUser → liste vide (fail-closed)
+    // GET /trips : filtre Prisma where user_id → liste vide (fail-closed)
     const res = await request(app).get('/api/trips').set('Authorization', `Bearer ${noId}`);
     // Sans id, le serveur peut renvoyer 200 (liste vide) ou 401 — pas de crash 500
     expect([200, 401]).toContain(res.status);

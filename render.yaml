@@ -11,7 +11,7 @@ services:
         value: production
       - key: PORT
         value: 3000
-      # --- Base de données (rôle dédié tripgenie_app, sans BYPASSRLS) ---
+      # --- Base de données (PostgreSQL via Prisma) ---
       - key: DATABASE_URL
         sync: false  # à renseigner dans le dashboard Render
 

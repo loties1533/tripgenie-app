@@ -4,7 +4,7 @@
 //   - auth requise (401 sans token)
 //   - GET : null si aucune préférence (PGRST116), sinon l'objet stocké
 //   - PUT : validation Zod (mode, devise, nb d'intérêts) + upsert
-// Supabase et rate-limiters mockés — seul le middleware auth tourne réellement.
+// Prisma et rate-limiters mockés — seul le middleware auth tourne réellement.
 // =============================================
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
