@@ -10,10 +10,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
 [![Express](https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-RLS_maison-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![Vitest](https://img.shields.io/badge/Vitest-230_tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![Vitest](https://img.shields.io/badge/Vitest-282_tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
 
-[🚀 Demo Live](https://tripgenie.onrender.com) · [📖 API Docs](http://localhost:3000/api/docs) · [🐛 Issues](https://github.com/loties1533/tripgenie/issues)
+[🚀 Demo Live](https://tripgenie.onrender.com) · [📖 API Docs](http://localhost:3000/api/docs) · [🐛 Issues](https://github.com/loties1533/tripgenie-app/issues)
 
 ---
 
@@ -231,7 +232,7 @@ tests/
 └── integration/
     └── generate-restaurants.test.ts    8 tests — pipeline FSQ→Yelp
 ─────────────────────────────────────────────────────────────────
-  ~230 tests — tous les services externes mockés (zéro clé API requise)
+  282 tests — tous les services externes mockés (zéro clé API requise)
 ```
 
 ---
@@ -332,7 +333,7 @@ tripgenie/
 │       ├── store/index.ts      # Zustand : useAuthStore · useTripStore
 │       └── lib/api.ts          # Toutes les requêtes HTTP vers l'API
 │
-├── tests/                      # ~230 tests Vitest + Supertest
+├── tests/                      # 282 tests Vitest + Supertest
 ├── .github/workflows/          # GitHub Actions CI (tests + tsc à chaque push)
 └── render.yaml                 # Configuration déploiement Render (PaaS)
 ```
