@@ -5,15 +5,22 @@
 // =============================================
 
 import express from 'express';
+import { z } from 'zod';
 import type { Request, Response } from 'express';
 import prisma from '../db/prisma.js';
 import type { Prisma } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
+import { validateParams } from '../middleware/validation.js';
 
 const router = express.Router();
 router.use(requireAuth);
 
-router.get('/:trip_id', async (req: Request, res: Response): Promise<void> => {
+const packParamsSchema = z.object({
+  trip_id: z.string().min(1, 'trip_id requis'),
+  pack_id: z.string().min(1, 'pack_id requis').optional(),
+});
+
+router.get('/:trip_id', validateParams(packParamsSchema), async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ error: 'Non authentifié' });
@@ -43,7 +50,7 @@ router.get('/:trip_id', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-router.post('/:trip_id/select/:pack_id', async (req: Request, res: Response): Promise<void> => {
+router.post('/:trip_id/select/:pack_id', validateParams(packParamsSchema), async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ error: 'Non authentifié' });

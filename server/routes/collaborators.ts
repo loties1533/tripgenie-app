@@ -7,6 +7,7 @@ import express from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { validateBody, validateParams } from '../middleware/validation.js';
 import type { Request, Response, NextFunction } from 'express';
 
 const router = express.Router();
@@ -16,8 +17,17 @@ const inviteSchema = z.object({
   role:  z.enum(['viewer', 'editor']).default('viewer')
 });
 
+const tripParamSchema = z.object({
+  trip_id: z.string().min(1, 'trip_id requis'),
+});
+
+const tripCollaboratorParamSchema = z.object({
+  trip_id: z.string().min(1, 'trip_id requis'),
+  user_id: z.string().min(1, 'user_id requis'),
+});
+
 // ---- GET /api/trips/:trip_id/collaborators ----
-router.get('/:trip_id/collaborators', requireAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/:trip_id/collaborators', requireAuth, validateParams(tripParamSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = req.user!.id;
     const tripId = String(req.params.trip_id);
@@ -51,15 +61,11 @@ router.get('/:trip_id/collaborators', requireAuth, async (req: Request, res: Res
 });
 
 // ---- POST /api/trips/:trip_id/collaborators ----
-router.post('/:trip_id/collaborators', requireAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/:trip_id/collaborators', requireAuth, validateParams(tripParamSchema), validateBody(inviteSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const parsed = inviteSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.issues?.[0]?.message ?? 'Données invalides' });
-      return;
-    }
     const userId = req.user!.id;
     const tripId = String(req.params.trip_id);
+    const parsed = req.body;
 
     // 1. Propriété du voyage
     const owned = await prisma.trip.findFirst({ where: { id: tripId, user_id: userId }, select: { id: true } });
@@ -70,7 +76,7 @@ router.post('/:trip_id/collaborators', requireAuth, async (req: Request, res: Re
 
     // 2. Trouver la cible par email (on ne lit PAS le hash)
     const targetUser = await prisma.user.findUnique({
-      where:  { email: parsed.data.email },
+      where:  { email: parsed.email },
       select: { id: true, name: true, email: true },
     });
     if (!targetUser) {
@@ -85,8 +91,8 @@ router.post('/:trip_id/collaborators', requireAuth, async (req: Request, res: Re
     // 3. Upsert collaborateur (PK composée trip_id + user_id)
     const collaborator = await prisma.tripCollaborator.upsert({
       where:  { trip_id_user_id: { trip_id: tripId, user_id: targetUser.id } },
-      create: { trip_id: tripId, user_id: targetUser.id, role: parsed.data.role },
-      update: { role: parsed.data.role, invited_at: new Date() },
+      create: { trip_id: tripId, user_id: targetUser.id, role: parsed.role },
+      update: { role: parsed.role, invited_at: new Date() },
     });
 
     res.status(201).json({ collaborator, user: { name: targetUser.name, email: targetUser.email } });
@@ -97,7 +103,7 @@ router.post('/:trip_id/collaborators', requireAuth, async (req: Request, res: Re
 });
 
 // ---- DELETE /api/trips/:trip_id/collaborators/:user_id ----
-router.delete('/:trip_id/collaborators/:user_id', requireAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.delete('/:trip_id/collaborators/:user_id', requireAuth, validateParams(tripCollaboratorParamSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = req.user!.id;
     const tripId = String(req.params.trip_id);

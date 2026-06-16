@@ -44,6 +44,7 @@ export const globalErrorHandler = (
     if (err.isOperational) {
       res.status(err.statusCode).json({
         status: err.status,
+        error: err.message,
         message: err.message,
       });
     } else {
