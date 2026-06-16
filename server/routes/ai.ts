@@ -5,8 +5,10 @@
 // =============================================
 
 import express from 'express';
+import { z } from 'zod';
 import type { Request, Response, NextFunction } from 'express';
 import { optionalAuth } from '../middleware/auth.js';
+import { validateBody } from '../middleware/validation.js';
 import { aiGenerateLimiter, aiChatLimiter } from '../middleware/limiter.js';
 import { analyzeRequest, suggestDestinations, assemblePack, chatModify, chatIntake } from '../services/claude/index.js';
 import { scorepack } from '../services/scoring.js';
@@ -25,9 +27,58 @@ import type { WeatherData } from '../services/weather.js';
 
 const router = express.Router();
 
+const travelModeSchema = z.enum(['party', 'student', 'luxury', 'group', 'relax', 'surprise']);
+const nonEmptyString = z.string().trim().min(1);
+const currentPackSchema = z.any().optional().refine((value) => {
+  return value === undefined || (typeof value === 'object' && value !== null && !Array.isArray(value));
+}, { message: 'current_pack invalide' }).superRefine((value, ctx) => {
+  if (value !== undefined) {
+    const size = JSON.stringify(value).length;
+    if (size > 50000) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'current_pack trop volumineux (max 50ko)' });
+    }
+  }
+});
+
+const analyzeSchema = z.object({
+  input: nonEmptyString.max(1000, 'Message trop long (max 1000 caractères)'),
+});
+
+const destinationsSchema = z.object({
+  mode: travelModeSchema,
+  budget: z.number().int().min(0).optional(),
+  travelers: z.number().int().min(1).max(20).optional(),
+  duration: z.number().int().min(1).optional(),
+  origin: z.string().trim().min(1).optional(),
+  preferences: z.array(z.string()).optional(),
+  departure: z.string().trim().optional(),
+});
+
+const onboardingSchema = z.object({
+  currentData: z.record(z.string(), z.unknown()).optional(),
+  userMessage: nonEmptyString.max(1000, 'Message trop long'),
+});
+
+const generateSchema = z.object({
+  destination: nonEmptyString,
+  origin: z.string().trim().optional(),
+  departure: nonEmptyString,
+  return_date: z.string().trim().optional().nullable(),
+  travelers: z.preprocess((val) => typeof val === 'string' ? Number(val) : val, z.number().int().min(1).max(20)).optional(),
+  budget: z.preprocess((val) => typeof val === 'string' ? Number(val) : val, z.number().int().min(1).max(50000)),
+  mode: travelModeSchema.optional(),
+  preferences: z.array(z.string()).optional(),
+});
+
+const chatSchema = z.object({
+  message: nonEmptyString.max(1000, 'Message trop long'),
+  current_pack: currentPackSchema.optional(),
+  mode: travelModeSchema.optional(),
+  trip_id: z.string().uuid('trip_id invalide').optional(),
+});
 
 // ---- POST /api/ai/analyze ----
-router.post('/analyze', aiChatLimiter, optionalAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/analyze', aiChatLimiter, optionalAuth, validateBody(analyzeSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { input } = req.body;
     if (!input?.trim()) {
@@ -49,13 +100,9 @@ router.post('/analyze', aiChatLimiter, optionalAuth, async (req: Request, res: R
 });
 
 // ---- POST /api/ai/destinations ----
-router.post('/destinations', aiGenerateLimiter, optionalAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/destinations', aiGenerateLimiter, optionalAuth, validateBody(destinationsSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { mode, budget, travelers, duration, origin, preferences, departure } = req.body;
-    if (!mode) {
-      res.status(400).json({ error: 'mode requis' });
-      return;
-    }
 
     const result = await suggestDestinations({ mode, budget, travelers, duration, origin, preferences, departure });
     res.json(result);
@@ -67,17 +114,9 @@ router.post('/destinations', aiGenerateLimiter, optionalAuth, async (req: Reques
 });
 
 // ---- POST /api/ai/onboarding ----
-router.post('/onboarding', aiChatLimiter, optionalAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/onboarding', aiChatLimiter, optionalAuth, validateBody(onboardingSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { currentData, userMessage } = req.body;
-    if (!userMessage) {
-      res.status(400).json({ error: 'userMessage requis' });
-      return;
-    }
-    if (userMessage.length > 1000) {
-      res.status(400).json({ error: 'Message trop long' });
-      return;
-    }
 
     const result = await chatIntake({ currentData, userMessage });
     res.json(result);
@@ -115,7 +154,7 @@ router.post('/onboarding', aiChatLimiter, optionalAuth, async (req: Request, res
  * @requires optionalAuth — le pack est sauvegardé si l'utilisateur est connecté
  * @requires aiGenerateLimiter — 10 générations/heure/IP (coût LLM)
  */
-router.post('/generate', aiGenerateLimiter, optionalAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(generateSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const {
       destination,
@@ -126,11 +165,6 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, async (req: Request, r
       budget,
       mode        = MODES.PARTY,
     } = req.body;
-
-    if (!destination?.trim()) return next(new AppError('destination requise', 400));
-    if (!departure)           return next(new AppError('date de départ requise', 400));
-    if (!budget || budget <= 0 || budget > 50000) return next(new AppError('budget invalide (1 - 50000)', 400));
-    if (!travelers || travelers < 1 || travelers > 20) return next(new AppError('nombre de voyageurs invalide (1 - 20)', 400));
 
     // ---- RECHERCHE WEB (Tavily + IA) avec Timeout de sécurité ----
     const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => Promise.race([
@@ -315,32 +349,9 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, async (req: Request, r
  *
  * @requires aiChatLimiter — 30 messages/15min/IP
  */
-router.post('/chat', aiChatLimiter, optionalAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.post('/chat', aiChatLimiter, optionalAuth, validateBody(chatSchema), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { message, current_pack, mode, trip_id } = req.body;
-    if (!message?.trim()) {
-      res.status(400).json({ error: 'message requis' });
-      return;
-    }
-    if (message.length > 1000) {
-      res.status(400).json({ error: 'Message trop long' });
-      return;
-    }
-
-    // Validation de current_pack : il vient du client (non fiable).
-    // On limite la taille pour éviter l'injection de prompt et l'explosion de tokens.
-    // On vérifie que c'est bien un objet (pas un script malveillant sous forme de string).
-    if (current_pack !== undefined) {
-      if (typeof current_pack !== 'object' || Array.isArray(current_pack)) {
-        res.status(400).json({ error: 'current_pack invalide' });
-        return;
-      }
-      const packSize = JSON.stringify(current_pack).length;
-      if (packSize > 50_000) { // 50ko max — un pack normal fait ~5-10ko
-        res.status(400).json({ error: 'current_pack trop volumineux (max 50ko)' });
-        return;
-      }
-    }
 
     const result = await chatModify({
       currentPack: current_pack,
