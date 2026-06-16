@@ -71,6 +71,26 @@ Interface Swagger disponible sur `/api/docs` — toutes les routes sont testable
 
 > **Pipeline IA orchestré côté serveur — pas un agent autonome.** Les étapes sont prédéfinies et s'enchaînent toujours dans le même ordre. Seul le chat de modification (`/api/ai/chat`) est agentique.
 
+### Vue d'ensemble — 3 couches
+
+```mermaid
+flowchart TB
+    subgraph Frontend["🎨 Frontend — React 18 + Vite + TypeScript"]
+        Pages["Pages : Home · Trips · TripDetail · Login"] --> Store["Zustand (état global)"] --> Api["api.ts (fetch)"]
+    end
+    Api -->|"HTTPS · Cookie httpOnly (JWT)"| Index
+    subgraph Backend["⚙️ Backend — Node.js + Express + TypeScript"]
+        Index["index.ts : Helmet · CORS · Morgan"] --> Middleware["Middleware : auth · rate-limit · validation Zod"]
+        Middleware --> Routes["Routes : auth · trips · ai · packs · votes · preferences · collaborators"]
+        Routes --> Pipeline["Pipeline IA : analyze → search → assemble → score"]
+    end
+    Pipeline --> LLM["🤖 LLM : Gemini → OpenRouter → Claude → mocks"]
+    Pipeline --> Externes["🌐 APIs : Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash"]
+    Routes -->|"Prisma ORM"| DB[("🗄️ PostgreSQL — 6 tables (Docker)")]
+```
+
+### Le pipeline de génération
+
 ```
 POST /api/ai/generate
         │
@@ -117,6 +137,56 @@ packs        — Packs générés par voyage (rank, selected)
 trip_votes   — Votes collectifs par item (true/false)
 preferences  — Préférences utilisateur (relation 1-1 avec users)
 trip_collaborators — Collaborateurs par voyage (viewer/editor)
+```
+
+### Schéma relationnel (ERD)
+
+```mermaid
+erDiagram
+    users ||--o{ trips : "possède"
+    users ||--o| user_preferences : "a (1-1)"
+    users ||--o{ trip_collaborators : "collabore"
+    trips ||--o{ packs : "génère"
+    trips ||--o{ trip_collaborators : "partagé via"
+    packs ||--o{ trip_votes : "reçoit"
+    users {
+        uuid id PK
+        text email UK
+        text password
+        text name
+        timestamptz created_at
+    }
+    trips {
+        uuid id PK
+        uuid user_id FK
+        text destination
+        text mode
+        float score
+        jsonb pack_data
+    }
+    packs {
+        uuid id PK
+        uuid trip_id FK
+        int rank
+        boolean selected
+        jsonb pack_data
+    }
+    trip_votes {
+        uuid id PK
+        uuid pack_id FK
+        text item_id
+        boolean vote_type
+    }
+    user_preferences {
+        uuid user_id PK
+        text default_mode
+        text currency
+    }
+    trip_collaborators {
+        uuid trip_id PK
+        uuid user_id PK
+        text role
+    }
 ```
 
 ### Isolation des données
@@ -218,7 +288,7 @@ npm run test:all  # 14 fichiers complets
 ```
 tests/
 ├── unit/
-│   ├── scoring-party.test.ts          15 tests — scoring mode party
+│   ├── scoring-party.test.ts           8 tests — scoring mode party
 │   └── smartSearch-hotel.test.ts      12 tests — recherche hôtels
 ├── services/
 │   ├── predictHQ.test.ts              15 tests — événements PredictHQ
@@ -228,7 +298,7 @@ tests/
 │   ├── auth-signup.test.ts            12 tests — inscription, bcrypt, cookie
 │   ├── auth-login.test.ts             12 tests — connexion, JWT, logout
 │   ├── auth-tokens.test.ts            13 tests — expiration, alg:none, IDOR
-│   └── input-validation.test.ts       15 tests — Zod toutes routes
+│   └── input-validation.test.ts       20 tests — Zod toutes routes
 └── integration/
     └── generate-restaurants.test.ts    8 tests — pipeline FSQ→Yelp
 ─────────────────────────────────────────────────────────────────
@@ -305,7 +375,8 @@ tripgenie/
 │   │                           # preferences · collaborators
 │   ├── middleware/
 │   │   ├── auth.ts             # requireAuth · optionalAuth (cookie + Bearer)
-│   │   └── limiter.ts          # Rate limiters (generate 10/h, chat 30/15min, auth 10/15min)
+│   │   ├── limiter.ts          # Rate limiters (generate 10/h, chat 30/15min, auth 10/15min)
+│   │   └── validation.ts       # Middleware de validation Zod centralisé
 │   ├── services/
 │   │   ├── claude/             # Pipeline IA : core · analyze · pack · chat
 │   │   ├── providers.ts        # Adaptateurs multi-LLM (Gemini / Claude / OpenRouter / Ollama)
