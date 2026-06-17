@@ -284,13 +284,10 @@ export function mapActivities(
     const emoji   = isNight ? '🎉' : isFood ? '🍽' : isBoat ? '⛵' : type === 'plage' ? '🏖' : type === 'spa' ? '💆' : '🏛';
     const name    = a.name ?? 'Activité';
     const q       = encodeURIComponent(`${name} ${dest}`);
-    const booking_url = isFood
-      ? `https://www.thefork.fr/recherche?q=${q}`
-      : isNight
-      ? `https://www.google.com/search?q=${q}`
-      : isBoat
-      ? `https://www.viator.com/search?q=${q}`
-      : `https://www.getyourguide.fr/s/?q=${q}`;
+    // Lien universel Google Maps : ouvre la fiche du lieu DANS LA BONNE VILLE,
+    // partout dans le monde. TheFork (resto FR) renvoyait vers Paris pour une
+    // ville hors France ; GetYourGuide/Viator ne couvrent pas tout non plus.
+    const booking_url = `https://www.google.com/maps/search/?api=1&query=${q}`;
 
     return {
       name,
@@ -427,8 +424,10 @@ export async function assemblePack({
       title:    d.title ?? 'Journée découverte',
       subtitle: mode === MODES.PARTY ? 'Vibe & Nightlife' : mode === MODES.LUXURY ? 'Prestige & Exclusivité' : 'Exploration',
       items: [
-        { time: mode === MODES.PARTY ? '14:00' : '10:00', type: 'activity' as const, title: d.am ?? 'Exploration', description: 'Découverte locale', price: 'gratuit', duration: '3h' },
-        { time: mode === MODES.PARTY ? '22:00' : '20:00', type: mode === MODES.PARTY ? 'event' as const : 'food' as const, title: d.pm ?? 'Soirée', description: 'Moment mémorable', price: '40€', duration: '4h' },
+        // Heures indicatives (matin/soir). On n'affiche PLUS de prix/durée inventés :
+        // l'IA ne fournit que l'activité (am/pm), donc tout chiffre serait du faux.
+        { time: mode === MODES.PARTY ? '14:00' : '10:00', type: 'activity' as const, title: d.am ?? 'Exploration', description: 'Découverte locale' },
+        { time: mode === MODES.PARTY ? '22:00' : '20:00', type: mode === MODES.PARTY ? 'event' as const : 'food' as const, title: d.pm ?? 'Soirée', description: 'Moment mémorable' },
       ],
     })),
     activities: mapActivities(t.activities, dest),

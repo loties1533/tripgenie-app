@@ -75,11 +75,11 @@ describe('foursquareRestaurantSearch — cas nominal', () => {
     results.forEach(r => expect(r.emoji).toBe('🍽️'));
   });
 
-  it('booking_url pointe vers TheFork (thefork.fr)', async () => {
+  it('booking_url pointe vers Google Maps (universel, bonne ville partout)', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_FSQ_RESPONSE });
     const results = await foursquareRestaurantSearch('Ibiza', 'party');
     results.forEach(r => {
-      expect(r.booking_url).toContain('thefork.fr');
+      expect(r.booking_url).toContain('google.com/maps');
     });
   });
 

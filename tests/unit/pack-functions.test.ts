@@ -286,24 +286,25 @@ describe('mapActivities — mapping activités → Pack[\'activities\']', () => 
     expect(acts[0].emoji).toBe('🏛');
   });
 
-  it('lien TheFork pour type restaurant', () => {
+  it('lien Google Maps universel pour un restaurant', () => {
     const acts = mapActivities([{ name: 'Nobu', type: 'restaurant', desc: 'test' }], 'Ibiza');
-    expect(acts[0].booking_url).toContain('thefork');
+    expect(acts[0].booking_url).toContain('google.com/maps');
   });
 
-  it('lien Viator pour type bateau', () => {
+  it('lien Google Maps universel pour un bateau', () => {
     const acts = mapActivities([{ name: 'Sailing trip', type: 'bateau', desc: 'test' }], 'Ibiza');
-    expect(acts[0].booking_url).toContain('viator');
+    expect(acts[0].booking_url).toContain('google.com/maps');
   });
 
-  it('lien Google pour type nightlife', () => {
+  it('lien Google Maps universel pour le nightlife', () => {
     const acts = mapActivities([{ name: 'Amnesia', type: 'club', desc: 'test' }], 'Ibiza');
-    expect(acts[0].booking_url).toContain('google');
+    expect(acts[0].booking_url).toContain('google.com/maps');
   });
 
-  it('lien GetYourGuide pour le reste', () => {
+  it('lien Google Maps universel inclut la ville (bonne ville partout)', () => {
     const acts = mapActivities([{ name: 'Cathédrale', type: 'monument', desc: 'test' }], 'Paris');
-    expect(acts[0].booking_url).toContain('getyourguide');
+    expect(acts[0].booking_url).toContain('google.com/maps');
+    expect(acts[0].booking_url).toContain('Paris');
   });
 
   it('préserve le nom de l\'activité', () => {

@@ -103,7 +103,7 @@ export async function yelpRestaurantSearch(
       duration:    '1h30',
       price:       priceFromSymbol(b.price),
       price_range: b.price ?? '$$',
-      booking_url: `https://www.thefork.fr/recherche?q=${encode(b.name + ' ' + city)}`,
+      booking_url: `https://www.google.com/maps/search/?api=1&query=${encode(b.name + ' ' + city)}`,
       links:       restaurantLinks(b.name, city),
     }));
 

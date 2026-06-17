@@ -89,7 +89,7 @@ export async function foursquareRestaurantSearch(
       duration:    '1h30',
       price:       priceNum(p.price),
       price_range: priceLabel(p.price),
-      booking_url: `https://www.thefork.fr/recherche?q=${encode(p.name + ' ' + city)}`,
+      booking_url: `https://www.google.com/maps/search/?api=1&query=${encode(p.name + ' ' + city)}`,
       links:       restaurantLinks(p.name, city),
     }));
 

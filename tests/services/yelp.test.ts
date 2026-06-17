@@ -67,11 +67,11 @@ describe('yelpRestaurantSearch — cas nominal', () => {
     expect(headers?.Authorization).toBe('Bearer test-yelp-key-vitest');
   });
 
-  it('booking_url pointe vers TheFork (thefork.fr)', async () => {
+  it('booking_url pointe vers Google Maps (universel, bonne ville partout)', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_YELP_RESPONSE });
     const [first] = await yelpRestaurantSearch('Ibiza', 'luxury');
-    // Le service génère des liens TheFork (réservation) plutôt que des liens Yelp directs
-    expect(first.booking_url).toContain('thefork.fr');
+    // Lien universel Google Maps plutôt que TheFork (qui ne couvre que la France/Europe)
+    expect(first.booking_url).toContain('google.com/maps');
   });
 });
 

@@ -69,8 +69,8 @@ export interface ElementItineraire {
   type: ItineraryItemType;
   title: string;
   description: string;
-  price: string;
-  duration: string;
+  price?: string;      // optionnel : on n'invente pas de prix si on ne le connaît pas
+  duration?: string;   // optionnel : idem pour la durée
 }
 
 export interface JourneeItineraire {
