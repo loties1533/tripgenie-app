@@ -45,11 +45,10 @@ export default function App() {
           <Route path="/preferences" element={<Preferences />} />
         </Routes>
         <Toaster
-          position="bottom-right"
+          position="top-center"
+          richColors
           toastOptions={{
             style: {
-              background: 'var(--tw-bg-opacity, white)',
-              border:     '1px solid rgba(201,168,76,0.2)',
               fontFamily: '"DM Sans", sans-serif',
               fontSize:   '14px',
             }
