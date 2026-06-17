@@ -176,6 +176,7 @@ function TripConcepts() {
 
   const handleSelect = async (dest: any) => {
     setField('concepts', null)
+    setField('destination', dest.city)   // le loader affiche la ville en cours, pas une valeur persistée
     setLoading(true)
     addMessage({ role: 'assistant', text: `Excellent choix ! 🚀 Je génère ton pack VIP pour **${dest.city}**...` })
 
