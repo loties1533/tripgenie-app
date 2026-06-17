@@ -71,22 +71,28 @@ Interface Swagger disponible sur `/api/docs` — toutes les routes sont testable
 
 > **Pipeline IA orchestré côté serveur — pas un agent autonome.** Les étapes sont prédéfinies et s'enchaînent toujours dans le même ordre. Seul le chat de modification (`/api/ai/chat`) est agentique.
 
-### Vue d'ensemble — 3 couches
+### Architecture en couches (3-tier)
 
 ```mermaid
 flowchart TB
-    subgraph Frontend["🎨 Frontend — React 18 + Vite + TypeScript"]
-        Pages["Pages : Home · Trips · TripDetail · Login"] --> Store["Zustand (état global)"] --> Api["api.ts (fetch)"]
+    subgraph PRES["🎨 COUCHE PRÉSENTATION"]
+        UI["Frontend React<br/>pages · composants · Zustand"]
+        REST["API REST Express<br/>auth · trips · ai · packs · votes · preferences · collaborators"]
     end
-    Api -->|"HTTPS · Cookie httpOnly (JWT)"| Index
-    subgraph Backend["⚙️ Backend — Node.js + Express + TypeScript"]
-        Index["index.ts : Helmet · CORS · Morgan"] --> Middleware["Middleware : auth · rate-limit · validation Zod"]
-        Middleware --> Routes["Routes : auth · trips · ai · packs · votes · preferences · collaborators"]
-        Routes --> Pipeline["Pipeline IA : analyze → search → assemble → score"]
+    subgraph LOGIC["⚙️ COUCHE LOGIQUE MÉTIER"]
+        Sec["Auth JWT · bcrypt · Validation Zod · Rate-limit"]
+        Pipe["Pipeline IA : analyze → search → assemble → score"]
+        Svc["Services : scoring · smartSearch · LLM cascade · restaurants"]
     end
-    Pipeline --> LLM["🤖 LLM : Gemini → OpenRouter → Claude → mocks"]
-    Pipeline --> Externes["🌐 APIs : Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash"]
-    Routes -->|"Prisma ORM"| DB[("🗄️ PostgreSQL — 6 tables (Docker)")]
+    subgraph PERS["🗄️ COUCHE PERSISTANCE"]
+        ORM["Prisma ORM"]
+        DB[("PostgreSQL — 6 tables (Docker)")]
+    end
+    UI -->|"HTTPS · Cookie httpOnly (JWT)"| REST
+    REST --> Sec --> Pipe --> Svc
+    Svc -->|"requêtes typées"| ORM
+    ORM --- DB
+    Pipe -.->|"APIs externes"| EXT["🌐 Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash · Gemini/Claude/OpenRouter"]
 ```
 
 ### Le pipeline de génération
@@ -123,6 +129,32 @@ Gemini 2.0 Flash  →  Claude Haiku  →  OpenRouter (7 modèles gratuits)  → 
 ```
 
 Si un provider échoue (quota, timeout 45s), le suivant prend le relais automatiquement. `Promise.allSettled` garantit que la génération continue même si un service externe est en panne.
+
+### Séquence — génération d'un pack
+
+```mermaid
+sequenceDiagram
+    actor U as Utilisateur
+    participant F as Frontend
+    participant A as API /ai/generate
+    participant Ext as APIs externes
+    participant LLM as LLM (cascade)
+    participant DB as PostgreSQL
+    U->>F: décrit son voyage (langage naturel)
+    F->>A: POST /api/ai/generate
+    A->>A: 1. Validation Zod
+    par Recherches parallèles (Promise.allSettled)
+        A->>Ext: vols · hôtels · événements · météo · photo
+        A->>Ext: restaurants (Foursquare → Yelp)
+    end
+    Ext-->>A: données réelles
+    A->>LLM: 2. assemblePack(données injectées)
+    LLM-->>A: pack JSON structuré
+    A->>A: 3. scoring déterministe (0–1)
+    A->>DB: 4. sauvegarde via Prisma (si connecté)
+    A-->>F: pack + score
+    F-->>U: pack clé en main 🎉
+```
 
 ---
 
@@ -269,12 +301,30 @@ const trips = await prisma.trip.findMany({
 | Vol de token JWT | Cookie httpOnly `tg_token` — inaccessible depuis JavaScript |
 | XSS | Token hors portée JS + Helmet CSP headers |
 | CSRF | `sameSite: strict` sur le cookie |
-| Injection SQL | Driver `pg` — requêtes paramétrées `$1, $2…` |
+| Injection SQL | Prisma ORM — requêtes paramétrées automatiquement |
 | Inputs malveillants | Validation Zod sur tous les endpoints |
 | Spam / DDoS | Rate limiting par IP (global + par route IA) |
 | Exposition clés API | Proxy backend Unsplash, variables d'env serveur uniquement |
 | Accès inter-utilisateurs | `where: { user_id }` — filtre applicatif Prisma sur chaque route protégée |
 | IDOR | 404 si ressource non possédée (pas de 403 qui confirme l'existence) |
+
+### Séquence — authentification (login JWT)
+
+```mermaid
+sequenceDiagram
+    actor U as Utilisateur
+    participant F as Frontend
+    participant A as API /auth/login
+    participant DB as PostgreSQL (Prisma)
+    U->>F: email + mot de passe
+    F->>A: POST /api/auth/login
+    A->>DB: findUnique({ email })
+    DB-->>A: utilisateur + hash bcrypt
+    A->>A: bcrypt.compare(motDePasse, hash)
+    A->>A: jwt.sign({ id, email })
+    A-->>F: 200 + Cookie httpOnly (tg_token)
+    F-->>U: connecté ✅
+```
 
 ---
 
