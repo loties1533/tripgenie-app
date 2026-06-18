@@ -48,10 +48,14 @@ const __dirname = path.dirname(__filename);
 // ---- Sécurité HTTP headers ----
 app.use(helmet());
 
-// ---- Configuration CORS stricte pour la prod ----
+// ---- Configuration CORS ----
+// En PROD, le front React est servi par CE MÊME serveur Express (même origine) :
+// CORS n'est alors pas déclenché. CLIENT_URL ne couvre que le cas où le front
+// serait déployé sur un domaine séparé. En DEV, le navigateur tape Vite (3001),
+// qui proxifie vers l'API (3000) → même origine également.
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true, // Autorise l'envoi des cookies httpOnly
+  origin: process.env.CLIENT_URL || 'http://localhost:3001',
+  credentials: true, // autorise l'envoi du cookie httpOnly
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
