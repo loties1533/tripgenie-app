@@ -29,3 +29,10 @@ scripts/
 
 # OS
 Thumbs.db
+
+# Outillage Claude Code (config locale, jamais sur le repo)
+.claude/
+
+# Dossier RNCP généré (PDF lourd + source — gardés en local uniquement)
+dossier-rncp/
+RNCP5_DWWM_DOSSIER.md
