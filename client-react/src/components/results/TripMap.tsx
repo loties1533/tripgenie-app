@@ -133,7 +133,7 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
         
-        {/* Main City Marker */}
+        {/* Main City  Marker */}
         <Marker position={center} icon={createCustomIcon('✨', '#D4AF37')}>
           <Popup>
             <div className="p-1">
