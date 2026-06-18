@@ -289,7 +289,6 @@ export default function PackResults() {
   const { pack, tripId, packId, isLoading, mode, departure, returnDate, travelers } = useSearchStore()
   const [activeTab, setActiveTab]       = useState('overview')
   const [focusedLocation, setFocusedLocation] = useState<[number, number] | null>(null)
-  const showReveal = false // Révélation désactivée — affichage direct du pack
 
   if (isLoading) {
     return <PackSkeleton />
@@ -432,48 +431,6 @@ export default function PackResults() {
 
 
   return (
-    <>
-    {/* ---- Révélation plein écran ---- */}
-    <AnimatePresence>
-      {showReveal && (
-        <motion.div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.8 } }}
-        >
-          {/* Photo de fond */}
-          <img
-            src={d.photo_url || 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=90'}
-            alt={d.destination}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          {/* Dégradé sombre */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
-          {/* Contenu */}
-          <motion.div
-            className="relative z-10 text-center px-6"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0, transition: { delay: 0.3, duration: 0.6 } }}
-          >
-            <p className="text-white/60 text-sm font-medium uppercase tracking-[0.3em] mb-3">Votre voyage</p>
-            <h1 className="font-display text-6xl sm:text-8xl font-bold text-white leading-none drop-shadow-2xl">
-              {d.destination}
-            </h1>
-            <p className="mt-4 text-white/80 text-lg italic font-display">{d.tagline}</p>
-            <motion.div
-              className="mt-6 flex items-center justify-center gap-2"
-              initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { delay: 0.8 } }}
-            >
-              <span className="w-8 h-px bg-white/40" />
-              <span className="text-white/50 text-xs uppercase tracking-widest">{d.country}</span>
-              <span className="w-8 h-px bg-white/40" />
-            </motion.div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-
     <motion.div id="pack-results" className="mt-10 space-y-5"
       data-mode={mode}
       initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -638,6 +595,5 @@ export default function PackResults() {
         </motion.div>
       </AnimatePresence>
     </motion.div>
-    </>
   )
 }
