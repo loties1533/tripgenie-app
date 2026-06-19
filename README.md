@@ -71,6 +71,8 @@ Interface Swagger disponible sur `/api/docs` — toutes les routes sont testable
 
 > **Pipeline IA orchestré côté serveur — pas un agent autonome.** Les étapes sont prédéfinies et s'enchaînent toujours dans le même ordre. Seul le chat de modification (`/api/ai/chat`) est agentique.
 
+> 📐 **Diagrammes en haute définition** — architecture, **MCD (Merise)**, modèle relationnel, séquences et scoring sont disponibles (sources `.mmd` + rendus PNG) dans **[`docs/architecture/`](docs/architecture/)**.
+
 ### Architecture en couches (3-tier)
 
 ```mermaid
@@ -220,6 +222,12 @@ erDiagram
         text role
     }
 ```
+
+### Modèle Conceptuel de Données — MCD (Merise) 🎁
+
+En amont du schéma relationnel ci-dessus, le **MCD** décrit les entités métier et leurs associations indépendamment de PostgreSQL. L'association **n-n** `COLLABORER` — porteuse de l'attribut *rôle* — se matérialise par la table d'association `trip_collaborators` (d'où le passage de 5 entités conceptuelles à 6 tables physiques).
+
+![MCD Merise — 5 entités, 5 associations et cardinalités](docs/architecture/mcd.png)
 
 ### Isolation des données
 
