@@ -205,6 +205,17 @@ export function parsePackResponse(raw: string, dest: string, nights: number): AI
  * Transforme les résultats Tavily en tableau de vols typé Pack['flights'].
  * Cap le prix à 15% du budget si le prix trouvé semble aberrant (> 1800€).
  */
+// Ajoute une durée "XhYY" / "Xh" à une heure "HH:MM" → "HH:MM" (même fuseau).
+// Garantit la cohérence : heure d'arrivée = heure de départ + durée.
+function addDurationToTime(time: string, duration: string): string {
+  const [h, m] = time.split(':').map(Number);
+  const match  = duration.toLowerCase().match(/(\d+)\s*h\s*(\d*)/);
+  const dh     = match ? parseInt(match[1], 10) : 0;
+  const dmin   = match && match[2] ? parseInt(match[2], 10) : 0;
+  const total  = (((h || 0) * 60 + (m || 0) + dh * 60 + dmin) % 1440 + 1440) % 1440;
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+}
+
 export function mapFlights(
   flights: FlightSearchResult[] | undefined,
   airportCode: string,
@@ -221,15 +232,17 @@ export function mapFlights(
   const finalPrice     = `${priceCapped || volPriceEst}€`;
 
   if (flights?.length) {
+    const dur    = flights[0].duration || '2h00';
+    const outDep = flights[0].outbound_time || '10:30';
     return [
       {
         from:             originCode,
         from_city:        originCity,
         to:               airportCode,
         to_city:          dest,
-        departure_time:   flights[0].outbound_time || '10:30',
-        arrival_time:     flights[0].arrival_time  || '12:00',
-        duration:         flights[0].duration      || '2h00',
+        departure_time:   outDep,
+        arrival_time:     addDurationToTime(outDep, dur),   // arrivée = départ + durée (cohérent)
+        duration:         dur,
         stops:            flights[0].stops         || 'Direct',
         airline:          flights[0].airline       || 'Air France',
         price_per_person: finalPrice,
@@ -242,8 +255,8 @@ export function mapFlights(
         to:               originCode,
         to_city:          originCity,
         departure_time:   '18:00',
-        arrival_time:     '20:00',
-        duration:         flights[0].duration || '2h00',
+        arrival_time:     addDurationToTime('18:00', dur),  // idem retour
+        duration:         dur,
         stops:            'Direct',
         airline:          flights[0].airline  || 'Air France',
         price_per_person: finalPrice,
@@ -253,13 +266,13 @@ export function mapFlights(
     ];
   }
 
-  // Fallback : vols estimés sans données Tavily
+  // Fallback : vols estimés sans données Tavily (arrivée = départ + durée)
   return [
     { from: originCode, from_city: originCity, to: airportCode, to_city: dest,
-      departure_time: '10:30', arrival_time: '12:00', duration: '1h30',
+      departure_time: '10:30', arrival_time: addDurationToTime('10:30', '1h30'), duration: '1h30',
       stops: 'Direct', airline: 'Air France', price_per_person: `${volPriceEst}€`, type: 'outbound' as const },
     { from: airportCode, from_city: dest, to: originCode, to_city: originCity,
-      departure_time: '18:00', arrival_time: '19:30', duration: '1h30',
+      departure_time: '18:00', arrival_time: addDurationToTime('18:00', '1h30'), duration: '1h30',
       stops: 'Direct', airline: 'Air France', price_per_person: `${volPriceEst}€`, type: 'return' as const },
   ];
 }
@@ -426,8 +439,8 @@ export async function assemblePack({
       items: [
         // Heures indicatives (matin/soir). On n'affiche PLUS de prix/durée inventés :
         // l'IA ne fournit que l'activité (am/pm), donc tout chiffre serait du faux.
-        { time: mode === MODES.PARTY ? '14:00' : '10:00', type: 'activity' as const, title: d.am ?? 'Exploration', description: 'Découverte locale' },
-        { time: mode === MODES.PARTY ? '22:00' : '20:00', type: mode === MODES.PARTY ? 'event' as const : 'food' as const, title: d.pm ?? 'Soirée', description: 'Moment mémorable' },
+        { time: mode === MODES.PARTY ? '14:00' : '10:00', type: 'activity' as const, title: d.am ?? 'Exploration', description: '' },
+        { time: mode === MODES.PARTY ? '22:00' : '20:00', type: mode === MODES.PARTY ? 'event' as const : 'food' as const, title: d.pm ?? 'Soirée', description: '' },
       ],
     })),
     activities: mapActivities(t.activities, dest),

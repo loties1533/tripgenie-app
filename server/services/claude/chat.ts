@@ -125,6 +125,17 @@ export async function chatModify({ currentPack, userMessage, mode }: ChatModifyP
     const raw    = await callAI(`${systemPrompt}\n\nMessage de l'utilisateur : "${sanitizeInput(userMessage)}"`);
     const result = parseJSON(raw) as ChatModifyResult;
     if (result.chips) result.chips = normalizeChips(result.chips);
+
+    // Les activités modifiées par l'IA peuvent contenir un booking_url bidon
+    // (domaine inventé, ex: luxe-restaurant.com). On le normalise vers un lien
+    // Google Maps universel, comme à la génération initiale (mapActivities).
+    const dest = currentPack?.destination ?? '';
+    if (result.modifications?.activities) {
+      result.modifications.activities = result.modifications.activities.map((a: any) => ({
+        ...a,
+        booking_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((a.name || a.title || '') + ' ' + dest)}`,
+      }));
+    }
     return result;
   } catch (err) {
     console.error('⚠️ ChatModify failed:', (err as Error).message);
