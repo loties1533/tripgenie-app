@@ -13,7 +13,6 @@ export default function TripDetail() {
   const { id }                        = useParams()
   const { setPack, setField, tripId } = useSearchStore()
   const [chatOpen, setChatOpen]       = useState(false)
-  const [copied, setCopied]           = useState(false)
   const [status, setStatus]           = useState<string | null>(null)
   const [statusLoading, setStatusLoading] = useState(false)
 
@@ -42,12 +41,6 @@ export default function TripDetail() {
     } finally {
       setStatusLoading(false)
     }
-  }
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(window.location.href)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   /* ---- Loading ---- */
@@ -101,12 +94,6 @@ export default function TripDetail() {
                 </p>
 
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleCopy}
-                    className="btn-ghost text-sm flex items-center gap-1.5"
-                  >
-                    {copied ? '✅ Copié' : '📋 Partager'}
-                  </button>
                   {/* Bouton Modifier : visible partout, mais sur mobile ouvre la bottom sheet */}
                   <button
                     onClick={() => setChatOpen(v => !v)}

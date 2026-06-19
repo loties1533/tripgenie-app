@@ -285,9 +285,9 @@ const FEATURES = [
    HOME PAGE
 ═══════════════════════════════════════════════════════ */
 export default function Home() {
-  const { pack, concepts, isLoading, destination } = useSearchStore()
+  const { pack, concepts, isLoading, destination, clearPack } = useSearchStore()
   const { user }        = useAuthStore()
-  const { seedChatData } = useChatStore()
+  const { seedChatData, resetChat } = useChatStore()
   const seededRef        = useRef(false)
   const hasPack = !!pack && !isLoading
 
@@ -327,9 +327,18 @@ export default function Home() {
             id="pack-results"
           >
             {/* Bandeau de contexte */}
-            <div className="flex items-center gap-2 mb-4 text-sm text-muted">
-              <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-              Pack généré — connectez-vous pour le sauvegarder
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <p className="flex items-center gap-2 text-sm text-muted">
+                <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+                Pack généré — connectez-vous pour le sauvegarder
+              </p>
+              <button
+                onClick={() => { clearPack(); resetChat() }}
+                className="text-xs font-semibold uppercase tracking-wider text-muted hover:text-gold
+                           px-3 py-1.5 rounded-full border border-gold/20 hover:border-gold/50 hover:bg-gold/5 transition-all"
+              >
+                ↻ Recommencer
+              </button>
             </div>
             <PackResults />
           </motion.div>
