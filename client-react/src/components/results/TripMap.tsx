@@ -129,8 +129,8 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
       >
         <ChangeView center={center} zoom={13} />
         <TileLayer
-          attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.esri.com">Esri</a> · Imagerie satellite'
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         />
         
         {/* Main City  Marker */}

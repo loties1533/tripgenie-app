@@ -156,20 +156,24 @@ function ItineraryDay({ day }: { day: any }) {
             exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}
             className="px-5 pb-4 space-y-3 border-t border-parchment-dark dark:border-white/10">
             {day.items?.map((item: any, i: number) => (
-              <div key={i} className="flex gap-3 pt-3">
+              <motion.div key={i} className="flex gap-3 pt-3"
+                initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.08, duration: 0.3 }}>
                 <div className="text-center flex-shrink-0 w-12">
                   <p className="text-xs font-medium text-gold">{item.time}</p>
                   <p className="text-lg">{icons[item.type] || '📍'}</p>
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-sm text-ink dark:text-parchment">{item.title}</p>
-                  <p className="text-xs text-muted mt-0.5 leading-relaxed">{item.description}</p>
+                  {item.description && (
+                    <p className="text-xs text-muted mt-0.5 leading-relaxed">{item.description}</p>
+                  )}
                   <div className="flex gap-3 mt-1.5">
                     {item.price && <span className="text-xs text-sage font-medium">{item.price}</span>}
                     {item.duration && <span className="text-xs text-muted">{item.duration}</span>}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
             
             {/* Proactive Plan B */}
@@ -203,7 +207,7 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
 
   return (
     <div className="glass rounded-2xl p-5">
-      <SectionTitle sub={`Total : ${total}`}>Budget</SectionTitle>
+      <SectionTitle sub={`Répartition indicative · Total : ${total}`}>Budget</SectionTitle>
       <div className="flex flex-col sm:flex-row gap-4 items-center">
         <div className="w-44 h-44">
           <ResponsiveContainer width="100%" height="100%">
@@ -280,7 +284,7 @@ const TABS = [
   { id: 'overview',    label: 'Aperçu',      icon: '✦' },
   { id: 'hotels',      label: 'Hôtels',      icon: '🏨' },
   { id: 'flights',     label: 'Vols',        icon: '✈' },
-  { id: 'itinerary',   label: 'Itinéraire',  icon: '📅' },
+  { id: 'itinerary',   label: 'Temps forts',  icon: '📅' },
   { id: 'activities',  label: 'Activités',   icon: '🎯' },
   { id: 'budget',      label: 'Budget',      icon: '💰' },
 ]
@@ -337,7 +341,7 @@ export default function PackResults() {
                  `💰 *Budget* : ${d.summary?.total_budget || 'À définir'}\n\n` +
                  `✨ _"${d.tagline}"_\n\n` +
                  `Découvre le programme complet ici : ${url}`
-    
+
     const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
     window.open(waUrl, '_blank')
   }
@@ -449,7 +453,7 @@ export default function PackResults() {
             className="w-full h-full object-cover opacity-40 transition-transform duration-[20s]"
             onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-parchment via-parchment/60 to-transparent dark:from-ink dark:via-ink/60 dark:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-parchment via-parchment/85 to-parchment/30 dark:from-ink dark:via-ink/85 dark:to-ink/40" />
         </div>
 
         <div className="relative z-10 w-full">
@@ -478,7 +482,7 @@ export default function PackResults() {
                   <span className="hidden sm:inline">Partager</span>
                 </button>
               </h2>
-              <p className="text-gold italic font-display mt-1">{d.tagline}</p>
+              <p className="text-gold-dark dark:text-gold italic font-display mt-1 drop-shadow-sm">{d.tagline}</p>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
               <div className="flex flex-wrap gap-2">

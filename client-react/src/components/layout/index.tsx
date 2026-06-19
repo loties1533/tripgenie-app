@@ -200,9 +200,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
               <ul className="space-y-2.5">
                 {['Côte d\'Azur', 'Ibiza', 'Mykonos', 'Amalfi', 'Maldives', 'Saint-Tropez'].map(d => (
                   <li key={d}>
-                    <Link to="/" className="text-white/40 hover:text-gold text-sm transition-colors">
-                      {d}
-                    </Link>
+                    <span className="text-white/40 text-sm">{d}</span>
                   </li>
                 ))}
               </ul>
@@ -214,9 +212,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
               <ul className="space-y-2.5">
                 {['Yachting Privé', 'Dîners Étoilés', 'Soirées VIP', 'Casinos Exclusifs', 'Villas Privées', 'Jets Privés'].map(e => (
                   <li key={e}>
-                    <Link to="/" className="text-white/40 hover:text-gold text-sm transition-colors">
-                      {e}
-                    </Link>
+                    <span className="text-white/40 text-sm">{e}</span>
                   </li>
                 ))}
               </ul>

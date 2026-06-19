@@ -16,7 +16,7 @@ dist-server/
 .vscode/
 .idea/
 
-# Docs personnels / internes (jamais sur le repo public)
+# Docs perso / internes
 Dossier_Professionnel*.md
 Dossier_Projet*.md
 MASTER_PLAN.md
@@ -24,7 +24,9 @@ _archives/
 CLAUDE.md
 DEPLOY.md
 README_DEMODAY.md
-docs/
+docs/*
+!docs/architecture/
+!docs/architecture/**
 scripts/
 
 # OS
@@ -33,6 +35,6 @@ Thumbs.db
 # Outillage Claude Code (config locale, jamais sur le repo)
 .claude/
 
-# Dossier RNCP généré (PDF lourd + source — gardés en local uniquement)
+# Dossier RNCP (PDF lourd + source — gardés en local uniquement)
 dossier-rncp/
 RNCP5_DWWM_DOSSIER.md
