@@ -179,10 +179,10 @@ export default function TripDetail() {
                       <p className="text-[10px] uppercase tracking-widest text-muted font-semibold mb-1.5">Pack actuel</p>
                       <div className="space-y-0.5 text-xs text-muted">
                         {data.trip.pack_data?.flights?.[0] && (
-                          <p>✈️ {data.trip.pack_data.flights[0].airline || 'Vol'} · {data.trip.pack_data.flights[0].price_per_person || '–'}€/pers</p>
+                          <p>✈️ {data.trip.pack_data.flights[0].airline || 'Vol'} · {data.trip.pack_data.flights[0].price_per_person || '–'}/pers</p>
                         )}
                         {data.trip.pack_data?.hotels?.[0] && (
-                          <p>🏨 {data.trip.pack_data.hotels[0].name} · {data.trip.pack_data.hotels[0].price_per_night || '–'}€/nuit</p>
+                          <p>🏨 {data.trip.pack_data.hotels[0].name} · {data.trip.pack_data.hotels[0].price_per_night || '–'}/nuit</p>
                         )}
                         {data.trip.pack_data?.summary && (
                           <p>📅 {data.trip.pack_data.summary.nights} nuits · {data.trip.pack_data.summary.activities_count || '–'} activités</p>
@@ -260,10 +260,10 @@ export default function TripDetail() {
                       <p className="text-[10px] uppercase tracking-widest text-muted font-semibold mb-1.5">Pack actuel</p>
                       <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted">
                         {data.trip.pack_data?.flights?.[0] && (
-                          <span>✈️ {data.trip.pack_data.flights[0].airline || 'Vol'} · {data.trip.pack_data.flights[0].price_per_person || '–'}€/pers</span>
+                          <span>✈️ {data.trip.pack_data.flights[0].airline || 'Vol'} · {data.trip.pack_data.flights[0].price_per_person || '–'}/pers</span>
                         )}
                         {data.trip.pack_data?.hotels?.[0] && (
-                          <span>🏨 {data.trip.pack_data.hotels[0].name} · {data.trip.pack_data.hotels[0].price_per_night || '–'}€/nuit</span>
+                          <span>🏨 {data.trip.pack_data.hotels[0].name} · {data.trip.pack_data.hotels[0].price_per_night || '–'}/nuit</span>
                         )}
                         {data.trip.pack_data?.summary && (
                           <span>📅 {data.trip.pack_data.summary.nights} nuits · {data.trip.pack_data.summary.activities_count || '–'} activités</span>

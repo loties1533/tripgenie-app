@@ -64,9 +64,10 @@ function Hero() {
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}
       className="relative w-screen left-1/2 right-1/2 -translate-x-1/2 -mt-6 mb-10 h-[70vh] min-h-[480px] flex items-center justify-center overflow-hidden">
 
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 bg-ink">
         <img key={current} src={slide.img} alt={slide.city}
           className={`w-full h-full object-cover scale-105 animate-slow-zoom transition-opacity duration-[600ms] ${fading ? 'opacity-0' : 'opacity-100'}`}
+          onError={(e: any) => { e.target.onerror = null; e.target.src = FALLBACK_PHOTOS[0] }}
           style={{ transformOrigin: 'center 40%' }} />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-ink/60 z-10" />
         <div className="absolute inset-0 bg-gradient-to-r from-ink/40 via-transparent to-ink/40 z-10" />

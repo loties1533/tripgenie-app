@@ -184,8 +184,8 @@ export default function Trips() {
                       {trip.destination}
                     </h3>
                     <p className="text-xs text-muted mt-0.5">
-                      📅 {trip.departure}
-                      {trip.return_date && trip.return_date !== trip.departure ? ` → ${trip.return_date}` : ''}
+                      📅 {new Date(trip.departure).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                      {trip.return_date && trip.return_date !== trip.departure ? ` → ${new Date(trip.return_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}` : ''}
                       {' · '}👥 {trip.travelers || 2} pers.
                     </p>
                   </div>

@@ -213,7 +213,7 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie data={data} cx="50%" cy="50%" innerRadius={50} outerRadius={72}
-                   dataKey="value" paddingAngle={2}>
+                   dataKey="value" paddingAngle={2} isAnimationActive={false}>
                 {data.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip formatter={(v) => `${v}€`} contentStyle={{ background: 'var(--color-bg, #fff)', border: 'none', borderRadius: 8, fontSize: 12 }} />
