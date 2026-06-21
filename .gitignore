@@ -27,6 +27,7 @@ README_DEMODAY.md
 docs/*
 !docs/architecture/
 !docs/architecture/**
+!docs/SPRINTS.md
 scripts/
 
 # OS
