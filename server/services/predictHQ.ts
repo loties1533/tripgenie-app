@@ -111,6 +111,12 @@ export async function predictHQEventsSearch(
     });
 
     if (!res.ok) {
+      // 401 = clé invalide/expirée (PredictHQ est payant, essai limité). Non bloquant :
+      // on log proprement et smartEventsSearch bascule sur Tavily pour les événements.
+      if (res.status === 401) {
+        console.warn('⚠️ PredictHQ ignoré (clé invalide ou expirée) — fallback événements via Tavily.');
+        return [];
+      }
       throw new Error(`PredictHQ ${res.status}: ${await res.text()}`);
     }
 
@@ -134,7 +140,7 @@ export async function predictHQEventsSearch(
     }));
 
   } catch (err) {
-    console.error('❌ PredictHQ error:', (err as Error).message);
+    console.warn('⚠️ PredictHQ indisponible (fallback Tavily) :', (err as Error).message);
     return [];
   }
 }
