@@ -118,7 +118,7 @@ export const openapiSpec = {
       "(un header `Authorization: Bearer <token>` est accepté en repli). " +
       "Sur les routes protégées, connectez-vous d'abord via `POST /api/auth/login` : " +
       "le cookie est posé automatiquement et renvoyé par le navigateur sur les appels suivants.\n\n" +
-      "**Sécurité base** : double barrière = filtre applicatif `user_id` + RLS PostgreSQL « maison ».",
+      "**Sécurité base** : isolation des données par filtre applicatif `user_id` systématique sur chaque requête Prisma (`where: { user_id }`).",
   },
   servers: [
     { url: 'http://localhost:3000', description: 'Développement local' },
