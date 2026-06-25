@@ -149,7 +149,8 @@ export function buildPackPrompt({
     ${realVenuesContext}
 
     Génère ce JSON COMPACT (itinerary = 3 jours, activities = 6) :
-    {"country":"Pays","airport_code":"IBZ","origin_airport_code":"BOD","tagline":"5-7 mots accrocheurs","overview":"1 phrase","weather":{"temp":"22°C","cond":"Soleil","tip":"Conseil"},"hotels":[{"name":"Vrai hôtel","loc":"Quartier","hl":"Point fort"},{"name":"Alternative","loc":"Quartier","hl":"Point fort"}],"itinerary":[{"day":1,"title":"Titre","am":"Activité réelle","pm":"Club/resto réel"},{"day":2,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"},{"day":3,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"}],"activities":[{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"}],"tip1":"Conseil","tip2":"Adresse food","phrase":"Mot local","phrase_tr":"Traduction"}
+    {"country":"Pays","airport_code":"IBZ","origin_airport_code":"BOD","tagline":"5-7 mots accrocheurs","overview":"1 phrase","weather":{"temp":"22°C","cond":"Soleil","tip":"Conseil"},"hotels":[{"name":"Vrai hôtel","loc":"Quartier","hl":"Point fort"},{"name":"Alternative","loc":"Quartier","hl":"Point fort"}],"itinerary":[{"day":1,"title":"Titre","am":"Activité réelle","pm":"Club/resto réel"},{"day":2,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"},{"day":3,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"}],"activities":[{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"}],"tip1":"Conseil","tip2":"Adresse food","phrase":"Mot ou expression local(e)","phrase_tr":"Traduction française"}
+    ⚠️ LANGUE : rédige TOUS les textes EN FRANÇAIS (tagline, overview, cond, tip, hl, title, am, pm, desc, tip1, tip2, phrase_tr). Seuls les noms propres de lieux/hôtels/clubs restent dans leur langue d'origine.
     ⚠️ VRAIS noms uniquement. Pas de "Gastronomie locale" ou "Découverte de ${dest}".
     ⚠️ airport_code = code IATA de l'aéroport de ${dest}. origin_airport_code = code IATA de l'aéroport de ${originCity} (ville de départ).`;
 }
@@ -192,9 +193,81 @@ export function parsePackResponse(raw: string, dest: string, nights: number): AI
       tip1:      "Réservez vos activités à l'avance.",
       tip2:      'Goûtez aux spécialités locales.',
       phrase:    'Bonjour !',
-      phrase_tr: 'Hello!',
+      phrase_tr: 'Salutation de bienvenue',
     };
   }
+}
+
+// ============================================================
+// Helpers — liens de réservation PRÉ-REMPLIS avec les vraies données du voyage
+// (villes, codes IATA, dates, voyageurs). Construits à partir de la DEMANDE, pas
+// de la sortie du LLM : les liens restent corrects même si le LLM se trompe de ville.
+// ============================================================
+
+/** 'YYYY-MM-DD' depuis une date ISO (ou '' si absente). */
+function ymd(date?: string): string {
+  return date ? date.slice(0, 10) : '';
+}
+
+/** 'YYMMDD' pour les deep-links Skyscanner (2026-07-15 → 260715). */
+function yymmdd(date?: string): string {
+  return date ? date.slice(2, 10).replace(/-/g, '') : '';
+}
+
+/** Code IATA plausible (3 lettres, hors placeholder 'XXX'). */
+function isValidIATA(code?: string): boolean {
+  return !!code && /^[A-Za-z]{3}$/.test(code) && code.toUpperCase() !== 'XXX';
+}
+
+/**
+ * Liens vols pré-remplis. Google Flights (requête naturelle) = lien primaire
+ * fiable : jamais de 404, pas besoin de code IATA. Skyscanner/Kayak en complément
+ * UNIQUEMENT si les codes IATA sont valides ET qu'on a une date de départ ;
+ * sinon on retombe sur Google Flights (anti page inexistante).
+ */
+export function buildFlightLinks(params: {
+  originCity: string; destCity: string;
+  originIATA?: string; destIATA?: string;
+  departure?: string; return_date?: string; travelers: number;
+}): { google: string; skyscanner: string; kayak: string } {
+  const { originCity, destCity, originIATA, destIATA, departure, return_date } = params;
+  const adults = Math.max(1, params.travelers || 1);
+  const dep = ymd(departure);
+  const ret = ymd(return_date);
+
+  const q = `Vols ${originCity} ${destCity}`
+    + (dep ? ` le ${dep}` : '')
+    + (ret ? ` retour ${ret}` : '')
+    + ` pour ${adults} adulte${adults > 1 ? 's' : ''}`;
+  const google = `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
+
+  const iataOk = isValidIATA(originIATA) && isValidIATA(destIATA);
+  const skyscanner = iataOk && dep
+    ? `https://www.skyscanner.fr/transport/flights/${originIATA!.toLowerCase()}/${destIATA!.toLowerCase()}/${yymmdd(departure)}/${ret ? yymmdd(return_date) + '/' : ''}?adults=${adults}`
+    : google;
+  const kayak = iataOk && dep
+    ? `https://www.kayak.fr/flights/${originIATA!.toUpperCase()}-${destIATA!.toUpperCase()}/${dep}${ret ? '/' + ret : ''}/${adults}adults`
+    : google;
+
+  return { google, skyscanner, kayak };
+}
+
+/** Lien Booking pré-rempli : ville + check-in/out + nombre d'adultes. */
+export function buildHotelBookingUrl(
+  hotelName: string, city: string,
+  departure?: string, return_date?: string, travelers = 2,
+): string {
+  // Évite la double-ville (« Mandarin Oriental Bangkok » + « Bangkok »).
+  const term = hotelName.toLowerCase().includes(city.toLowerCase()) ? hotelName : `${hotelName} ${city}`;
+  const p = new URLSearchParams({ ss: term, group_adults: String(Math.max(1, travelers)), no_rooms: '1' });
+  if (ymd(departure))   p.set('checkin',  ymd(departure));
+  if (ymd(return_date)) p.set('checkout', ymd(return_date));
+  return `https://www.booking.com/searchresults.html?${p.toString()}`;
+}
+
+/** Lien de réservation réel pour une activité (plateforme de booking, pas une carte). */
+export function buildActivityReserveUrl(name: string, city: string): string {
+  return `https://www.getyourguide.fr/s/?q=${encodeURIComponent(`${name} ${city}`)}`;
 }
 
 // ============================================================
@@ -224,8 +297,16 @@ export function mapFlights(
   dest: string,
   budget: number,
   travelers: number,
+  departure?: string,
+  return_date?: string,
 ): Pack['flights'] {
   const volPriceEst    = Math.round(budget * 0.15 / travelers);
+  // Liens pré-remplis avec la VRAIE demande (villes, IATA, dates, voyageurs) —
+  // identiques sur l'aller et le retour : ils pointent vers la recherche A/R complète.
+  const links = buildFlightLinks({
+    originCity, destCity: dest, originIATA: originCode, destIATA: airportCode,
+    departure, return_date, travelers,
+  });
   const rawPrice       = flights?.[0]?.price ?? 0;
   const pricePerPerson = rawPrice > 0 ? rawPrice : 0;
   const priceCapped    = pricePerPerson > 1800 ? volPriceEst : pricePerPerson;
@@ -247,7 +328,7 @@ export function mapFlights(
         airline:          flights[0].airline       || 'Air France',
         price_per_person: finalPrice,
         type:             'outbound' as const,
-        links:            flights[0].links || null,
+        links,
       },
       {
         from:             airportCode,
@@ -261,7 +342,7 @@ export function mapFlights(
         airline:          flights[0].airline  || 'Air France',
         price_per_person: finalPrice,
         type:             'return' as const,
-        links:            flights[0].links || null,
+        links,
       },
     ];
   }
@@ -270,10 +351,10 @@ export function mapFlights(
   return [
     { from: originCode, from_city: originCity, to: airportCode, to_city: dest,
       departure_time: '10:30', arrival_time: addDurationToTime('10:30', '1h30'), duration: '1h30',
-      stops: 'Direct', airline: 'Air France', price_per_person: `${volPriceEst}€`, type: 'outbound' as const },
+      stops: 'Direct', airline: 'Air France', price_per_person: `${volPriceEst}€`, type: 'outbound' as const, links },
     { from: airportCode, from_city: dest, to: originCode, to_city: originCity,
       departure_time: '18:00', arrival_time: addDurationToTime('18:00', '1h30'), duration: '1h30',
-      stops: 'Direct', airline: 'Air France', price_per_person: `${volPriceEst}€`, type: 'return' as const },
+      stops: 'Direct', airline: 'Air France', price_per_person: `${volPriceEst}€`, type: 'return' as const, links },
   ];
 }
 
@@ -310,7 +391,8 @@ export function mapActivities(
       duration:    '2-3h',
       price:       'Variable',
       best_time:   isNight ? 'Soir' : 'Journée',
-      booking_url,
+      booking_url,                                  // bouton « Carte » → localisation Google Maps
+      reserve_url: buildActivityReserveUrl(name, dest), // bouton « Réserver » → plateforme de booking
     };
   });
 }
@@ -332,13 +414,23 @@ export function calcBudgetBreakdown(
   const ratio  = BUDGET_RATIOS[mode] ?? BUDGET_RATIOS.party;
   const maxPpn = mode === MODES.LUXURY ? 800 : 250;
 
-  const vols      = Math.round(budget * ratio.vols);
-  let   heberg    = Math.round(budget * ratio.heberg);
-  const ppn       = heberg / nights / travelers;
+  // Hébergement plafonné à un prix/nuit/personne réaliste.
+  const nominalHeberg = Math.round(budget * ratio.heberg);
+  let   heberg        = nominalHeberg;
+  const ppn           = heberg / nights / travelers;
   if (ppn > maxPpn) heberg = maxPpn * nights * travelers;
-  const activites = Math.round(budget * ratio.activites);
-  const resto     = Math.round(budget * ratio.resto);
-  const trans     = Math.round(budget * ratio.trans);
+
+  // Le budget hébergement non dépensé (à cause du plafond) est REDISTRIBUÉ au
+  // prorata sur les autres postes — au lieu de gonfler « Divers » (qui rendait le
+  // camembert incohérent : « Divers » pouvait devenir la 2ᵉ plus grosse part).
+  const surplus   = Math.max(0, nominalHeberg - heberg);
+  const redistSum = ratio.vols + ratio.activites + ratio.resto + ratio.trans;
+  const share     = (r: number) => (redistSum > 0 ? (surplus * r) / redistSum : 0);
+
+  const vols      = Math.round(budget * ratio.vols      + share(ratio.vols));
+  const activites = Math.round(budget * ratio.activites + share(ratio.activites));
+  const resto     = Math.round(budget * ratio.resto     + share(ratio.resto));
+  const trans     = Math.round(budget * ratio.trans     + share(ratio.trans));
   const divers    = Math.max(0, budget - vols - heberg - activites - resto - trans);
 
   return {
@@ -421,7 +513,7 @@ export async function assemblePack({
       ? { avg_temp: realWeather.temp, conditions: realWeather.cond, tip: t.weather?.tip ?? 'Prévoyez des couches', humidity: realWeather.humidity, wind: realWeather.wind }
       : { avg_temp: t.weather?.temp ?? '20°C', conditions: t.weather?.cond ?? 'Ensoleillé', tip: t.weather?.tip ?? 'Prévoyez des couches' },
     summary: { total_budget: `${budget}€`, nights, activities_count: (t.activities ?? []).length },
-    flights: mapFlights(flights, airportCode, originCode, originCity, dest, budget, travelers),
+    flights: mapFlights(flights, airportCode, originCode, originCity, dest, budget, travelers, departure, return_date),
     hotels: (realHotels?.length ? realHotels : t.hotels ?? []).map((h, i) => ({
       name:            h.name ?? `Hôtel ${i + 1}`,
       location:        (h as { loc?: string }).loc ?? (h as { location?: string }).location ?? 'Centre',
@@ -431,11 +523,13 @@ export async function assemblePack({
         : `${Math.round(heberg / nights / (i + 1))}€`,
       highlights:      (h as { hl?: string; highlights?: string }).hl ?? (h as { highlights?: string }).highlights ?? 'Excellent choix',
       emoji:           i === 0 ? '🏨' : '🏩',
+      // Lien Booking pré-rempli : ville demandée + check-in/out + voyageurs.
+      booking_url:     buildHotelBookingUrl(h.name ?? `Hôtel ${i + 1}`, dest, departure, return_date, travelers),
     })),
     itinerary: (t.itinerary ?? []).map(d => ({
       day:      d.day,
       title:    d.title ?? 'Journée découverte',
-      subtitle: mode === MODES.PARTY ? 'Vibe & Nightlife' : mode === MODES.LUXURY ? 'Prestige & Exclusivité' : 'Exploration',
+      subtitle: mode === MODES.PARTY ? 'Ambiance & Vie nocturne' : mode === MODES.LUXURY ? 'Prestige & Exclusivité' : 'Exploration',
       items: [
         // Heures indicatives (matin/soir). On n'affiche PLUS de prix/durée inventés :
         // l'IA ne fournit que l'activité (am/pm), donc tout chiffre serait du faux.
@@ -459,7 +553,7 @@ export async function assemblePack({
       { title: 'Sur place',        content: t.tip2 ?? 'Explorez les quartiers locaux' },
     ],
     local_phrases: [
-      { phrase: t.phrase ?? 'Santé !', translation: t.phrase_tr ?? 'Cheers !' },
+      { phrase: t.phrase ?? 'Santé !', translation: t.phrase_tr ?? 'À votre santé !' },
     ],
   };
 }

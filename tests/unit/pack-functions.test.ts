@@ -243,9 +243,15 @@ describe('mapFlights — mapping vols → Pack[\'flights\']', () => {
     expect(flights[0].price_per_person).toBe('150€');
   });
 
-  it('propage les liens Skyscanner', () => {
-    const flights = mapFlights([flight], 'IBZ', 'CDG', 'Paris', 'Ibiza', 2000, 2);
-    expect(flights[0].links?.skyscanner).toBe('https://skyscanner.fr');
+  it('construit des liens vols pré-remplis (Skyscanner IATA+dates, repli Google)', () => {
+    const f = mapFlights([flight], 'IBZ', 'CDG', 'Paris', 'Ibiza', 2000, 2, '2026-07-15', '2026-07-20');
+    expect(f[0].links?.skyscanner).toContain('/cdg/ibz/'); // codes IATA en minuscules
+    expect(f[0].links?.skyscanner).toContain('260715');     // date aller au format YYMMDD
+    expect(f[0].links?.skyscanner).toContain('adults=2');
+    // Codes IATA invalides (XXX) → repli sur Google Flights (jamais de 404)
+    const g = mapFlights([flight], 'XXX', 'XXX', 'Paris', 'Ibiza', 2000, 2, '2026-07-15');
+    expect(g[0].links?.skyscanner).toContain('google.com/travel/flights');
+    expect(g[0].links?.google).toContain('google.com/travel/flights');
   });
 });
 

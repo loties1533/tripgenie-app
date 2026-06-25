@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { RadialBarChart, RadialBar, Cell, ResponsiveContainer, PieChart, Pie, Tooltip } from 'recharts'
 import { useSearchStore } from '../../store'
-import { TabBar, SectionTitle, Stars, ScoreBadge, VerifiedBadge, ModeBadge } from '../ui'
+import { TabBar, SectionTitle, Stars, VerifiedBadge, ModeBadge } from '../ui'
 import { saveVote } from '../../lib/api'
 import PackSkeleton from './PackSkeleton'
 import TripMap from './TripMap'
@@ -75,9 +75,10 @@ function HotelCard({ hotel }: { hotel: any }) {
 // ---- Flight card ----
 function FlightCard({ flight, packId, destination }: { flight: any; packId: string; destination: string }) {
   const isReturn  = flight.type === 'return'
-  const bookingUrl = flight.links?.skyscanner
-    || flight.links?.kayak
-    || `https://www.google.com/travel/flights?q=Vols%20de%20${encodeURIComponent(flight.from_city || 'Paris')}%20à%20${encodeURIComponent(flight.to_city || destination)}`
+  // Google Flights = comparateur fiable (jamais de 404). Pré-rempli (villes+dates+pax)
+  // pour les nouveaux packs ; repli recherche par villes pour les anciens packs en base.
+  const bookingUrl = flight.links?.google
+    || `https://www.google.com/travel/flights?q=${encodeURIComponent(`Vols ${flight.from_city || 'Paris'} ${flight.to_city || destination}`)}`
 
   return (
     <motion.div initial={{ opacity: 0, x: isReturn ? 8 : -8 }} animate={{ opacity: 1, x: 0 }}
@@ -131,7 +132,7 @@ function FlightCard({ flight, packId, destination }: { flight: any; packId: stri
 }
 
 // ---- Itinerary day ----
-function ItineraryDay({ day }: { day: any }) {
+function ItineraryDay({ day, destination }: { day: any; destination: string }) {
   const [open, setOpen] = useState(true)
   const icons: Record<string, string> = { activity: '🏛', food: '🍽', event: '🎉', transport: '🚗' }
 
@@ -164,7 +165,14 @@ function ItineraryDay({ day }: { day: any }) {
                   <p className="text-lg">{icons[item.type] || '📍'}</p>
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-sm text-ink dark:text-parchment">{item.title}</p>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.title || '') + ' ' + destination)}`}
+                    target="_blank" rel="noopener noreferrer"
+                    className="font-medium text-sm text-ink dark:text-parchment hover:text-gold transition-colors inline-flex items-center gap-1 group/loc"
+                  >
+                    {item.title}
+                    <span className="opacity-0 group-hover/loc:opacity-100 text-[10px] text-gold transition-opacity">📍</span>
+                  </a>
                   {item.description && (
                     <p className="text-xs text-muted mt-0.5 leading-relaxed">{item.description}</p>
                   )}
@@ -302,6 +310,20 @@ export default function PackResults() {
 
   const d = pack
 
+  // Score TripGenie (algo déterministe) — rendu visible + détaillé par critère.
+  const scoreVal      = typeof d.score === 'number' ? d.score : (d.score?.total ?? 0)
+  const scorePct      = Math.round(scoreVal * 100)
+  const scoreDetails  = typeof d.score === 'object' ? d.score?.details : undefined
+  const scoreCriteria = scoreDetails
+    ? [
+        { label: 'Ambiance',  val: Math.round((scoreDetails.events     ?? 0) * 100) },
+        { label: 'Prix',      val: Math.round((scoreDetails.prix       ?? 0) * 100) },
+        { label: 'Hôtel',     val: Math.round((scoreDetails.hotel      ?? 0) * 100) },
+        { label: 'Vol',       val: Math.round((scoreDetails.vol        ?? 0) * 100) },
+        { label: 'Activités', val: Math.round((scoreDetails.activities ?? 0) * 100) },
+      ]
+    : []
+
   // Bandeau Mode Survie — affiché quand toutes les IA ont échoué et que le pack
   // est un fallback statique. Important pour la transparence envers l'utilisateur.
   const MockBanner = d.isMock ? (
@@ -420,7 +442,7 @@ export default function PackResults() {
             📍 Carte
           </a>
           <a
-            href={activity.booking_url || activity.links?.viator || `https://www.getyourguide.fr/s/?q=${encodeURIComponent((activity.name || activity.title) + ' ' + d.destination)}`}
+            href={activity.reserve_url || activity.links?.getyourguide || activity.links?.viator || `https://www.getyourguide.fr/s/?q=${encodeURIComponent((activity.name || activity.title) + ' ' + d.destination)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[11px] font-semibold text-white bg-gold hover:bg-gold-dark px-4 py-1.5 rounded-lg transition-colors shadow-glow-gold hover:shadow-none flex items-center gap-1.5"
@@ -461,7 +483,6 @@ export default function PackResults() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <ModeBadge mode={mode} />
-                {d.score != null && <ScoreBadge score={d.score} />}
                 {tripId && (
                   <motion.span 
                     initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
@@ -485,6 +506,30 @@ export default function PackResults() {
               <p className="text-gold-dark dark:text-gold italic font-display mt-1 drop-shadow-sm">{d.tagline}</p>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
+              {/* Score TripGenie — visible dès l'apparition du pack + détail de l'algo par critère */}
+              {d.score != null && (
+                <div className="glass-premium rounded-2xl px-4 py-3 border border-gold/30 shadow-glow-gold w-full sm:w-auto">
+                  <div className="flex items-center gap-3">
+                    <div className="text-center flex-shrink-0">
+                      <div className="flex items-baseline gap-0.5 justify-center">
+                        <span className="text-3xl font-bold text-gold font-display leading-none">{scorePct}</span>
+                        <span className="text-xs text-muted">/100</span>
+                      </div>
+                      <span className="text-[9px] uppercase tracking-widest text-muted">Score TripGenie</span>
+                    </div>
+                    {scoreCriteria.length > 0 && (
+                      <div className="border-l border-gold/20 pl-3 grid grid-cols-2 gap-x-3 gap-y-0.5">
+                        {scoreCriteria.map(c => (
+                          <div key={c.label} className="flex items-center justify-between gap-2 text-[10px] whitespace-nowrap">
+                            <span className="text-muted">{c.label}</span>
+                            <span className="font-bold text-ink dark:text-parchment">{c.val}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="flex flex-wrap gap-2">
                 <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
                   <span className="text-gold font-bold text-base font-display">{travelers ?? '—'}</span>
@@ -585,7 +630,7 @@ export default function PackResults() {
 
           {activeTab === 'itinerary' && (
             <div className="space-y-3">
-              {d.itinerary?.map((day, i) => <ItineraryDay key={i} day={day} />)}
+              {d.itinerary?.map((day, i) => <ItineraryDay key={i} day={day} destination={d.destination} />)}
             </div>
           )}
 

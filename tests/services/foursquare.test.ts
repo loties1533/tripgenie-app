@@ -19,7 +19,7 @@ const { foursquareRestaurantSearch } = await import('../../server/services/fours
 const MOCK_FSQ_RESPONSE = {
   results: [
     {
-      fsq_id:     'fsq-001',
+      fsq_place_id: 'fsq-001',
       name:       'El Chiringuito',
       rating:     9.1,
       price:      3,
@@ -27,7 +27,7 @@ const MOCK_FSQ_RESPONSE = {
       location:   { locality: 'Ibiza', address: 'Passeig de ses Pitiuses' }
     },
     {
-      fsq_id:     'fsq-002',
+      fsq_place_id: 'fsq-002',
       name:       'Lio Restaurant',
       rating:     8.7,
       price:      4,
@@ -35,7 +35,7 @@ const MOCK_FSQ_RESPONSE = {
       location:   { locality: 'Ibiza', address: 'Marina Ibiza' }
     },
     {
-      fsq_id:     'fsq-003',
+      fsq_place_id: 'fsq-003',
       name:       'Sa Caleta',
       rating:     8.3,
       price:      2,
@@ -91,18 +91,20 @@ describe('foursquareRestaurantSearch — cas nominal', () => {
     expect(decoded).toContain('El Chiringuito');
   });
 
-  it('utilise le bon Authorization header (Bearer FSQ)', async () => {
+  it('utilise le header Authorization Bearer + la version de l\'API', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_FSQ_RESPONSE });
     await foursquareRestaurantSearch('Ibiza', 'party');
     const headers = mockFetch.mock.calls[0][1]?.headers;
-    expect(headers?.Authorization).toBe('fsq3-test-key-vitest');
+    expect(headers?.Authorization).toBe('Bearer fsq3-test-key-vitest');
+    expect(headers?.['X-Places-Api-Version']).toBeTruthy();
   });
 
-  it('sort=RATING dans l\'URL de la requête', async () => {
+  it('appelle le nouvel endpoint places-api (pas le legacy v3)', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_FSQ_RESPONSE });
     await foursquareRestaurantSearch('Ibiza', 'party');
     const url = mockFetch.mock.calls[0][0] as string;
-    expect(url).toContain('sort=RATING');
+    expect(url).toContain('places-api.foursquare.com');
+    expect(url).not.toContain('api.foursquare.com/v3');
   });
 
   it('limit=3 dans l\'URL', async () => {

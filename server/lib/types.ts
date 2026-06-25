@@ -55,6 +55,7 @@ export interface Hotel {
   highlights: string;
   emoji: string;
   match_reason?: string;
+  booking_url?: string; // lien Booking pré-rempli (ville + dates + voyageurs)
   links?: HotelLinks;
   // Champs utilisés par le scoring (données brutes)
   max_guests?: number;
@@ -89,7 +90,8 @@ export interface Activite {
   price: string | number;
   price_range?: string;
   best_time?: string;
-  booking_url?: string;
+  booking_url?: string;  // lien carte (Google Maps) — localisation du lieu
+  reserve_url?: string;  // lien de réservation réel (plateforme de booking)
   links?: ActivityLinks;
 }
 

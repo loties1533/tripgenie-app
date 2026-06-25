@@ -7,7 +7,10 @@ import 'dotenv/config';
 import type { Activite, TravelMode, ActivityLinks } from '../lib/types.js';
 
 const FOURSQUARE_API_KEY = process.env.FOURSQUARE_API_KEY;
-const BASE = 'https://api.foursquare.com/v3';
+// Nouvelle API Places (FSQ OS Places) — l'ancienne (api.foursquare.com/v3) est
+// décommissionnée depuis le 15 mai 2026. Auth = Service Key en Bearer + header de version.
+const BASE = 'https://places-api.foursquare.com';
+const PLACES_API_VERSION = '2025-06-17';
 
 const MODE_QUERY: Record<TravelMode, string> = {
   party:    'bar,nightclub,lounge',
@@ -19,11 +22,11 @@ const MODE_QUERY: Record<TravelMode, string> = {
 };
 
 interface FSQPlace {
-  fsq_id: string;
+  fsq_place_id: string;     // renommé (était fsq_id en v3)
   name: string;
-  rating?: number;
-  price?: number;
-  categories: Array<{ id: number; name: string }>;
+  rating?: number;          // champ PREMIUM — absent en free tier
+  price?: number;           // champ PREMIUM — absent en free tier
+  categories: Array<{ fsq_category_id?: string; name: string }>;
   location: { locality?: string; address?: string };
 }
 
@@ -61,16 +64,20 @@ export async function foursquareRestaurantSearch(
   }
 
   try {
+    // Free tier : on NE demande PAS rating/price ni sort=RATING (champs/tri premium
+    // → HTTP 429). On garde les champs gratuits (nom, catégories, localisation).
     const params = new URLSearchParams({
-      near:   city,
-      query:  MODE_QUERY[mode] ?? 'restaurant',
-      sort:   'RATING',
-      limit:  '3',
-      fields: 'fsq_id,name,rating,price,categories,location',
+      near:  city,
+      query: MODE_QUERY[mode] ?? 'restaurant',
+      limit: '3',
     });
 
     const res = await fetch(`${BASE}/places/search?${params}`, {
-      headers: { Authorization: FOURSQUARE_API_KEY, Accept: 'application/json' },
+      headers: {
+        Authorization:          `Bearer ${FOURSQUARE_API_KEY}`,
+        'X-Places-Api-Version': PLACES_API_VERSION,
+        Accept:                 'application/json',
+      },
       signal: AbortSignal.timeout(8000),
     });
 
@@ -85,7 +92,11 @@ export async function foursquareRestaurantSearch(
       name:        p.name,
       category:    p.categories[0]?.name ?? 'Restaurant',
       emoji:       '🍽️',
-      description: `${p.categories[0]?.name ?? 'Restaurant'} · ${priceLabel(p.price)} · ⭐ ${p.rating ?? '?'}/10`,
+      description: [
+        p.categories[0]?.name ?? 'Restaurant',
+        p.location?.locality,
+        p.rating ? `⭐ ${p.rating}/10` : null,   // affiché seulement si dispo (premium)
+      ].filter(Boolean).join(' · '),
       duration:    '1h30',
       price:       priceNum(p.price),
       price_range: priceLabel(p.price),
