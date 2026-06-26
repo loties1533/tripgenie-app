@@ -114,7 +114,7 @@ POST /api/ai/generate
         │   + foursquareSearch() → yelpSearch() (fallback)
         │
         ├─ 3. assemblePack()               ← LLM + données réelles injectées
-        │      Gemini → Claude → OpenRouter (cascade fallback)
+        │      Gemini → Claude (optionnel) → OpenRouter (cascade fallback)
         │
         ├─ 4. Merge restaurants            ← Foursquare/Yelp dans activities
         │
@@ -127,7 +127,7 @@ POST /api/ai/generate
 ### Cascade LLM (fallback automatique)
 
 ```
-Gemini 2.0 Flash  →  Claude Haiku  →  OpenRouter (7 modèles gratuits)  →  Mocks statiques
+Gemini 2.0 Flash  →  Claude Haiku (optionnel)  →  OpenRouter (7 modèles gratuits)  →  Mocks statiques
 ```
 
 Si un provider échoue (quota, timeout 45s), le suivant prend le relais automatiquement. `Promise.allSettled` garantit que la génération continue même si un service externe est en panne.
@@ -291,7 +291,7 @@ const trips = await prisma.trip.findMany({
 | Service | Rôle | Fallback |
 |---------|------|---------|
 | Google Gemini 2.0 Flash | LLM principal | Claude |
-| Anthropic Claude Haiku | LLM secondaire | OpenRouter |
+| Anthropic Claude Haiku *(optionnel — si clé API configurée)* | LLM secondaire | OpenRouter |
 | OpenRouter | LLM tertiaire — 7 modèles gratuits | Mocks statiques |
 | Tavily | Recherche web temps réel (vols, hôtels) | Données IA |
 | PredictHQ | Événements structurés (concerts, festivals) | Tavily |
@@ -340,7 +340,7 @@ sequenceDiagram
 
 ```bash
 npm test          # 4 fichiers core (~0.8s)
-npm run test:all  # 14 fichiers complets
+npm run test:all  # 18 fichiers complets
 ```
 
 ```
@@ -376,8 +376,8 @@ tests/
 
 ```bash
 # 1. Cloner le repo
-git clone https://github.com/loties1533/tripgenie.git
-cd tripgenie
+git clone https://github.com/loties1533/tripgenie-app.git
+cd tripgenie-app
 
 # 2. Installer les dépendances backend
 npm install
@@ -388,7 +388,7 @@ cp .env.example .env
 
 # 4. Lancer en développement
 npm run dev          # Backend Express → http://localhost:3000
-npm run client:dev   # Frontend Vite  → http://localhost:5173
+npm run client:dev   # Frontend Vite  → http://localhost:3001
 
 # 5. Documentation API interactive
 # http://localhost:3000/api/docs
@@ -401,14 +401,14 @@ npm run client:dev   # Frontend Vite  → http://localhost:5173
 PORT=3000
 NODE_ENV=development
 JWT_SECRET=your-strong-secret-here
-CLIENT_URL=http://localhost:5173
+CLIENT_URL=http://localhost:3001
 
 # Base de données (PostgreSQL via Prisma)
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/tripgenie?schema=public
+DATABASE_URL=postgresql://postgres:postgres@localhost:5433/tripgenie?schema=public
 
 # IA (au moins une clé requise — fallback automatique)
 GEMINI_API_KEY=...
-ANTHROPIC_API_KEY=...
+ANTHROPIC_API_KEY=...      # optionnel (Claude Haiku) — laisser vide si pas de clé API Anthropic
 OPENROUTER_API_KEY=...
 
 # Services (optionnels — fallback IA si absent)
