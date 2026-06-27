@@ -389,7 +389,7 @@ export default function PackResults() {
               rel="noopener noreferrer"
               className="text-[10px] uppercase tracking-wider font-bold text-sage hover:text-sage/80 flex items-center gap-1 transition-colors"
             >
-              Booking ↗
+              Réserver ↗
             </a>
             {hotel.links?.google && (
               <a href={hotel.links.google} target="_blank" rel="noopener noreferrer"
@@ -466,7 +466,7 @@ export default function PackResults() {
       {MockBanner}
 
       {/* Hero banner */}
-      <div className="glass-premium rounded-3xl p-4 sm:p-6 relative overflow-hidden shadow-glow-gold min-h-[220px] sm:h-[260px] flex items-end">
+      <div className="glass-premium rounded-3xl p-4 sm:p-6 relative overflow-hidden shadow-glow-gold min-h-[220px] sm:min-h-[260px] flex items-end">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
@@ -508,19 +508,19 @@ export default function PackResults() {
             <div className="flex flex-col gap-2 sm:items-end">
               {/* Score TripGenie — visible dès l'apparition du pack + détail de l'algo par critère */}
               {d.score != null && (
-                <div className="glass-premium rounded-2xl px-4 py-3 border border-gold/30 shadow-glow-gold w-full sm:w-auto">
-                  <div className="flex items-center gap-3">
+                <div className="glass-premium rounded-xl px-3 py-1.5 border border-gold/30 shadow-glow-gold w-full sm:w-auto">
+                  <div className="flex items-center gap-2">
                     <div className="text-center flex-shrink-0">
                       <div className="flex items-baseline gap-0.5 justify-center">
-                        <span className="text-3xl font-bold text-gold font-display leading-none">{scorePct}</span>
-                        <span className="text-xs text-muted">/100</span>
+                        <span className="text-lg font-bold text-gold font-display leading-none">{scorePct}</span>
+                        <span className="text-[10px] text-muted">/100</span>
                       </div>
-                      <span className="text-[9px] uppercase tracking-widest text-muted">Score TripGenie</span>
+                      <span className="text-[8px] uppercase tracking-widest text-muted">Score</span>
                     </div>
                     {scoreCriteria.length > 0 && (
-                      <div className="border-l border-gold/20 pl-3 grid grid-cols-2 gap-x-3 gap-y-0.5">
+                      <div className="border-l border-gold/20 pl-2 grid grid-cols-2 gap-x-2 gap-y-0">
                         {scoreCriteria.map(c => (
-                          <div key={c.label} className="flex items-center justify-between gap-2 text-[10px] whitespace-nowrap">
+                          <div key={c.label} className="flex items-center justify-between gap-1.5 text-[9px] whitespace-nowrap">
                             <span className="text-muted">{c.label}</span>
                             <span className="font-bold text-ink dark:text-parchment">{c.val}%</span>
                           </div>
