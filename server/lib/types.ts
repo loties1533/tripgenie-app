@@ -12,7 +12,7 @@ export interface Meteo {
   wind?: string;      // ex : "15 km/h"
 }
 
-export type FlightType = 'outbound' | 'return';
+export type TypeVol = 'outbound' | 'return';
 
 export interface TronconVol {
   from: string;
@@ -25,7 +25,7 @@ export interface TronconVol {
   stops: string;            // "Direct" ou "1 escale(s)"
   airline: string;
   price_per_person: string; // ex : "250€"
-  type: FlightType;
+  type: TypeVol;
   links?: FlightLinks;
 }
 
@@ -63,11 +63,11 @@ export interface Hotel {
   price?: number; // prix numérique pour le scoring
 }
 
-export type ItineraryItemType = 'activity' | 'food' | 'event';
+export type TypeElementItineraire = 'activity' | 'food' | 'event';
 
 export interface ElementItineraire {
   time: string;
-  type: ItineraryItemType;
+  type: TypeElementItineraire;
   title: string;
   description: string;
   price?: string;      // optionnel : on n'invente pas de prix si on ne le connaît pas
@@ -115,7 +115,7 @@ export interface RepartitionBudget {
   total: string;
 }
 
-export interface ScoreDetails {
+export interface DetailsScore {
   vol: number;
   hotel: number;
   events: number;
@@ -129,22 +129,22 @@ export interface ScoreDetails {
 
 export interface ResultatScore {
   total: number;    // score global entre 0 et 1
-  details: ScoreDetails;
+  details: DetailsScore;
   label?: string;   // ex : "Excellent", "Bon", "Moyen"
 }
 
-export interface PackSummary {
+export interface ResumePack {
   total_budget: string;
   nights: number;
   activities_count: number;
 }
 
-export interface PackTip {
+export interface ConseilVoyage {
   title: string;
   content: string;
 }
 
-export interface LocalPhrase {
+export interface ExpressionLocale {
   phrase: string;
   translation: string;
 }
@@ -155,15 +155,15 @@ export interface Pack {
   tagline: string;
   overview: string;
   weather?: Meteo;
-  summary: PackSummary;
+  summary: ResumePack;
   flights: TronconVol[];
   hotels: Hotel[];
   itinerary: JourneeItineraire[];
   activities: Activite[];
   events: Evenement[];
   budget_breakdown: RepartitionBudget;
-  tips?: PackTip[];
-  local_phrases?: LocalPhrase[];
+  tips?: ConseilVoyage[];
+  local_phrases?: ExpressionLocale[];
   score?: ResultatScore;
   photo_url?: string;
   isMock?: boolean;
@@ -177,7 +177,7 @@ export interface ResultatOnboarding {
   isMock?: boolean;      // true si réponse de secours (fallback)
 }
 
-export interface TripRecord {
+export interface EnregistrementVoyage {
   id: string;
   user_id: string;
   title: string;

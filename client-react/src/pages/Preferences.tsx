@@ -20,8 +20,8 @@ const INTERESTS  = ['gastronomie', 'culture', 'nightlife', 'nature', 'shopping',
 export default function PreferencesPage() {
   const { user }    = useAuthStore()
   const navigate    = useNavigate()
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving]   = useState(false)
+  const [chargement, setChargement] = useState(true)
+  const [enregistrement, setEnregistrement]   = useState(false)
 
   const [homeCity, setHomeCity]   = useState('')
   const [mode, setMode]           = useState('party')
@@ -46,14 +46,14 @@ export default function PreferencesPage() {
         }
       })
       .catch(() => {})
-      .finally(() => setLoading(false))
+      .finally(() => setChargement(false))
   }, [user])
 
-  const toggleInterest = (i: string) =>
+  const basculerInteret = (i: string) =>
     setInterests(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i])
 
-  const save = async () => {
-    setSaving(true)
+  const enregistrer = async () => {
+    setEnregistrement(true)
     try {
       await savePreferences({
         home_city:       homeCity,
@@ -65,11 +65,11 @@ export default function PreferencesPage() {
     } catch (e: any) {
       toast.error(e.message || 'Erreur lors de l\'enregistrement')
     } finally {
-      setSaving(false)
+      setEnregistrement(false)
     }
   }
 
-  const inputCls = `w-full bg-white dark:bg-ink-light border border-parchment-dark dark:border-white/10
+  const classeInput = `w-full bg-white dark:bg-ink-light border border-parchment-dark dark:border-white/10
     rounded-xl px-4 py-3 text-sm text-ink dark:text-parchment placeholder:text-muted
     focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all`
 
@@ -84,7 +84,7 @@ export default function PreferencesPage() {
             <p className="text-sm text-muted mt-1">Elles pré-remplissent chaque nouveau voyage.</p>
           </div>
 
-          {loading
+          {chargement
             ? <div className="py-12 flex justify-center">
                 <span className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
               </div>
@@ -93,7 +93,7 @@ export default function PreferencesPage() {
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Ville de départ</label>
                   <input value={homeCity} onChange={e => setHomeCity(e.target.value)}
-                    placeholder="Ex : Bordeaux" className={inputCls} />
+                    placeholder="Ex : Bordeaux" className={classeInput} />
                 </div>
 
                 {/* Mode par défaut */}
@@ -115,7 +115,7 @@ export default function PreferencesPage() {
                 {/* Devise */}
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Devise</label>
-                  <select value={currency} onChange={e => setCurrency(e.target.value)} className={inputCls}>
+                  <select value={currency} onChange={e => setCurrency(e.target.value)} className={classeInput}>
                     {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
@@ -125,7 +125,7 @@ export default function PreferencesPage() {
                   <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Centres d'intérêt</label>
                   <div className="flex flex-wrap gap-2">
                     {INTERESTS.map(i => (
-                      <button key={i} onClick={() => toggleInterest(i)}
+                      <button key={i} onClick={() => basculerInteret(i)}
                         className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all capitalize
                           ${interests.includes(i)
                             ? 'bg-sage/30 border-sage text-sage'
@@ -136,9 +136,9 @@ export default function PreferencesPage() {
                   </div>
                 </div>
 
-                <button onClick={save} disabled={saving}
+                <button onClick={enregistrer} disabled={enregistrement}
                   className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
-                  {saving
+                  {enregistrement
                     ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     : 'Enregistrer mes préférences'}
                 </button>

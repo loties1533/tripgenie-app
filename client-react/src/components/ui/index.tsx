@@ -25,11 +25,11 @@ export function SkeletonCard() {
 
 // ---- Score badge ----
 export function ScoreBadge({ score }: { score: any }) {
-  const pct   = Math.round((score?.total ?? score ?? 0) * 100)
-  const color = pct >= 75 ? 'bg-sage/20 text-sage' : pct >= 50 ? 'bg-gold/20 text-gold-dark' : 'bg-coral/20 text-coral'
+  const pourcentage   = Math.round((score?.total ?? score ?? 0) * 100)
+  const color = pourcentage >= 75 ? 'bg-sage/20 text-sage' : pourcentage >= 50 ? 'bg-gold/20 text-gold-dark' : 'bg-coral/20 text-coral'
   return (
     <span className={clsx('score-badge shadow-glow-gold animate-pulse-gold', color)}>
-      ★ {pct}<span className="opacity-60 text-[10px]">/100</span>
+      ★ {pourcentage}<span className="opacity-60 text-[10px]">/100</span>
     </span>
   )
 }
@@ -109,10 +109,10 @@ const MODE_LABELS = {
 }
 
 export function ModeBadge({ mode }: { mode: string }) {
-  const m = MODE_LABELS[mode as keyof typeof MODE_LABELS] || { label: mode, emoji: '✈️', cls: 'bg-muted/10 text-muted' }
+  const infoMode = MODE_LABELS[mode as keyof typeof MODE_LABELS] || { label: mode, emoji: '✈️', cls: 'bg-muted/10 text-muted' }
   return (
-    <span className={clsx('inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold', m.cls)}>
-      {m.emoji} {m.label}
+    <span className={clsx('inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold', infoMode.cls)}>
+      {infoMode.emoji} {infoMode.label}
     </span>
   )
 }

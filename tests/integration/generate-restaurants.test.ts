@@ -48,10 +48,10 @@ vi.mock('../../server/services/claude/index.js', () => ({
   suggestDestinations: vi.fn(),
   chatIntake:          vi.fn(),
   chatModify:          vi.fn(),
-  assemblePack:        vi.fn()
+  assemblerPack:        vi.fn()
 }));
 
-import { assemblePack as _assemblePack } from '../../server/services/claude/index.js';
+import { assemblerPack as _assemblePack } from '../../server/services/claude/index.js';
 const mockAssemblePack = vi.mocked(_assemblePack);
 
 const VALID_BODY = {

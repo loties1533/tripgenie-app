@@ -29,8 +29,10 @@ declare global {
  * @param req - Requête Express entrante
  * @returns   Token JWT brut, ou null si absent
  */
-function extractToken(req: Request): string | null {
-  if (req.cookies?.tg_token) return req.cookies.tg_token as string;
+const NOM_COOKIE_AUTH = 'tg_token';
+
+function extraireToken(req: Request): string | null {
+  if (req.cookies?.[NOM_COOKIE_AUTH]) return req.cookies[NOM_COOKIE_AUTH] as string;
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) return authHeader.split(' ')[1];
   return null;
@@ -46,7 +48,7 @@ function extractToken(req: Request): string | null {
  * @throws 401 si token absent, expiré ou invalide
  */
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {
-  const token = extractToken(req);
+  const token = extraireToken(req);
   if (!token) {
     res.status(401).json({ error: 'Token manquant ou invalide' });
     return;
@@ -74,7 +76,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
  * en base si l'utilisateur est connecté, sans obliger la connexion.
  */
 export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
-  const token = extractToken(req);
+  const token = extraireToken(req);
   if (token) {
     try {
       req.user = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;

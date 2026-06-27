@@ -2,13 +2,13 @@
  * @fileoverview Génération du pack voyage complet via LLM.
  *
  * Ce module est organisé en fonctions pures testables unitairement :
- * - calcNights()          → calcul du nombre de nuits
- * - buildPackPrompt()     → construction du prompt LLM selon le mode
- * - parsePackResponse()   → parsing JSON + fallback si LLM renvoie du JSON cassé
- * - mapFlights()          → mapping FlightSearchResult → Pack['flights']
- * - mapActivities()       → mapping AITextResult.activities → Pack['activities']
- * - calcBudgetBreakdown() → répartition budgétaire selon BUDGET_RATIOS
- * - assemblePack()        → orchestrateur principal (appelle les fonctions ci-dessus)
+ * - calculerNuits()          → calcul du nombre de nuits
+ * - construirePromptPack()     → construction du prompt LLM selon le mode
+ * - parserReponsePack()   → parsing JSON + fallback si LLM renvoie du JSON cassé
+ * - transformerVols()          → mapping FlightSearchResult → Pack['flights']
+ * - transformerActivites()       → mapping ResultatTexteIA.activities → Pack['activities']
+ * - calculerRepartitionBudget() → répartition budgétaire selon BUDGET_RATIOS
+ * - assemblerPack()        → orchestrateur principal (appelle les fonctions ci-dessus)
  */
 
 import { callAI, parseJSON, sanitizeInput } from './core.js';
@@ -19,7 +19,7 @@ import type { WeatherData } from '../weather.js';
 
 // ---- Types internes ----
 
-export interface AssemblePackParams {
+export interface ParamsAssemblagePack {
   destination: string;
   origin?: string;
   flights?: FlightSearchResult[];
@@ -36,7 +36,7 @@ export interface AssemblePackParams {
   realPhoto?: string | null;
 }
 
-export interface AITextResult {
+export interface ResultatTexteIA {
   country?: string;
   airport_code?: string;
   origin_airport_code?: string;
@@ -53,14 +53,14 @@ export interface AITextResult {
 }
 
 // ============================================================
-// 1. calcNights — calcul du nombre de nuits du séjour
+// 1. calculerNuits — calcul du nombre de nuits du séjour
 // ============================================================
 
 /**
  * Calcule le nombre de nuits en fonction des dates ou de la durée.
  * Fallback : estimation par le budget (500€ ≈ 1 nuit, capped à 14).
  */
-export function calcNights(
+export function calculerNuits(
   departure: string | undefined,
   return_date: string | undefined,
   duration: number | undefined,
@@ -77,14 +77,14 @@ export function calcNights(
 }
 
 // ============================================================
-// 2. buildPackPrompt — construction du prompt LLM
+// 2. construirePromptPack — construction du prompt LLM
 // ============================================================
 
 /**
  * Construit le prompt envoyé au LLM selon le mode de voyage, le budget et les données réelles.
- * Séparé d'assemblePack pour être testable unitairement et modifiable sans risque.
+ * Séparé d'assemblerPack pour être testable unitairement et modifiable sans risque.
  */
-export function buildPackPrompt({
+export function construirePromptPack({
   dest, originCity, travelers, profile, mode, budgetPerPers, nights, events,
 }: {
   dest: string;
@@ -156,17 +156,17 @@ export function buildPackPrompt({
 }
 
 // ============================================================
-// 3. parsePackResponse — parsing JSON + fallback structuré
+// 3. parserReponsePack — parsing JSON + fallback structuré
 // ============================================================
 
 /**
- * Parse la réponse brute du LLM en AITextResult.
+ * Parse la réponse brute du LLM en ResultatTexteIA.
  * Si le JSON est malformé (parseJSON échoue après ses 5 tentatives),
  * renvoie un fallback générique pour ne jamais bloquer la génération.
  */
-export function parsePackResponse(raw: string, dest: string, nights: number): AITextResult {
+export function parserReponsePack(raw: string, dest: string, nights: number): ResultatTexteIA {
   try {
-    return parseJSON(raw) as AITextResult;
+    return parseJSON(raw) as ResultatTexteIA;
   } catch (err) {
     console.error('⚠️ FALLBACK GÉNÉRIQUE ACTIVÉ — JSON malformé reçu du LLM. Raison:', (err as Error).message);
     console.error('⚠️ Réponse brute du LLM (200 premiers chars):', raw.slice(0, 200));
@@ -205,17 +205,17 @@ export function parsePackResponse(raw: string, dest: string, nights: number): AI
 // ============================================================
 
 /** 'YYYY-MM-DD' depuis une date ISO (ou '' si absente). */
-function ymd(date?: string): string {
+function versFormatISO(date?: string): string {
   return date ? date.slice(0, 10) : '';
 }
 
 /** 'YYMMDD' pour les deep-links Skyscanner (2026-07-15 → 260715). */
-function yymmdd(date?: string): string {
+function versFormatCourt(date?: string): string {
   return date ? date.slice(2, 10).replace(/-/g, '') : '';
 }
 
 /** Code IATA plausible (3 lettres, hors placeholder 'XXX'). */
-function isValidIATA(code?: string): boolean {
+function estCodeIATAValide(code?: string): boolean {
   return !!code && /^[A-Za-z]{3}$/.test(code) && code.toUpperCase() !== 'XXX';
 }
 
@@ -225,58 +225,58 @@ function isValidIATA(code?: string): boolean {
  * UNIQUEMENT si les codes IATA sont valides ET qu'on a une date de départ ;
  * sinon on retombe sur Google Flights (anti page inexistante).
  */
-export function buildFlightLinks(params: {
+export function construireLiensVol(params: {
   originCity: string; destCity: string;
   originIATA?: string; destIATA?: string;
   departure?: string; return_date?: string; travelers: number;
 }): { google: string; skyscanner: string; kayak: string } {
   const { originCity, destCity, originIATA, destIATA, departure, return_date } = params;
   const adults = Math.max(1, params.travelers || 1);
-  const dep = ymd(departure);
-  const ret = ymd(return_date);
+  const dateDepart = versFormatISO(departure);
+  const dateRetour = versFormatISO(return_date);
 
-  const iataOk = isValidIATA(originIATA) && isValidIATA(destIATA);
+  const iataOk = estCodeIATAValide(originIATA) && estCodeIATAValide(destIATA);
 
   // Google Flights : URL avec IATA + dates si dispo (format hash), sinon recherche Google.
   // Le format ?q=... de google.com/travel/flights ne pré-remplit pas la destination.
-  const google = iataOk && dep
-    ? `https://www.google.com/flights#flt=${originIATA}.${destIATA}.${dep}${ret ? `*${destIATA}.${originIATA}.${ret}` : ''};c:EUR;e:1;a:${adults};px:0`
-    : `https://www.google.com/search?q=${encodeURIComponent(`vols ${originCity} ${destCity}${dep ? ' ' + dep : ''}${adults > 1 ? ' ' + adults + ' personnes' : ''}`)}`;
+  const google = iataOk && dateDepart
+    ? `https://www.google.com/flights#flt=${originIATA}.${destIATA}.${dateDepart}${dateRetour ? `*${destIATA}.${originIATA}.${dateRetour}` : ''};c:EUR;e:1;a:${adults};px:0`
+    : `https://www.google.com/search?q=${encodeURIComponent(`vols ${originCity} ${destCity}${dateDepart ? ' ' + dateDepart : ''}${adults > 1 ? ' ' + adults + ' personnes' : ''}`)}`;
 
-  const skyscanner = iataOk && dep
-    ? `https://www.skyscanner.fr/transport/flights/${originIATA!.toLowerCase()}/${destIATA!.toLowerCase()}/${yymmdd(departure)}/${ret ? yymmdd(return_date) + '/' : ''}?adults=${adults}`
+  const skyscanner = iataOk && dateDepart
+    ? `https://www.skyscanner.fr/transport/flights/${originIATA!.toLowerCase()}/${destIATA!.toLowerCase()}/${versFormatCourt(departure)}/${dateRetour ? versFormatCourt(return_date) + '/' : ''}?adults=${adults}`
     : google;
-  const kayak = iataOk && dep
-    ? `https://www.kayak.fr/flights/${originIATA!.toUpperCase()}-${destIATA!.toUpperCase()}/${dep}${ret ? '/' + ret : ''}/${adults}adults`
+  const kayak = iataOk && dateDepart
+    ? `https://www.kayak.fr/flights/${originIATA!.toUpperCase()}-${destIATA!.toUpperCase()}/${dateDepart}${dateRetour ? '/' + dateRetour : ''}/${adults}adults`
     : google;
 
   return { google, skyscanner, kayak };
 }
 
 /** Lien Booking pré-rempli : ville + check-in/out + nombre d'adultes. */
-export function buildHotelBookingUrl(
+export function construireUrlHotel(
   hotelName: string, city: string,
   departure?: string, return_date?: string, travelers = 2,
 ): string {
   // Booking.com redirige les liens non-affiliés vers leur accueil (perd les params).
   // Google Hotels fonctionne sans affiliation et pré-remplit la recherche.
-  const term = hotelName.toLowerCase().includes(city.toLowerCase()) ? hotelName : `${hotelName} ${city}`;
-  const p = new URLSearchParams({ q: term });
-  if (ymd(departure))   p.set('dates',   `${ymd(departure)},${ymd(return_date) ?? ''}`);
-  if (travelers > 1)    p.set('adults',  String(travelers));
-  return `https://www.google.com/travel/hotels?${p.toString()}`;
+  const termeRecherche = hotelName.toLowerCase().includes(city.toLowerCase()) ? hotelName : `${hotelName} ${city}`;
+  const params = new URLSearchParams({ q: termeRecherche });
+  if (versFormatISO(departure))   params.set('dates',   `${versFormatISO(departure)},${versFormatISO(return_date) ?? ''}`);
+  if (travelers > 1)    params.set('adults',  String(travelers));
+  return `https://www.google.com/travel/hotels?${params.toString()}`;
 }
 
 /** Lien de réservation réel pour une activité (plateforme de booking, pas une carte). */
-export function buildActivityReserveUrl(name: string, city: string): string {
+export function construireUrlActivite(name: string, city: string): string {
   // N'ajoute la ville que si le nom ne la contient pas déjà (évite "Nobu Maldives Maldives").
-  const q = name.toLowerCase().includes(city.toLowerCase()) ? name : `${name} ${city}`;
+  const requete = name.toLowerCase().includes(city.toLowerCase()) ? name : `${name} ${city}`;
   // Google Search : plus fiable que GYG pour trouver le vrai site d'un lieu nommé.
-  return `https://www.google.com/search?q=${encodeURIComponent(q + ' réservation')}`;
+  return `https://www.google.com/search?q=${encodeURIComponent(requete + ' réservation')}`;
 }
 
 // ============================================================
-// 4. mapFlights — mapping vols réels → Pack['flights']
+// 4. transformerVols — mapping vols réels → Pack['flights']
 // ============================================================
 
 /**
@@ -285,7 +285,7 @@ export function buildActivityReserveUrl(name: string, city: string): string {
  */
 // Ajoute une durée "XhYY" / "Xh" à une heure "HH:MM" → "HH:MM" (même fuseau).
 // Garantit la cohérence : heure d'arrivée = heure de départ + durée.
-function addDurationToTime(time: string, duration: string): string {
+function ajouterDureeAHeure(time: string, duration: string): string {
   const [h, m] = time.split(':').map(Number);
   const match  = duration.toLowerCase().match(/(\d+)\s*h\s*(\d*)/);
   const dh     = match ? parseInt(match[1], 10) : 0;
@@ -296,7 +296,7 @@ function addDurationToTime(time: string, duration: string): string {
 
 /**
  * Résout le prix d'un billet PAR PERSONNE et PAR TRAJET (aller simple).
- * Source unique de vérité partagée par mapFlights (affichage) et le calcul du
+ * Source unique de vérité partagée par transformerVols (affichage) et le calcul du
  * budget (camembert) — garantit que les deux montrent le même prix.
  *
  * - Prix réel Tavily si dispo et plausible (≤ 1800€/billet).
@@ -313,7 +313,7 @@ export function resolveFlightPricePerPerson(
   return priceCapped || volPriceEst;
 }
 
-export function mapFlights(
+export function transformerVols(
   flights: FlightSearchResult[] | undefined,
   airportCode: string,
   originCode: string,
@@ -327,26 +327,26 @@ export function mapFlights(
   const volPriceEst    = Math.round(budget * 0.15 / travelers);
   // Liens pré-remplis avec la VRAIE demande (villes, IATA, dates, voyageurs) —
   // identiques sur l'aller et le retour : ils pointent vers la recherche A/R complète.
-  const links = buildFlightLinks({
+  const links = construireLiensVol({
     originCity, destCity: dest, originIATA: originCode, destIATA: airportCode,
     departure, return_date, travelers,
   });
   const finalPrice     = `${resolveFlightPricePerPerson(flights, budget, travelers)}€`;
 
   if (flights?.length) {
-    const dur    = flights[0].duration   || null;
-    const stops  = flights[0].stops      || null;
-    const outDep = flights[0].outbound_time || '10:30';
+    const duree       = flights[0].duration   || null;
+    const arrets      = flights[0].stops      || null;
+    const heureDepart = flights[0].outbound_time || '10:30';
     return [
       {
         from:             originCode,
         from_city:        originCity,
         to:               airportCode,
         to_city:          dest,
-        departure_time:   outDep,
-        arrival_time:     dur ? addDurationToTime(outDep, dur) : '—',
-        duration:         dur ?? '—',
-        stops:            stops ?? '—',
+        departure_time:   heureDepart,
+        arrival_time:     duree ? ajouterDureeAHeure(heureDepart, duree) : '—',
+        duration:         duree ?? '—',
+        stops:            arrets ?? '—',
         airline:          flights[0].airline ?? 'À confirmer',
         price_per_person: finalPrice,
         type:             'outbound' as const,
@@ -359,8 +359,8 @@ export function mapFlights(
         to_city:          originCity,
         departure_time:   '—',
         arrival_time:     '—',
-        duration:         dur ?? '—',
-        stops:            stops ?? '—',
+        duration:         duree ?? '—',
+        stops:            arrets ?? '—',
         airline:          flights[0].airline ?? 'À confirmer',
         price_per_person: finalPrice,
         type:             'return' as const,
@@ -381,15 +381,15 @@ export function mapFlights(
 }
 
 // ============================================================
-// 5. mapActivities — mapping activités LLM → Pack['activities']
+// 5. transformerActivites — mapping activités LLM → Pack['activities']
 // ============================================================
 
 /**
  * Transforme les activités brutes du LLM en activités typées avec emoji,
  * catégorie et lien de réservation adapté au type d'activité.
  */
-export function mapActivities(
-  activities: AITextResult['activities'],
+export function transformerActivites(
+  activities: ResultatTexteIA['activities'],
   dest: string,
 ): Pack['activities'] {
   return (activities ?? []).map(a => {
@@ -399,11 +399,11 @@ export function mapActivities(
     const isBoat  = ['bateau', 'yacht', 'boat', 'croisière'].some(k => type.toLowerCase().includes(k));
     const emoji   = isNight ? '🎉' : isFood ? '🍽' : isBoat ? '⛵' : type === 'plage' ? '🏖' : type === 'spa' ? '💆' : '🏛';
     const name    = a.name ?? 'Activité';
-    const q       = encodeURIComponent(`${name} ${dest}`);
+    const requete = encodeURIComponent(`${name} ${dest}`);
     // Lien universel Google Maps : ouvre la fiche du lieu DANS LA BONNE VILLE,
     // partout dans le monde. TheFork (resto FR) renvoyait vers Paris pour une
     // ville hors France ; GetYourGuide/Viator ne couvrent pas tout non plus.
-    const booking_url = `https://www.google.com/maps/search/?api=1&query=${q}`;
+    const booking_url = `https://www.google.com/maps/search/?api=1&query=${requete}`;
 
     return {
       name,
@@ -414,13 +414,13 @@ export function mapActivities(
       price:       'Variable',
       best_time:   isNight ? 'Soir' : 'Journée',
       booking_url,                                  // bouton « Carte » → localisation Google Maps
-      reserve_url: buildActivityReserveUrl(name, dest), // bouton « Réserver » → plateforme de booking
+      reserve_url: construireUrlActivite(name, dest), // bouton « Réserver » → plateforme de booking
     };
   });
 }
 
 // ============================================================
-// 6. calcBudgetBreakdown — répartition budgétaire par mode
+// 6. calculerRepartitionBudget — répartition budgétaire par mode
 // ============================================================
 
 /**
@@ -435,7 +435,7 @@ export function mapActivities(
  * - Hébergement plafonné à un prix/nuit/personne réaliste (250€, 800€ luxury) ;
  *   le surplus est redistribué sur activités/resto/transports.
  */
-export function calcBudgetBreakdown(
+export function calculerRepartitionBudget(
   budget: number,
   mode: TravelMode,
   nights: number,
@@ -452,87 +452,87 @@ export function calcBudgetBreakdown(
 
   // ── Budget restant réparti sur les postes hors-vols (ratios renormalisés).
   const remaining = Math.max(0, budget - vols);
-  const otherSum  = ratio.heberg + ratio.activites + ratio.resto + ratio.trans;
+  const otherSum  = ratio.hebergement + ratio.activites + ratio.restauration + ratio.transports;
   const part      = (r: number) => (otherSum > 0 ? remaining * (r / otherSum) : 0);
 
   // Hébergement plafonné à un prix/nuit/personne réaliste.
-  const nominalHeberg = Math.round(part(ratio.heberg));
-  let   heberg        = nominalHeberg;
-  const ppn           = heberg / nights / travelers;
-  if (ppn > maxPpn) heberg = maxPpn * nights * travelers;
+  const nominalHebergement = Math.round(part(ratio.hebergement));
+  let   hebergement        = nominalHebergement;
+  const prixParNuit        = hebergement / nights / travelers;
+  if (prixParNuit > maxPpn) hebergement = maxPpn * nights * travelers;
 
   // Le budget hébergement non dépensé (à cause du plafond) est REDISTRIBUÉ au
   // prorata sur activités/resto/transports — au lieu de gonfler « Divers ».
-  const surplus   = Math.max(0, nominalHeberg - heberg);
-  const redistSum = ratio.activites + ratio.resto + ratio.trans;
+  const surplus   = Math.max(0, nominalHebergement - hebergement);
+  const redistSum = ratio.activites + ratio.restauration + ratio.transports;
   const share     = (r: number) => (redistSum > 0 ? (surplus * r) / redistSum : 0);
 
-  const activites = Math.round(part(ratio.activites) + share(ratio.activites));
-  const resto     = Math.round(part(ratio.resto)     + share(ratio.resto));
-  const trans     = Math.round(part(ratio.trans)     + share(ratio.trans));
-  const divers    = Math.max(0, budget - vols - heberg - activites - resto - trans);
+  const activites    = Math.round(part(ratio.activites)    + share(ratio.activites));
+  const restauration = Math.round(part(ratio.restauration) + share(ratio.restauration));
+  const transports   = Math.round(part(ratio.transports)   + share(ratio.transports));
+  const divers       = Math.max(0, budget - vols - hebergement - activites - restauration - transports);
 
   return {
     vols:         `${vols}€`,
-    hebergement:  `${heberg}€`,
+    hebergement:  `${hebergement}€`,
     activites:    `${activites}€`,
-    restauration: `${resto}€`,
-    transports:   `${trans}€`,
+    restauration: `${restauration}€`,
+    transports:   `${transports}€`,
     divers:       `${divers}€`,
     total:        `${budget}€`,
-    // heberg exposé pour le mapping hôtels (calcul prix/nuit)
-    _hebergRaw:   heberg,
+    // exposé pour le mapping hôtels (calcul prix/nuit)
+    _hebergRaw:   hebergement,
   } as Pack['budget_breakdown'] & { _hebergRaw: number };
 }
 
 // ============================================================
-// 7. assemblePack — orchestrateur principal
+// 7. assemblerPack — orchestrateur principal
 // ============================================================
 
 /**
  * Génère un pack voyage complet.
  *
  * Orchestre les fonctions pures ci-dessus :
- * 1. calcNights        → nombre de nuits
- * 2. buildPackPrompt   → prompt LLM enrichi avec les données réelles
+ * 1. calculerNuits        → nombre de nuits
+ * 2. construirePromptPack   → prompt LLM enrichi avec les données réelles
  * 3. callAI            → appel LLM (Gemini → Claude → OpenRouter → Mocks)
- * 4. parsePackResponse → parsing JSON + fallback
- * 5. mapFlights        → vols structurés
- * 6. mapActivities     → activités avec emoji + liens de réservation
- * 7. calcBudgetBreakdown → répartition budgétaire
+ * 4. parserReponsePack → parsing JSON + fallback
+ * 5. transformerVols        → vols structurés
+ * 6. transformerActivites     → activités avec emoji + liens de réservation
+ * 7. calculerRepartitionBudget → répartition budgétaire
  *
  * @param params - Destination, mode, budget, dates, données réelles (vols/météo/hôtels/events)
  * @returns      Pack complet structuré prêt à être affiché côté client
  */
-export async function assemblePack({
+export async function assemblerPack({
   destination, origin, flights, events, hotels: realHotels, mode, profile, travelers, budget,
   departure, return_date, duration, realWeather, realPhoto,
-}: AssemblePackParams): Promise<Pack> {
+}: ParamsAssemblagePack): Promise<Pack> {
   const dest       = sanitizeInput(destination);
   const originCity = sanitizeInput(origin ?? DEFAULT_VALUES.ORIGIN);
-  const nights     = calcNights(departure, return_date, duration, budget);
+  const nights     = calculerNuits(departure, return_date, duration, budget);
   const budgetPerPers = Math.round(budget / travelers);
 
   // ── 1. Appel LLM ──────────────────────────────────────────────────────────
-  const prompt = buildPackPrompt({ dest, originCity, travelers, profile, mode, budgetPerPers, nights, events });
-  const textRaw = await callAI(prompt, undefined, 'pack');
+  const prompt = construirePromptPack({ dest, originCity, travelers, profile, mode, budgetPerPers, nights, events });
+  const texteBrutIA = await callAI(prompt, undefined, 'pack');
 
   // ── 2. Parsing JSON (5 stratégies de récupération) ────────────────────────
-  const t = parsePackResponse(textRaw, dest, nights);
+  const texteIA = parserReponsePack(texteBrutIA, dest, nights);
 
   // ── 3. Codes IATA (fournis par le LLM) ────────────────────────────────────
-  const airportCode = t.airport_code?.toUpperCase() ?? 'XXX';
-  const originCode  = t.origin_airport_code?.toUpperCase() ?? 'XXX';
+  const airportCode = texteIA.airport_code?.toUpperCase() ?? 'XXX';
+  const originCode  = texteIA.origin_airport_code?.toUpperCase() ?? 'XXX';
 
   // ── 4. Répartition budgétaire ─────────────────────────────────────────────
   // Vrai coût des vols = prix/pers résolu × 2 trajets (A/R) × voyageurs.
   const flightPricePerPerson = resolveFlightPricePerPerson(flights, budget, travelers);
   const realFlightTotal      = flightPricePerPerson * 2 * travelers;
-  const budgetBreakdown = calcBudgetBreakdown(budget, mode, nights, travelers, realFlightTotal);
-  const heberg = (budgetBreakdown as Pack['budget_breakdown'] & { _hebergRaw: number })._hebergRaw;
+  const budgetBreakdown = calculerRepartitionBudget(budget, mode, nights, travelers, realFlightTotal);
+  const hebergementBrut = (budgetBreakdown as Pack['budget_breakdown'] & { _hebergRaw: number })._hebergRaw;
 
   // ── 5. Mapping événements ─────────────────────────────────────────────────
-  const eventData = events?.length
+  const donneesEvenements = events?.length
     ? events.slice(0, 3).map(e => ({
         title:       e.title,
         category:    e.category,
@@ -547,28 +547,28 @@ export async function assemblePack({
   // ── 6. Assemblage du Pack final ───────────────────────────────────────────
   return {
     destination: dest,
-    country:     t.country  ?? 'Destination',
-    tagline:     t.tagline  ?? `${dest}, votre prochaine aventure`,
-    overview:    t.overview ?? `Découvrez ${dest} sous son meilleur jour.`,
+    country:     texteIA.country  ?? 'Destination',
+    tagline:     texteIA.tagline  ?? `${dest}, votre prochaine aventure`,
+    overview:    texteIA.overview ?? `Découvrez ${dest} sous son meilleur jour.`,
     photo_url:   realPhoto ?? undefined,
     weather: realWeather
-      ? { avg_temp: realWeather.temp, conditions: realWeather.cond, tip: t.weather?.tip ?? 'Prévoyez des couches', humidity: realWeather.humidity, wind: realWeather.wind }
-      : { avg_temp: t.weather?.temp ?? '20°C', conditions: t.weather?.cond ?? 'Ensoleillé', tip: t.weather?.tip ?? 'Prévoyez des couches' },
-    summary: { total_budget: `${budget}€`, nights, activities_count: (t.activities ?? []).length },
-    flights: mapFlights(flights, airportCode, originCode, originCity, dest, budget, travelers, departure, return_date),
-    hotels: (realHotels?.length ? realHotels : t.hotels ?? []).map((h, i) => ({
+      ? { avg_temp: realWeather.temp, conditions: realWeather.cond, tip: texteIA.weather?.tip ?? 'Prévoyez des couches', humidity: realWeather.humidity, wind: realWeather.wind }
+      : { avg_temp: texteIA.weather?.temp ?? '20°C', conditions: texteIA.weather?.cond ?? 'Ensoleillé', tip: texteIA.weather?.tip ?? 'Prévoyez des couches' },
+    summary: { total_budget: `${budget}€`, nights, activities_count: (texteIA.activities ?? []).length },
+    flights: transformerVols(flights, airportCode, originCode, originCity, dest, budget, travelers, departure, return_date),
+    hotels: (realHotels?.length ? realHotels : texteIA.hotels ?? []).map((h, i) => ({
       name:            h.name ?? `Hôtel ${i + 1}`,
       location:        (h as { loc?: string }).loc ?? (h as { location?: string }).location ?? 'Centre',
       stars:           h.stars ?? (i === 0 && mode === 'luxury' ? 5 : 4),
       price_per_night: (h as { price_per_night?: number }).price_per_night
         ? `${(h as { price_per_night: number }).price_per_night}€`
-        : `${Math.round(heberg / nights / (i + 1))}€`,
+        : `${Math.round(hebergementBrut / nights / (i + 1))}€`,
       highlights:      (h as { hl?: string; highlights?: string }).hl ?? (h as { highlights?: string }).highlights ?? 'Excellent choix',
       emoji:           i === 0 ? '🏨' : '🏩',
       // Lien Booking pré-rempli : ville demandée + check-in/out + voyageurs.
-      booking_url:     buildHotelBookingUrl(h.name ?? `Hôtel ${i + 1}`, dest, departure, return_date, travelers),
+      booking_url:     construireUrlHotel(h.name ?? `Hôtel ${i + 1}`, dest, departure, return_date, travelers),
     })),
-    itinerary: (t.itinerary ?? []).map(d => ({
+    itinerary: (texteIA.itinerary ?? []).map(d => ({
       day:      d.day,
       title:    d.title ?? 'Journée découverte',
       subtitle: mode === MODES.PARTY ? 'Ambiance & Vie nocturne' : mode === MODES.LUXURY ? 'Prestige & Exclusivité' : 'Exploration',
@@ -579,8 +579,8 @@ export async function assemblePack({
         { time: mode === MODES.PARTY ? '22:00' : '20:00', type: mode === MODES.PARTY ? 'event' as const : 'food' as const, title: d.pm ?? 'Soirée', description: '' },
       ],
     })),
-    activities: mapActivities(t.activities, dest),
-    events:     eventData,
+    activities: transformerActivites(texteIA.activities, dest),
+    events:     donneesEvenements,
     budget_breakdown: {
       vols:         budgetBreakdown.vols,
       hebergement:  budgetBreakdown.hebergement,
@@ -591,11 +591,11 @@ export async function assemblePack({
       total:        budgetBreakdown.total,
     },
     tips: [
-      { title: 'Conseil pratique', content: t.tip1 ?? "Réservez à l'avance" },
-      { title: 'Sur place',        content: t.tip2 ?? 'Explorez les quartiers locaux' },
+      { title: 'Conseil pratique', content: texteIA.tip1 ?? "Réservez à l'avance" },
+      { title: 'Sur place',        content: texteIA.tip2 ?? 'Explorez les quartiers locaux' },
     ],
     local_phrases: [
-      { phrase: t.phrase ?? 'Santé !', translation: t.phrase_tr ?? 'À votre santé !' },
+      { phrase: texteIA.phrase ?? 'Santé !', translation: texteIA.phrase_tr ?? 'À votre santé !' },
     ],
   };
 }

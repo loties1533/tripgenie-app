@@ -97,7 +97,7 @@ describe('🔓 optionalAuth middleware', () => {
 
   vi.mock('../server/services/claude/index.js', () => ({
     chatIntake:          vi.fn().mockResolvedValue({ response: 'OK', chips: [], extractedData: {}, isReady: false }),
-    assemblePack:        vi.fn(),
+    assemblerPack:        vi.fn(),
     analyzeRequest:      vi.fn(),
     suggestDestinations: vi.fn().mockResolvedValue({ destinations: [] }),
     chatModify:          vi.fn(),

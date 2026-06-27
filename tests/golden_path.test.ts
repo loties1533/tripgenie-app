@@ -36,7 +36,7 @@ vi.mock('../server/services/claude/index.js', () => ({
     reply:          'Voici les modifications demandées.',
     modifications:  { tagline: 'Nouvelle accroche' }
   }),
-  assemblePack: vi.fn().mockResolvedValue({
+  assemblerPack: vi.fn().mockResolvedValue({
     destination: 'Paris',
     country:     'France',
     tagline:     'La ville lumière',

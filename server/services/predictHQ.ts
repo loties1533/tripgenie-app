@@ -10,11 +10,11 @@ import 'dotenv/config';
 import type { TravelMode, ActivityLinks } from '../lib/types.js';
 import type { EventSearchResult } from './smartSearch.js';
 
-const PREDICTHQ_API_KEY = process.env.PREDICTHQ_API_KEY;
-const BASE = 'https://api.predicthq.com/v1';
+const CLE_PREDICTHQ = process.env.PREDICTHQ_API_KEY;
+const URL_BASE_PREDICTHQ = 'https://api.predicthq.com/v1';
 
 // Catégories PredictHQ selon le mode de voyage
-const MODE_CATEGORIES: Record<TravelMode, string> = {
+const CATEGORIES_PAR_MODE: Record<TravelMode, string> = {
   party:    'concerts,festivals',
   luxury:   'concerts,performing-arts,festivals',
   student:  'concerts,festivals,community,sports',
@@ -23,13 +23,13 @@ const MODE_CATEGORIES: Record<TravelMode, string> = {
   surprise: 'concerts,festivals,performing-arts,community',
 };
 
-interface PHQPlace {
+interface LieuPredictHQ {
   id: string;
   name: string;
   type: string;
 }
 
-interface PHQEvent {
+interface EvenementPredictHQ {
   id: string;
   title: string;
   category: string;
@@ -40,30 +40,30 @@ interface PHQEvent {
   rank?: number;
 }
 
-function encode(str: string): string {
+function encoderURL(str: string): string {
   return encodeURIComponent(str?.trim() ?? '');
 }
 
-function eventLinks(title: string, city: string): ActivityLinks {
+function liensEvenement(title: string, city: string): ActivityLinks {
   return {
-    viator:       `https://www.viator.com/search?q=${encode(title + ' ' + city)}`,
-    getyourguide: `https://www.getyourguide.fr/s/?q=${encode(title + ' ' + city)}`,
-    airbnb:       `https://www.airbnb.fr/experiences/search?q=${encode(city)}`,
+    viator:       `https://www.viator.com/search?q=${encoderURL(title + ' ' + city)}`,
+    getyourguide: `https://www.getyourguide.fr/s/?q=${encoderURL(title + ' ' + city)}`,
+    airbnb:       `https://www.airbnb.fr/experiences/search?q=${encoderURL(city)}`,
   };
 }
 
 /** Étape 1 : récupère l'identifiant de lieu PredictHQ pour une ville */
-async function getPlaceId(city: string): Promise<string | null> {
+async function obtenirIdLieu(city: string): Promise<string | null> {
   try {
     const res = await fetch(
-      `${BASE}/places/?q=${encode(city)}&limit=1`,
+      `${URL_BASE_PREDICTHQ}/places/?q=${encoderURL(city)}&limit=1`,
       {
-        headers: { Authorization: `Bearer ${PREDICTHQ_API_KEY}`, Accept: 'application/json' },
+        headers: { Authorization: `Bearer ${CLE_PREDICTHQ}`, Accept: 'application/json' },
         signal: AbortSignal.timeout(5000),
       }
     );
     if (!res.ok) return null;
-    const data = await res.json() as { results?: PHQPlace[] };
+    const data = await res.json() as { results?: LieuPredictHQ[] };
     return data.results?.[0]?.id ?? null;
   } catch {
     return null;
@@ -81,16 +81,16 @@ export async function predictHQEventsSearch(
   dateTo: string,
   mode: TravelMode
 ): Promise<EventSearchResult[]> {
-  if (!PREDICTHQ_API_KEY) {
+  if (!CLE_PREDICTHQ) {
     console.warn('⚠️ PredictHQ ignoré (PREDICTHQ_API_KEY manquante).');
     return [];
   }
 
   try {
-    const placeId = await getPlaceId(city);
-    const categories = MODE_CATEGORIES[mode] ?? 'concerts,festivals';
+    const idLieu = await obtenirIdLieu(city);
+    const categories = CATEGORIES_PAR_MODE[mode] ?? 'concerts,festivals';
 
-    const params = new URLSearchParams({
+    const parametresRequete = new URLSearchParams({
       'active.gte':   dateFrom,
       'active.lte':   dateTo || dateFrom,
       category:       categories,
@@ -99,14 +99,14 @@ export async function predictHQEventsSearch(
     });
 
     // Filtre par lieu si trouvé, sinon recherche texte sur la ville
-    if (placeId) {
-      params.set('place.scope', placeId);
+    if (idLieu) {
+      parametresRequete.set('place.scope', idLieu);
     } else {
-      params.set('q', city);
+      parametresRequete.set('q', city);
     }
 
-    const res = await fetch(`${BASE}/events/?${params}`, {
-      headers: { Authorization: `Bearer ${PREDICTHQ_API_KEY}`, Accept: 'application/json' },
+    const res = await fetch(`${URL_BASE_PREDICTHQ}/events/?${parametresRequete}`, {
+      headers: { Authorization: `Bearer ${CLE_PREDICTHQ}`, Accept: 'application/json' },
       signal: AbortSignal.timeout(10000),
     });
 
@@ -120,23 +120,23 @@ export async function predictHQEventsSearch(
       throw new Error(`PredictHQ ${res.status}: ${await res.text()}`);
     }
 
-    const data = await res.json() as { count: number; results: PHQEvent[] };
+    const donneesPredictHQ = await res.json() as { count: number; results: EvenementPredictHQ[] };
 
-    if (!data.results?.length) {
+    if (!donneesPredictHQ.results?.length) {
       console.warn(`⚠️ PredictHQ: 0 événement pour ${city} (${dateFrom} → ${dateTo})`);
       return [];
     }
 
-    console.log(`✅ PredictHQ: ${data.results.length} événements trouvés pour ${city}`);
+    console.log(`✅ PredictHQ: ${donneesPredictHQ.results.length} événements trouvés pour ${city}`);
 
-    return data.results.slice(0, 6).map(e => ({
+    return donneesPredictHQ.results.slice(0, 6).map(e => ({
       title:       e.title,
       category:    e.category.replace(/-/g, ' '),
       start:       e.start.slice(0, 10),
       venue:       e.entities?.find(en => en.type === 'venue')?.name ?? city,
       description: e.description ?? `${e.category} à ${city}`,
       booking_url: null,
-      links:       eventLinks(e.title, city),
+      links:       liensEvenement(e.title, city),
     }));
 
   } catch (err) {

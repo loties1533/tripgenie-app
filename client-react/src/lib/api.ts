@@ -4,7 +4,7 @@
 // =============================================
 
 import type {
-  Pack, TripRecord, User, ResultatOnboarding, ResultatScore
+  Pack, EnregistrementVoyage, User, ResultatOnboarding, ResultatScore
 } from '../../../server/lib/types'
 
 // En développement : Vite proxifie /api → localhost:3000
@@ -37,7 +37,7 @@ export const getMe = () => request<{ user: User }>('/auth/me')
 export const chatOnboarding = (userMessage: string, currentData: Record<string, unknown>) =>
   request<ResultatOnboarding>('/ai/onboarding', { method: 'POST', body: JSON.stringify({ userMessage, currentData }) })
 
-export interface DestinationItem {
+export interface ElementDestination {
   city: string;
   country: string;
   tagline?: string;
@@ -47,9 +47,9 @@ export interface DestinationItem {
   photo?: string | null;
 }
 export const getDestinations = (params: Record<string, unknown>) =>
-  request<{ destinations: DestinationItem[] }>('/ai/destinations', { method: 'POST', body: JSON.stringify(params) })
+  request<{ destinations: ElementDestination[] }>('/ai/destinations', { method: 'POST', body: JSON.stringify(params) })
 
-export interface GeneratePackResponse {
+export interface ReponseGenerationPack {
   pack: Pack;
   trip_id: string | null;
   pack_id: string | null;
@@ -58,40 +58,40 @@ export interface GeneratePackResponse {
   events_found: boolean;
 }
 export const generatePack = (params: Record<string, unknown>) =>
-  request<GeneratePackResponse>('/ai/generate', { method: 'POST', body: JSON.stringify(params) })
+  request<ReponseGenerationPack>('/ai/generate', { method: 'POST', body: JSON.stringify(params) })
 
-export interface ChatModifyResponse {
+export interface ReponseModificationChat {
   response: string;
   needs_full_regen?: boolean;
   modifications?: Partial<Pack>;
   chips?: string[];
 }
 export const chatModify = (message: string, currentPack: Pack, mode: string, tripId: string | null) =>
-  request<ChatModifyResponse>('/ai/chat', { method: 'POST', body: JSON.stringify({ message, current_pack: currentPack, mode, trip_id: tripId }) })
+  request<ReponseModificationChat>('/ai/chat', { method: 'POST', body: JSON.stringify({ message, current_pack: currentPack, mode, trip_id: tripId }) })
 
 // ---- Voyages (CRUD) ----
 export const getTrips      = (filters: Record<string, string> = {}) =>
-  request<{ trips: TripRecord[]; count: number }>(`/trips?${new URLSearchParams(filters)}`)
+  request<{ trips: EnregistrementVoyage[]; count: number }>(`/trips?${new URLSearchParams(filters)}`)
 
-export const getTrip       = (id: string) => request<{ trip: TripRecord }>(`/trips/${id}`)
-export const getPublicTrip = (id: string) => request<{ trip: TripRecord & { pack_id: string | null } }>(`/trips/share/${id}`)
+export const getTrip       = (id: string) => request<{ trip: EnregistrementVoyage }>(`/trips/${id}`)
+export const getPublicTrip = (id: string) => request<{ trip: EnregistrementVoyage & { pack_id: string | null } }>(`/trips/share/${id}`)
 export const deleteTrip    = (id: string) => request<{ message: string }>(`/trips/${id}`, { method: 'DELETE' })
 export const updateTrip    = (id: string, fields: { status?: string; travelers?: number; budget?: string }) =>
-  request<{ trip: TripRecord }>(`/trips/${id}`, { method: 'PUT', body: JSON.stringify(fields) })
+  request<{ trip: EnregistrementVoyage }>(`/trips/${id}`, { method: 'PUT', body: JSON.stringify(fields) })
 
 // ---- Photos — proxy backend (clé Unsplash jamais exposée côté client) ----
 export const getCityPhoto = (city: string) => request<{ url: string }>(`/photos/${encodeURIComponent(city)}`)
 
 // ---- Préférences utilisateur (relation 1-1) ----
-export interface UserPreferences {
+export interface PreferencesUtilisateur {
   default_mode?: string;
   preferred_prefs?: string[];
   home_city?: string;
   currency?: string;
 }
-export const getPreferences  = () => request<{ preferences: UserPreferences | null }>('/preferences')
-export const savePreferences = (fields: UserPreferences) =>
-  request<{ preferences: UserPreferences }>('/preferences', { method: 'PUT', body: JSON.stringify(fields) })
+export const getPreferences  = () => request<{ preferences: PreferencesUtilisateur | null }>('/preferences')
+export const savePreferences = (fields: PreferencesUtilisateur) =>
+  request<{ preferences: PreferencesUtilisateur }>('/preferences', { method: 'PUT', body: JSON.stringify(fields) })
 
 // ---- Votes ----
 export const saveVote = (pack_id: string, item_id: string, vote_type: boolean, voter_name = '') =>

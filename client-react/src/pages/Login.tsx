@@ -6,33 +6,33 @@ import { useAuthStore } from '../store'
 import { login, signup } from '../lib/api'
 
 export default function LoginPage() {
-  const [tab, setTab]       = useState('login')
+  const [onglet, setOnglet]       = useState('login')
   const [email, setEmail]   = useState('')
-  const [pass, setPass]     = useState('')
+  const [motDePasse, setMotDePasse]     = useState('')
   const [name, setName]     = useState('')
-  const [err, setErr]       = useState('')
-  const [loading, setLoad]  = useState(false)
+  const [erreur, setErreur]       = useState('')
+  const [chargement, setChargement]  = useState(false)
   const { setAuth }         = useAuthStore()
   const navigate            = useNavigate()
 
   const submit = async () => {
-    setErr('')
-    if (!email || !pass) return setErr('Remplis tous les champs')
-    setLoad(true)
+    setErreur('')
+    if (!email || !motDePasse) return setErreur('Remplis tous les champs')
+    setChargement(true)
     try {
-      const data = tab === 'login'
-        ? await login(email, pass)
-        : await signup(email, pass, name)
-      setAuth(data.user)
+      const reponse = onglet === 'login'
+        ? await login(email, motDePasse)
+        : await signup(email, motDePasse, name)
+      setAuth(reponse.user)
       navigate('/')
     } catch (e: any) {
-      setErr(e.message)
+      setErreur(e.message)
     } finally {
-      setLoad(false)
+      setChargement(false)
     }
   }
 
-  const inputCls = `w-full bg-white dark:bg-ink-light border border-parchment-dark dark:border-white/10
+  const classeInput = `w-full bg-white dark:bg-ink-light border border-parchment-dark dark:border-white/10
     rounded-xl px-4 py-3 text-sm text-ink dark:text-parchment placeholder:text-muted
     focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all`
 
@@ -54,9 +54,9 @@ export default function LoginPage() {
           {/* Tabs */}
           <div className="flex gap-1 p-1 bg-parchment-dark dark:bg-ink rounded-xl mb-6">
             {['login', 'signup'].map(t => (
-              <button key={t} onClick={() => { setTab(t); setErr('') }}
+              <button key={t} onClick={() => { setOnglet(t); setErreur('') }}
                 className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all
-                  ${tab === t ? 'bg-white dark:bg-ink-light text-ink dark:text-parchment shadow-sm' : 'text-muted'}`}>
+                  ${onglet === t ? 'bg-white dark:bg-ink-light text-ink dark:text-parchment shadow-sm' : 'text-muted'}`}>
                 {t === 'login' ? 'Connexion' : 'Inscription'}
               </button>
             ))}
@@ -64,29 +64,29 @@ export default function LoginPage() {
 
           {/* Form */}
           <div className="space-y-3">
-            {tab === 'signup' && (
+            {onglet === 'signup' && (
               <input value={name} onChange={e => setName(e.target.value)}
-                placeholder="Ton prénom" className={inputCls} />
+                placeholder="Ton prénom" className={classeInput} />
             )}
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="Email" className={inputCls} />
-            <input type="password" value={pass} onChange={e => setPass(e.target.value)}
-              placeholder="Mot de passe" className={inputCls}
+              placeholder="Email" className={classeInput} />
+            <input type="password" value={motDePasse} onChange={e => setMotDePasse(e.target.value)}
+              placeholder="Mot de passe" className={classeInput}
               onKeyDown={e => e.key === 'Enter' && submit()} />
           </div>
 
-          {err && (
+          {erreur && (
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               className="mt-3 text-sm text-coral bg-coral/5 rounded-lg px-3 py-2">
-              {err}
+              {erreur}
             </motion.p>
           )}
 
-          <button onClick={submit} disabled={loading}
+          <button onClick={submit} disabled={chargement}
             className="btn-primary w-full mt-5 flex items-center justify-center gap-2">
-            {loading
+            {chargement
               ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              : tab === 'login' ? 'Se connecter' : 'Créer mon compte'
+              : onglet === 'login' ? 'Se connecter' : 'Créer mon compte'
             }
           </button>
 

@@ -10,7 +10,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { MODES_LIST, TRIP_STATUS_LIST } from '../lib/constants.js';
 import type { TravelMode } from '../lib/types.js';
 
-const createTripSchema = z.object({
+const schemaCreationVoyage = z.object({
   destination:  z.string().min(1, 'destination requise').max(100),
   mode:         z.enum(MODES_LIST as [TravelMode, ...TravelMode[]], { error: 'mode invalide' }),
   title:        z.string().max(200).optional(),
@@ -24,7 +24,7 @@ const createTripSchema = z.object({
   score:        z.number().optional()
 });
 
-const updateTripSchema = z.object({
+const schemaMiseAJourVoyage = z.object({
   title:     z.string().max(200).optional(),
   status:    z.enum(TRIP_STATUS_LIST as [string, ...string[]]).optional(),
   pack_data: z.any().optional(),
@@ -36,7 +36,7 @@ const updateTripSchema = z.object({
 const router = express.Router();
 
 // Parse une date "YYYY-MM-DD" en Date (colonne @db.Date) ou null
-const toDate = (s?: string | null): Date | null => (s ? new Date(s) : null);
+const convertirEnDate = (s?: string | null): Date | null => (s ? new Date(s) : null);
 
 // ---- GET /api/trips/share/:id (Public) ----
 router.get('/share/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -87,7 +87,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
     const offset = Math.max(parseInt((req.query.offset as string) || '0', 10), 0);
 
     // Isolation des données : filtre applicatif user_id systématique.
-    const trips = await prisma.trip.findMany({
+    const listeVoyages = await prisma.trip.findMany({
       where: {
         user_id: userId,
         ...(typeof mode === 'string'   ? { mode }   : {}),
@@ -98,7 +98,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
       skip: offset,
     });
 
-    res.json({ trips, count: trips.length, limit, offset });
+    res.json({ trips: listeVoyages, count: listeVoyages.length, limit, offset });
 
   } catch (err) {
     console.error('GET trips error:', err);
@@ -109,12 +109,12 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
 // ---- POST /api/trips ----
 router.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const parsed = createTripSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.issues[0].message });
+    const donneesValidees = schemaCreationVoyage.safeParse(req.body);
+    if (!donneesValidees.success) {
+      res.status(400).json({ error: donneesValidees.error.issues[0].message });
       return;
     }
-    const { title, destination, country, origin, departure, return_date, travelers, budget, mode, pack_data, score } = parsed.data;
+    const { title, destination, country, origin, departure, return_date, travelers, budget, mode, pack_data, score } = donneesValidees.data;
 
     if (!req.user) {
       res.status(401).json({ error: 'Non authentifié' });
@@ -129,8 +129,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
         destination,
         country:     country ?? null,
         origin:      origin ?? null,
-        departure:   toDate(departure),
-        return_date: toDate(return_date),
+        departure:   convertirEnDate(departure),
+        return_date: convertirEnDate(return_date),
         travelers:   travelers || 1,
         budget:      budget != null ? String(budget) : null,
         mode,
@@ -179,9 +179,9 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction): Prom
 // ---- PUT /api/trips/:id ----
 router.put('/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const parsed = updateTripSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.issues[0].message });
+    const donneesValidees = schemaMiseAJourVoyage.safeParse(req.body);
+    if (!donneesValidees.success) {
+      res.status(400).json({ error: donneesValidees.error.issues[0].message });
       return;
     }
     if (!req.user) {
@@ -190,23 +190,23 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction): Prom
     }
     const userId = req.user.id;
 
-    // Allowlist : on ne construit `data` qu'avec les colonnes fournies et validées.
-    const data: Record<string, unknown> = {};
-    if (parsed.data.title     !== undefined) data.title     = parsed.data.title;
-    if (parsed.data.status    !== undefined) data.status    = parsed.data.status;
-    if (parsed.data.pack_data !== undefined) data.pack_data = parsed.data.pack_data;
-    if (parsed.data.score     !== undefined) data.score     = parsed.data.score;
-    if (parsed.data.travelers !== undefined) data.travelers = parsed.data.travelers;
-    if (parsed.data.budget    !== undefined) data.budget    = parsed.data.budget != null ? String(parsed.data.budget) : null;
+    // Allowlist : on ne construit `champsModifies` qu'avec les colonnes fournies et validées.
+    const champsModifies: Record<string, unknown> = {};
+    if (donneesValidees.data.title     !== undefined) champsModifies.title     = donneesValidees.data.title;
+    if (donneesValidees.data.status    !== undefined) champsModifies.status    = donneesValidees.data.status;
+    if (donneesValidees.data.pack_data !== undefined) champsModifies.pack_data = donneesValidees.data.pack_data;
+    if (donneesValidees.data.score     !== undefined) champsModifies.score     = donneesValidees.data.score;
+    if (donneesValidees.data.travelers !== undefined) champsModifies.travelers = donneesValidees.data.travelers;
+    if (donneesValidees.data.budget    !== undefined) champsModifies.budget    = donneesValidees.data.budget != null ? String(donneesValidees.data.budget) : null;
     // updated_at est géré automatiquement par @updatedAt
 
     // updateMany scopé par user_id → impossible de modifier le voyage d'un autre.
-    const updated = await prisma.trip.updateMany({
+    const voyageMisAJour = await prisma.trip.updateMany({
       where: { id: String(req.params.id), user_id: userId },
-      data,
+      data: champsModifies,
     });
 
-    if (updated.count === 0) {
+    if (voyageMisAJour.count === 0) {
       res.status(404).json({ error: 'Voyage introuvable' });
       return;
     }

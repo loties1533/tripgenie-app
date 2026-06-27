@@ -10,7 +10,7 @@ function localDateStr(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-function addDays(n: number): string {
+function ajouterJours(n: number): string {
   const d = new Date()
   d.setDate(d.getDate() + n)
   return localDateStr(d)
@@ -84,10 +84,10 @@ const QUIZ_STEPS = [
     key:      'departure',
     question: 'Quand souhaitez-vous partir ?',
     chips: [
-      { label: 'Ce week-end',        data: () => ({ departure: addDays(3),   return_date: addDays(5),   duration: 2  }) },
-      { label: 'Dans 1 mois',        data: () => ({ departure: addDays(30),  return_date: addDays(37),  duration: 7  }) },
-      { label: 'Dans 3 mois',        data: () => ({ departure: addDays(90),  return_date: addDays(97),  duration: 7  }) },
-      { label: 'Dans 6 mois',        data: () => ({ departure: addDays(180), return_date: addDays(187), duration: 7  }) },
+      { label: 'Ce week-end',        data: () => ({ departure: ajouterJours(3),   return_date: ajouterJours(5),   duration: 2  }) },
+      { label: 'Dans 1 mois',        data: () => ({ departure: ajouterJours(30),  return_date: ajouterJours(37),  duration: 7  }) },
+      { label: 'Dans 3 mois',        data: () => ({ departure: ajouterJours(90),  return_date: ajouterJours(97),  duration: 7  }) },
+      { label: 'Dans 6 mois',        data: () => ({ departure: ajouterJours(180), return_date: ajouterJours(187), duration: 7  }) },
       { label: '📅 Date précise...', data: null },
     ]
   },
@@ -268,23 +268,23 @@ function InlineInput({
 // =============================================
 // LOGIQUE TEXTE LIBRE (IA parsing)
 // =============================================
-async function processAIMessage(value: string, ctx: any) {
+async function traiterMessageIA(value: string, ctx: any) {
   const { addMessage, mergeChatData, setTyping, setReady, setMockMode,
           setLoading, setPack, setField, chatData, turnCount } = ctx
   const forceReady = turnCount >= 5
   try {
     setTyping(true)
-    const res = await chatOnboarding(value, chatData)
+    const reponse = await chatOnboarding(value, chatData)
     setTyping(false)
-    if (res.isMock) setMockMode(true)
-    if (res.extractedData) mergeChatData(res.extractedData)
-    const merged = { ...chatData, ...(res.extractedData || {}) }
-    if (res.isReady || forceReady) {
+    if (reponse.isMock) setMockMode(true)
+    if (reponse.extractedData) mergeChatData(reponse.extractedData)
+    const merged = { ...chatData, ...(reponse.extractedData || {}) }
+    if (reponse.isReady || forceReady) {
       setReady(true)
       addMessage({ role: 'bot', text: "🎯 Parfait, j'ai tout ce qu'il me faut ! Je cherche les meilleures destinations pour vous..." })
       await suggestDestinations(merged, { addMessage, setTyping, setLoading, setPack, setField, setReady })
     } else {
-      addMessage({ role: 'bot', text: res.response, chips: res.chips || [] })
+      addMessage({ role: 'bot', text: reponse.response, chips: reponse.chips || [] })
     }
   } catch {
     setTyping(false)
@@ -304,7 +304,7 @@ async function suggestDestinations(
   const { addMessage, setTyping, setLoading, setPack, setField, setReady } = ctx
   setTyping(true)
   try {
-    const res = await getDestinations({
+    const reponse = await getDestinations({
       mode:        chatData.mode,
       profile:     chatData.profile,
       budget:      chatData.budget,
@@ -316,9 +316,9 @@ async function suggestDestinations(
     })
     if (guard && !guard.mounted.current) return
     setTyping(false)
-    const dests = res.destinations || []
-    if (dests.length) {
-      setField('concepts', dests)
+    const destinations = reponse.destinations || []
+    if (destinations.length) {
+      setField('concepts', destinations)
     } else {
       // Échec : on rouvre l'UI quiz (setReady=false) pour permettre un retry.
       setReady?.(false)
@@ -476,24 +476,24 @@ export default function ChatWidget() {
     // FIX 4 : try/finally — inputMode toujours réinitialisé même en cas d'exception
     try {
       if (inputMode === 'date') {
-        const dep = dateRange.departure
-        const ret = dateRange.return_date
-        if (!dep) return
-        const durationDays = ret
-          ? Math.max(1, Math.round((new Date(ret).getTime() - new Date(dep).getTime()) / 86400000))
+        const dateDepart = dateRange.departure
+        const dateRetour = dateRange.return_date
+        if (!dateDepart) return
+        const durationDays = dateRetour
+          ? Math.max(1, Math.round((new Date(dateRetour).getTime() - new Date(dateDepart).getTime()) / 86400000))
           : 7
 
-        const label = `Du ${dep}${ret ? ` au ${ret}` : ''}`
+        const label = `Du ${dateDepart}${dateRetour ? ` au ${dateRetour}` : ''}`
         addMessage({ role: 'user', text: label })
-        mergeChatData({ departure: dep, return_date: computeReturnDate(dep, durationDays), duration: durationDays })
+        mergeChatData({ departure: dateDepart, return_date: computeReturnDate(dateDepart, durationDays), duration: durationDays })
 
         // FIX 1 : ne pas déléguer à handleQuizChip (quizStep=3 → isLast=false → step duration redemandé)
         // On avance quizStep jusqu'au dernier step et on déclenche le récap directement
         nextQuizStep() // step 3 → 4 (duration, le dernier)
         const merged: Record<string, unknown> = {
           ...chatData,
-          departure:   dep,
-          return_date: computeReturnDate(dep, durationDays),
+          departure:   dateDepart,
+          return_date: computeReturnDate(dateDepart, durationDays),
           duration:    durationDays,
         }
         setAwaitingConfirm(true)
@@ -536,7 +536,7 @@ export default function ChatWidget() {
     setInput('')
     addMessage({ role: 'user', text })
     try {
-      await processAIMessage(text, {
+      await traiterMessageIA(text, {
         addMessage, mergeChatData, setTyping, setReady, setMockMode,
         setLoading, setPack, setField, chatData, turnCount,
       })
@@ -555,7 +555,7 @@ export default function ChatWidget() {
     setSending(true)
     addMessage({ role: 'user', text: label })
     try {
-      await processAIMessage(label, {
+      await traiterMessageIA(label, {
         addMessage, mergeChatData, setTyping, setReady, setMockMode,
         setLoading, setPack, setField, chatData, turnCount,
       })

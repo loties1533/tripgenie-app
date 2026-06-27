@@ -7,13 +7,13 @@ import { MODES } from '../lib/constants.js';
 import type { TravelMode, ResultatScore, Activite, Evenement } from '../lib/types.js';
 
 // ---- Types pour le scoring ----
-interface VolScore {
+interface DonneesVol {
   price?: number;
   duration_min?: number;
   stops?: number;
 }
 
-interface HotelScore {
+interface DonneesHotel {
   stars?: number;
   price_per_night?: number | string;
   max_guests?: number;
@@ -21,15 +21,15 @@ interface HotelScore {
   price?: number;
 }
 
-export interface PackForScoring {
-  vol?: VolScore | null;
-  hotel?: HotelScore | null;
+export interface PackPourScore {
+  vol?: DonneesVol | null;
+  hotel?: DonneesHotel | null;
   events?: Evenement[];
   activities?: Activite[];
   totalPrice?: number;
 }
 
-interface ModeWeights {
+interface PoidsMode {
   [key: string]: number;
 }
 
@@ -41,7 +41,7 @@ type ScoreKey =
 interface ScoreValues extends Record<ScoreKey, number> {}
 
 // ---- Poids par mode ----
-const MODE_WEIGHTS: Record<TravelMode, ModeWeights> = {
+const POIDS_PAR_MODE: Record<TravelMode, PoidsMode> = {
   party:    { events: 0.40, prix: 0.30, hotel: 0.20, vol: 0.10 },
   student:  { prix: 0.50, activities_free: 0.25, hotel: 0.15, events: 0.10 },
   luxury:   { hotel: 0.40, activities: 0.30, vol: 0.20, prix: 0.10 },
@@ -60,7 +60,7 @@ const MODE_WEIGHTS: Record<TravelMode, ModeWeights> = {
  * @param max   - Borne supérieure de la plage de référence
  * @returns     Valeur normalisée entre 0 et 1 (0.5 si min === max)
  */
-function normalise(value: number, min: number, max: number): number {
+function normaliser(value: number, min: number, max: number): number {
   if (max === min) return 0.5;
   return Math.max(0, Math.min(1, (value - min) / (max - min)));
 }
@@ -74,15 +74,15 @@ function normalise(value: number, min: number, max: number): number {
  * @param mode - Mode de voyage qui change la pondération
  * @returns    Score entre 0 et 1
  */
-function scoreVol(vol: VolScore | null | undefined, mode: TravelMode): number {
+function scoreVol(vol: DonneesVol | null | undefined, mode: TravelMode): number {
   if (!vol) return 0.5;
-  const prixScore   = 1 - normalise(vol.price ?? 0, 50, 2000);
-  const dureeScore  = 1 - normalise(vol.duration_min ?? 0, 60, 720);
-  const directScore = vol.stops === 0 ? 1 : vol.stops === 1 ? 0.6 : 0.3;
+  const prixScore       = 1 - normaliser(vol.price ?? 0, 50, 2000);
+  const dureeScore      = 1 - normaliser(vol.duration_min ?? 0, 60, 720);
+  const scoreVolDirect  = vol.stops === 0 ? 1 : vol.stops === 1 ? 0.6 : 0.3;
 
-  if (mode === 'luxury')  return directScore * 0.5 + prixScore * 0.1 + dureeScore * 0.4;
-  if (mode === 'student') return prixScore * 0.85 + directScore * 0.15;
-  return prixScore * 0.5 + directScore * 0.3 + dureeScore * 0.2;
+  if (mode === 'luxury')  return scoreVolDirect * 0.5 + prixScore * 0.1 + dureeScore * 0.4;
+  if (mode === 'student') return prixScore * 0.85 + scoreVolDirect * 0.15;
+  return prixScore * 0.5 + scoreVolDirect * 0.3 + dureeScore * 0.2;
 }
 
 /**
@@ -95,20 +95,20 @@ function scoreVol(vol: VolScore | null | undefined, mode: TravelMode): number {
  * @param travelers - Nombre de voyageurs (impacte le score de capacité)
  * @returns         Score entre 0 et 1
  */
-function scoreHotel(hotel: HotelScore | null | undefined, mode: TravelMode, travelers: number): number {
+function scoreHotel(hotel: DonneesHotel | null | undefined, mode: TravelMode, travelers: number): number {
   if (!hotel) return 0.5;
-  const starsScore    = normalise(hotel.stars ?? 3, 1, 5);
-  const prixNum       = typeof hotel.price_per_night === 'string'
+  const scoreEtoiles   = normaliser(hotel.stars ?? 3, 1, 5);
+  const prixNumerique  = typeof hotel.price_per_night === 'string'
     ? parseFloat(hotel.price_per_night)
     : (hotel.price_per_night ?? hotel.price ?? 150);
-  const prixScore     = 1 - normalise(prixNum, 20, 800);
-  const capacityScore = (hotel.max_guests ?? travelers) >= travelers ? 1 : 0.3;
-  const ratingScore   = normalise(hotel.rating ?? 7, 5, 10);
+  const prixScore      = 1 - normaliser(prixNumerique, 20, 800);
+  const capacityScore  = (hotel.max_guests ?? travelers) >= travelers ? 1 : 0.3;
+  const ratingScore    = normaliser(hotel.rating ?? 7, 5, 10);
 
-  if (mode === 'luxury')  return starsScore * 0.5 + ratingScore * 0.35 + prixScore * 0.15;
-  if (mode === 'student') return prixScore * 0.6 + ratingScore * 0.3 + starsScore * 0.1;
+  if (mode === 'luxury')  return scoreEtoiles * 0.5 + ratingScore * 0.35 + prixScore * 0.15;
+  if (mode === 'student') return prixScore * 0.6 + ratingScore * 0.3 + scoreEtoiles * 0.1;
   if (mode === 'group')   return capacityScore * 0.5 + prixScore * 0.3 + ratingScore * 0.2;
-  return starsScore * 0.35 + ratingScore * 0.4 + prixScore * 0.25;
+  return scoreEtoiles * 0.35 + ratingScore * 0.4 + prixScore * 0.25;
 }
 
 /**
@@ -136,15 +136,15 @@ function scoreEvents(events: Evenement[] | undefined, mode: TravelMode, activiti
     return 0;
   }
 
-  const countScore  = normalise(events.length, 0, 20);
-  const partyEvents = events.filter(e =>
+  const countScore        = normaliser(events.length, 0, 20);
+  const evenementsFestifs = events.filter(e =>
     ['concert', 'festival', 'nightlife', 'club', 'party'].some(k =>
       e.category?.toLowerCase().includes(k) ||
       e.title?.toLowerCase().includes(k)
     )
   ).length;
 
-  const partyScore = normalise(partyEvents, 0, 10);
+  const partyScore = normaliser(evenementsFestifs, 0, 10);
 
   if (mode === 'party')   return partyScore * 0.7 + countScore * 0.3;
   if (mode === 'student') return countScore * 0.6 + partyScore * 0.4;
@@ -166,32 +166,32 @@ function scoreEvents(events: Evenement[] | undefined, mode: TravelMode, activiti
 function scoreActivities(activities: Activite[] | undefined, mode: TravelMode): number {
   if (!activities || activities.length === 0) return 0;
 
-  const total      = activities.length;
-  const freeCount  = activities.filter(a => a.price === 0 || a.price_range === 'free').length;
-  const luxeCount  = activities.filter(a => typeof a.price === 'number' && a.price > 100).length;
-  const calmCount  = activities.filter(a =>
+  const total              = activities.length;
+  const activitesGratuites = activities.filter(a => a.price === 0 || a.price_range === 'free').length;
+  const activitesLuxe      = activities.filter(a => typeof a.price === 'number' && a.price > 100).length;
+  const activitesCalmes    = activities.filter(a =>
     ['spa', 'yoga', 'hiking', 'beach', 'nature'].some(k =>
       a.category?.toLowerCase().includes(k)
     )
   ).length;
 
-  if (mode === 'student') return normalise(freeCount, 0, total);
-  if (mode === 'luxury')  return normalise(luxeCount, 0, total) * 0.6 + normalise(total, 0, 20) * 0.4;
-  if (mode === 'relax')   return normalise(calmCount, 0, total) * 0.7 + normalise(total, 0, 20) * 0.3;
-  return normalise(total, 0, 20);
+  if (mode === 'student') return normaliser(activitesGratuites, 0, total);
+  if (mode === 'luxury')  return normaliser(activitesLuxe, 0, total) * 0.6 + normaliser(total, 0, 20) * 0.4;
+  if (mode === 'relax')   return normaliser(activitesCalmes, 0, total) * 0.7 + normaliser(total, 0, 20) * 0.3;
+  return normaliser(total, 0, 20);
 }
 
 // ---- Score calme de destination ----
 function scoreCalme(_destination: string, events: Evenement[] | undefined): number {
   const eventCount = events?.length ?? 0;
-  return 1 - normalise(eventCount, 0, 30);
+  return 1 - normaliser(eventCount, 0, 30);
 }
 
 // ---- Score originalité (mode surprise) ----
-const COMMON_DESTINATIONS = ['paris', 'london', 'rome', 'barcelona', 'amsterdam', 'new york', 'tokyo'];
+const DESTINATIONS_COMMUNES = ['paris', 'london', 'rome', 'barcelona', 'amsterdam', 'new york', 'tokyo'];
 function scoreOriginalite(destination: string): number {
   const dest = destination.toLowerCase();
-  return COMMON_DESTINATIONS.some(d => dest.includes(d)) ? 0.3 : 0.9;
+  return DESTINATIONS_COMMUNES.some(d => dest.includes(d)) ? 0.3 : 0.9;
 }
 
 /**
@@ -213,24 +213,24 @@ function scoreOriginalite(destination: string): number {
  * @param destination - Nom de la destination (utilisé pour le score d'originalité)
  * @returns           ResultatScore : { total: number (0-1), details: scores partiels }
  */
-export function scorepack(
-  pack: PackForScoring,
+export function scorerPack(
+  pack: PackPourScore,
   mode: TravelMode,
   travelers = 2,
   destination = ''
 ): ResultatScore {
   const { vol, hotel, events, activities, totalPrice } = pack;
-  const weights = MODE_WEIGHTS[mode] ?? MODE_WEIGHTS.party;
+  const poidsMode = POIDS_PAR_MODE[mode] ?? POIDS_PAR_MODE.party;
 
   // Prix par personne : 30000€ pour 5 personnes = 6000€/pers (plus juste que le budget brut)
-  const pricePerPerson = travelers > 1 ? (totalPrice ?? 0) / travelers : (totalPrice ?? 0);
+  const prixParPersonne = travelers > 1 ? (totalPrice ?? 0) / travelers : (totalPrice ?? 0);
 
   const scores: ScoreValues = {
     vol:             scoreVol(vol, mode),
     hotel:           scoreHotel(hotel, mode, travelers),
     events:          scoreEvents(events, mode, activities),   // activities en fallback nightlife
     activities:      scoreActivities(activities, mode),
-    prix:            1 - normalise(pricePerPerson, 100, 8000), // max 8000€/pers (était 10000 total)
+    prix:            1 - normaliser(prixParPersonne, 100, 8000), // max 8000€/pers (était 10000 total)
     activities_free: scoreActivities(activities, 'student'),
     calme:           scoreCalme(destination, events),
     global:          0,
@@ -238,7 +238,7 @@ export function scorepack(
   };
 
   // Score global = moyenne pondérée de tous les scores
-  scores.global = Object.entries(weights).reduce((total, [key, weight]) => {
+  scores.global = Object.entries(poidsMode).reduce((total, [key, weight]) => {
     return total + (scores[key as ScoreKey] ?? 0) * weight;
   }, 0);
 
@@ -258,7 +258,7 @@ export function scorepack(
  * @param destination - Destination commune
  * @returns           Top 3 des packs avec leur rank et score calculé
  */
-export function rankPacks<T extends PackForScoring>(
+export function classerPacks<T extends PackPourScore>(
   packs: T[],
   mode: TravelMode,
   travelers: number,
@@ -268,11 +268,11 @@ export function rankPacks<T extends PackForScoring>(
     .map((pack, idx) => ({
       ...pack,
       rank:  idx + 1,
-      score: scorepack(pack, mode, travelers, destination),
+      score: scorerPack(pack, mode, travelers, destination),
     }))
     .sort((a, b) => b.score.total - a.score.total)
     .slice(0, 3)
     .map((pack, idx) => ({ ...pack, rank: idx + 1 }));
 }
 
-export { MODE_WEIGHTS };
+export { POIDS_PAR_MODE };

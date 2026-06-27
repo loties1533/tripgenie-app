@@ -11,7 +11,7 @@ import type { Request, Response, NextFunction } from 'express';
 
 const router = express.Router();
 
-const prefsSchema = z.object({
+const schemaPreferences = z.object({
   default_mode:    z.enum(['party', 'student', 'luxury', 'group', 'relax', 'surprise']).optional(),
   preferred_prefs: z.array(z.string().max(50)).max(10).optional(),
   home_city:       z.string().max(100).optional(),
@@ -36,25 +36,25 @@ router.get('/', requireAuth, async (req: Request, res: Response, next: NextFunct
 // ---- PUT /api/preferences ----  (créer ou mettre à jour)
 router.put('/', requireAuth, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const parsed = prefsSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.issues?.[0]?.message ?? 'Données invalides' });
+    const donneesValidees = schemaPreferences.safeParse(req.body);
+    if (!donneesValidees.success) {
+      res.status(400).json({ error: donneesValidees.error.issues?.[0]?.message ?? 'Données invalides' });
       return;
     }
     const userId = req.user!.id;
 
     // Allowlist : on n'écrit QUE les colonnes fournies.
-    const data: Record<string, unknown> = {};
-    if (parsed.data.default_mode    !== undefined) data.default_mode    = parsed.data.default_mode;
-    if (parsed.data.preferred_prefs !== undefined) data.preferred_prefs = parsed.data.preferred_prefs;
-    if (parsed.data.home_city       !== undefined) data.home_city       = parsed.data.home_city;
-    if (parsed.data.currency        !== undefined) data.currency        = parsed.data.currency;
+    const champsModifies: Record<string, unknown> = {};
+    if (donneesValidees.data.default_mode    !== undefined) champsModifies.default_mode    = donneesValidees.data.default_mode;
+    if (donneesValidees.data.preferred_prefs !== undefined) champsModifies.preferred_prefs = donneesValidees.data.preferred_prefs;
+    if (donneesValidees.data.home_city       !== undefined) champsModifies.home_city       = donneesValidees.data.home_city;
+    if (donneesValidees.data.currency        !== undefined) champsModifies.currency        = donneesValidees.data.currency;
 
     // upsert natif Prisma : crée si absent (user_id = PK), met à jour sinon.
     const preferences = await prisma.userPreference.upsert({
       where:  { user_id: userId },
-      create: { user_id: userId, ...data },
-      update: data,
+      create: { user_id: userId, ...champsModifies },
+      update: champsModifies,
     });
 
     res.json({ preferences });

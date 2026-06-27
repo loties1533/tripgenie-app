@@ -14,7 +14,7 @@ export default function TripDetail() {
   const { setPack, setField, tripId } = useSearchStore()
   const [chatOpen, setChatOpen]       = useState(false)
   const [status, setStatus]           = useState<string | null>(null)
-  const [statusLoading, setStatusLoading] = useState(false)
+  const [statutEnChargement, setStatutEnChargement] = useState(false)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['trip', id],
@@ -37,16 +37,16 @@ export default function TripDetail() {
     if (data?.trip?.status) setStatus(data.trip.status)
   }, [data])
 
-  const handleStatus = async (newStatus: string) => {
-    if (!id || statusLoading) return
-    setStatusLoading(true)
+  const gererStatut = async (newStatus: string) => {
+    if (!id || statutEnChargement) return
+    setStatutEnChargement(true)
     try {
       await updateTrip(id, { status: newStatus })
       setStatus(newStatus)
     } catch {
       /* silencieux */
     } finally {
-      setStatusLoading(false)
+      setStatutEnChargement(false)
     }
   }
 
@@ -125,8 +125,8 @@ export default function TripDetail() {
                     { key: 'archived',  label: '⬛ Archivé',    desc: 'Voyage terminé' },
                   ].map(s => (
                     <button key={s.key}
-                      onClick={() => handleStatus(s.key)}
-                      disabled={statusLoading || status === s.key}
+                      onClick={() => gererStatut(s.key)}
+                      disabled={statutEnChargement || status === s.key}
                       title={s.desc}
                       className={`text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${
                         status === s.key

@@ -9,18 +9,18 @@ import 'dotenv/config';
 import * as Mocks from '../mocks.js';
 import { callClaude, callOpenRouter, callGemini, callOllama } from '../providers.js';
 
-const ANTHROPIC_KEY  = process.env.ANTHROPIC_API_KEY?.trim() ?? null;
-const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY?.trim() ?? null;
+const CLE_ANTHROPIC  = process.env.ANTHROPIC_API_KEY?.trim() ?? null;
+const CLE_OPENROUTER = process.env.OPENROUTER_API_KEY?.trim() ?? null;
 
 export const SYSTEM_PROMPT = `Tu es TripGenie, expert voyage. Réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après.`;
 
-type AIContext = 'onboarding' | 'destinations' | 'pack';
+type ContexteIA = 'onboarding' | 'destinations' | 'pack';
 
 console.log(`🤖 AI Provider: ${
   process.env.AI_PROVIDER === 'ollama'     ? 'Ollama'     :
   process.env.AI_PROVIDER === 'openrouter' ? 'OpenRouter' :
   process.env.AI_PROVIDER === 'gemini'     ? 'Gemini'     :
-  ANTHROPIC_KEY                            ? 'Claude'     : '⚠️ AUCUN'
+  CLE_ANTHROPIC                            ? 'Claude'     : '⚠️ AUCUN'
 }`);
 
 export function sanitizeInput(str: unknown): string {
@@ -114,33 +114,33 @@ export function normalizeChips(chips: unknown): string[] {
 export async function callAI(
   userPrompt: string,
   systemPrompt: string = SYSTEM_PROMPT,
-  context: AIContext = 'onboarding'
+  context: ContexteIA = 'onboarding'
 ): Promise<string> {
-  const errors: string[] = [];
+  const erreursProviders: string[] = [];
   const provider = process.env.AI_PROVIDER;
 
   // Ollama (local, si configuré)
   if (provider === 'ollama' && process.env.OLLAMA_BASE_URL) {
-    try { return await callOllama(systemPrompt, userPrompt); } catch (e) { errors.push(`Ollama: ${(e as Error).message}`); }
+    try { return await callOllama(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`Ollama: ${(e as Error).message}`); }
   }
 
   // Gemini — priorité absolue (JSON fiable, quota généreux)
   if (process.env.GEMINI_API_KEY) {
-    try { return await callGemini(systemPrompt, userPrompt); } catch (e) { errors.push(`Gemini: ${(e as Error).message}`); }
+    try { return await callGemini(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`Gemini: ${(e as Error).message}`); }
   }
 
   // Claude (Anthropic) — si clé disponible
-  if (ANTHROPIC_KEY) {
-    try { return await callClaude(systemPrompt, userPrompt); } catch (e) { errors.push(`Claude: ${(e as Error).message}`); }
+  if (CLE_ANTHROPIC) {
+    try { return await callClaude(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`Claude: ${(e as Error).message}`); }
   }
 
   // OpenRouter (modèles gratuits) — dernier recours car JSON souvent malformé
-  if (OPENROUTER_KEY) {
-    try { return await callOpenRouter(systemPrompt, userPrompt); } catch (e) { errors.push(`OpenRouter: ${(e as Error).message}`); }
+  if (CLE_OPENROUTER) {
+    try { return await callOpenRouter(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`OpenRouter: ${(e as Error).message}`); }
   }
 
   // ⚠️ MODE SURVIE — toutes les IA ont échoué → données génériques activées
-  console.error('❌ AI FAILURES LOG:', JSON.stringify(errors, null, 2));
+  console.error('❌ AI FAILURES LOG:', JSON.stringify(erreursProviders, null, 2));
   console.error(`⚠️ FALLBACK GÉNÉRIQUE ACTIVÉ — contexte: ${context}. Aucun provider IA disponible.`);
   if (context === 'onboarding')   return JSON.stringify(Mocks.MOCK_ONBOARDING);
   if (context === 'destinations') return JSON.stringify(Mocks.MOCK_DESTINATIONS);

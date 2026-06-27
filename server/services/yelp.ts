@@ -7,11 +7,11 @@
 import 'dotenv/config';
 import type { Activite, TravelMode, ActivityLinks } from '../lib/types.js';
 
-const YELP_API_KEY = process.env.YELP_API_KEY;
-const BASE = 'https://api.yelp.com/v3';
+const CLE_YELP = process.env.YELP_API_KEY;
+const URL_BASE_YELP = 'https://api.yelp.com/v3';
 
 // Catégories Yelp selon le mode
-const MODE_YELP_CATEGORIES: Record<TravelMode, string> = {
+const CATEGORIES_YELP_PAR_MODE: Record<TravelMode, string> = {
   party:    'bars,nightlife,cocktailbars',
   luxury:   'restaurants,frenchrestaurants,wine_bars',
   student:  'restaurants,streetfood,cafes',
@@ -20,7 +20,7 @@ const MODE_YELP_CATEGORIES: Record<TravelMode, string> = {
   surprise: 'restaurants,newamerican,fusion',
 };
 
-interface YelpBusiness {
+interface EtablissementYelp {
   id: string;
   name: string;
   rating: number;
@@ -31,25 +31,25 @@ interface YelpBusiness {
   image_url?: string;
 }
 
-interface YelpResponse {
-  businesses: YelpBusiness[];
+interface ReponseYelp {
+  businesses: EtablissementYelp[];
   total: number;
 }
 
-function encode(str: string): string {
+function encoderURL(str: string): string {
   return encodeURIComponent(str?.trim() ?? '');
 }
 
-function priceFromSymbol(price?: string): number {
+function prixDepuisSymbole(price?: string): number {
   const map: Record<string, number> = { '$': 15, '$$': 35, '$$$': 65, '$$$$': 120 };
   return price ? (map[price] ?? 30) : 30;
 }
 
-function restaurantLinks(name: string, city: string): ActivityLinks {
+function liensRestaurant(name: string, city: string): ActivityLinks {
   return {
-    viator:       `https://www.thefork.fr/recherche?q=${encode(name + ' ' + city)}`,
-    getyourguide: `https://www.google.com/search?q=${encode(name + ' ' + city + ' réservation')}`,
-    airbnb:       `https://www.yelp.fr/search?find_desc=restaurants&find_loc=${encode(city)}`,
+    viator:       `https://www.thefork.fr/recherche?q=${encoderURL(name + ' ' + city)}`,
+    getyourguide: `https://www.google.com/search?q=${encoderURL(name + ' ' + city + ' réservation')}`,
+    airbnb:       `https://www.yelp.fr/search?find_desc=restaurants&find_loc=${encoderURL(city)}`,
   };
 }
 
@@ -61,24 +61,24 @@ export async function yelpRestaurantSearch(
   city: string,
   mode: TravelMode
 ): Promise<Activite[]> {
-  if (!YELP_API_KEY) {
+  if (!CLE_YELP) {
     console.warn('⚠️ Yelp ignoré (YELP_API_KEY manquante).');
     return [];
   }
 
   try {
-    const categories = MODE_YELP_CATEGORIES[mode] ?? 'restaurants';
+    const categories = CATEGORIES_YELP_PAR_MODE[mode] ?? 'restaurants';
 
-    const params = new URLSearchParams({
+    const parametresRequete = new URLSearchParams({
       location:   city,
       categories,
       sort_by:    'rating',
       limit:      '3',
     });
 
-    const res = await fetch(`${BASE}/businesses/search?${params}`, {
+    const res = await fetch(`${URL_BASE_YELP}/businesses/search?${parametresRequete}`, {
       headers: {
-        Authorization: `Bearer ${YELP_API_KEY}`,
+        Authorization: `Bearer ${CLE_YELP}`,
         Accept: 'application/json',
       },
       signal: AbortSignal.timeout(8000),
@@ -86,25 +86,25 @@ export async function yelpRestaurantSearch(
 
     if (!res.ok) throw new Error(`Yelp ${res.status}: ${await res.text()}`);
 
-    const data = await res.json() as YelpResponse;
+    const donneesYelp = await res.json() as ReponseYelp;
 
-    if (!data.businesses?.length) {
+    if (!donneesYelp.businesses?.length) {
       console.warn(`⚠️ Yelp: 0 restaurant trouvé pour ${city}`);
       return [];
     }
 
-    console.log(`✅ Yelp: ${data.businesses.length} restaurants trouvés pour ${city}`);
+    console.log(`✅ Yelp: ${donneesYelp.businesses.length} restaurants trouvés pour ${city}`);
 
-    return data.businesses.map(b => ({
+    return donneesYelp.businesses.map(b => ({
       name:        b.name,
       category:    b.categories[0]?.title ?? 'Restaurant',
       emoji:       '🍽️',
       description: `${b.categories[0]?.title ?? 'Restaurant'} · ${b.price ?? '$$'} · ⭐ ${b.rating}/5`,
       duration:    '1h30',
-      price:       priceFromSymbol(b.price),
+      price:       prixDepuisSymbole(b.price),
       price_range: b.price ?? '$$',
-      booking_url: `https://www.google.com/maps/search/?api=1&query=${encode(b.name + ' ' + city)}`,
-      links:       restaurantLinks(b.name, city),
+      booking_url: `https://www.google.com/maps/search/?api=1&query=${encoderURL(b.name + ' ' + city)}`,
+      links:       liensRestaurant(b.name, city),
     }));
 
   } catch (err) {

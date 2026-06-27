@@ -9,7 +9,7 @@ import rateLimit from 'express-rate-limit';
 import prisma from '../db/prisma.js';
 import type { Request, Response, NextFunction } from 'express';
 
-const voteSchema = z.object({
+const schemaVote = z.object({
   pack_id:    z.string().uuid('pack_id invalide'),
   item_id:    z.string().min(1, 'item_id requis'),
   vote_type:  z.boolean(),
@@ -33,12 +33,12 @@ router.use(voteLimiter);
 // Permet de voter pour un élément du pack (public via lien)
 router.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const parsed = voteSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.issues?.[0]?.message ?? 'Données invalides' });
+    const donneesValidees = schemaVote.safeParse(req.body);
+    if (!donneesValidees.success) {
+      res.status(400).json({ error: donneesValidees.error.issues?.[0]?.message ?? 'Données invalides' });
       return;
     }
-    const { pack_id, item_id, voter_name, vote_type } = parsed.data;
+    const { pack_id, item_id, voter_name, vote_type } = donneesValidees.data;
 
     // trip_votes est PUBLIC : les amis votent via le lien de partage, sans compte.
     const vote = await prisma.tripVote.create({

@@ -8,25 +8,25 @@ import * as Mocks from '../mocks.js';
 import { callAI, parseJSON, sanitizeInput, normalizeChips } from './core.js';
 import type { ResultatOnboarding, Pack, TravelMode } from '../../lib/types.js';
 
-interface ChatIntakeParams {
+interface ParamsChatIntake {
   currentData?: Record<string, unknown>;
   userMessage: string;
 }
 
-interface ChatModifyParams {
+interface ParamsChatModify {
   currentPack?: Partial<Pack>;
   userMessage: string;
   mode?: TravelMode;
 }
 
-interface ChatModifyResult {
+interface ResultatChatModify {
   response: string;
   needs_full_regen?: boolean;
   modifications?: Partial<Pack>;
   chips?: string[];
 }
 
-export async function chatIntake({ currentData, userMessage }: ChatIntakeParams): Promise<ResultatOnboarding & { isMock?: boolean }> {
+export async function chatIntake({ currentData, userMessage }: ParamsChatIntake): Promise<ResultatOnboarding & { isMock?: boolean }> {
   const systemPrompt = `Tu es le Concierge Privé de TripGenie. Tu incarnes l'excellence du service personnalisé.
 
 TON OBJECTIF : Collecter les informations essentielles pour orchestrer une escapade signature (Profil, Voyageurs, Budget, Dates).
@@ -58,9 +58,9 @@ FORMAT DE RÉPONSE (JSON STRICT) :
   "isReady": false
 }`;
 
-  const msg = sanitizeInput(userMessage).toLowerCase();
+  const messageNormalise = sanitizeInput(userMessage).toLowerCase();
 
-  if (msg.includes('montre-moi')) {
+  if (messageNormalise.includes('montre-moi')) {
     const profile = (currentData?.profile as string | undefined) ?? (Mocks.MOCK_ONBOARDING.extractedData.profile as string);
     return {
       response:      "C'est parti pour le voyage Signature TripGenie ! ✨",
@@ -71,7 +71,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
     };
   }
 
-  if (msg.includes('attendre')) {
+  if (messageNormalise.includes('attendre')) {
     return {
       response:      "Pas de souci ! N'hésite pas à revenir. À bientôt ! 👋",
       isReady:       false,
@@ -82,12 +82,12 @@ FORMAT DE RÉPONSE (JSON STRICT) :
   }
 
   try {
-    const raw = await callAI(
+    const reponseIABrute = await callAI(
       `${systemPrompt}\n\nMessage utilisateur : "${sanitizeInput(userMessage)}"`,
       undefined,
       'onboarding'
     );
-    return parseJSON(raw) as ResultatOnboarding;
+    return parseJSON(reponseIABrute) as ResultatOnboarding;
   } catch (err) {
     console.error('⚠️ ChatIntake failed, activation du Mode Survie:', (err as Error).message);
     return {
@@ -98,7 +98,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
   }
 }
 
-export async function chatModify({ currentPack, userMessage, mode }: ChatModifyParams): Promise<ChatModifyResult> {
+export async function chatModify({ currentPack, userMessage, mode }: ParamsChatModify): Promise<ResultatChatModify> {
   const systemPrompt = `Tu es l'expert voyage TripGenie. L'utilisateur veut modifier son voyage à ${currentPack?.destination ?? 'destination'}.
 
   CONTEXTE ACTUEL :
@@ -124,21 +124,21 @@ export async function chatModify({ currentPack, userMessage, mode }: ChatModifyP
   }`;
 
   try {
-    const raw    = await callAI(`${systemPrompt}\n\nMessage de l'utilisateur : "${sanitizeInput(userMessage)}"`);
-    const result = parseJSON(raw) as ChatModifyResult;
-    if (result.chips) result.chips = normalizeChips(result.chips);
+    const reponseIABrute = await callAI(`${systemPrompt}\n\nMessage de l'utilisateur : "${sanitizeInput(userMessage)}"`);
+    const packModifie = parseJSON(reponseIABrute) as ResultatChatModify;
+    if (packModifie.chips) packModifie.chips = normalizeChips(packModifie.chips);
 
     // Les activités modifiées par l'IA peuvent contenir un booking_url bidon
     // (domaine inventé, ex: luxe-restaurant.com). On le normalise vers un lien
-    // Google Maps universel, comme à la génération initiale (mapActivities).
-    const dest = currentPack?.destination ?? '';
-    if (result.modifications?.activities) {
-      result.modifications.activities = result.modifications.activities.map((a: any) => ({
+    // Google Maps universel, comme à la génération initiale (transformerActivites).
+    const destinationPack = currentPack?.destination ?? '';
+    if (packModifie.modifications?.activities) {
+      packModifie.modifications.activities = packModifie.modifications.activities.map((a: any) => ({
         ...a,
-        booking_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((a.name || a.title || '') + ' ' + dest)}`,
+        booking_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((a.name || a.title || '') + ' ' + destinationPack)}`,
       }));
     }
-    return result;
+    return packModifie;
   } catch (err) {
     console.error('⚠️ ChatModify failed:', (err as Error).message);
     return {

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchStore } from '../../store'
 
-interface Message {
+interface MessageChat {
   role: 'user' | 'assistant'
   text: string
 }
@@ -21,43 +21,43 @@ const SUGGESTIONS = [
 
 export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
   const { pack, setPack } = useSearchStore()
-  const [messages, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<MessageChat[]>([
     { role: 'assistant', text: 'Bonjour ! Que souhaitez-vous modifier dans ce pack ?' }
   ])
   const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [chargement, setChargement] = useState(false)
+  const refBas = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    refBas.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const send = async (text?: string) => {
-    const msg = (text ?? input).trim()
-    if (!msg || loading) return
+  const envoyer = async (text?: string) => {
+    const message = (text ?? input).trim()
+    if (!message || chargement) return
     setInput('')
-    setMessages(prev => [...prev, { role: 'user', text: msg }])
-    setLoading(true)
+    setMessages(prev => [...prev, { role: 'user', text: message }])
+    setChargement(true)
 
     try {
-      const res = await fetch('/api/ai/chat', {
+      const reponse = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          message: msg,
+          message: message,
           current_pack: pack,
           mode: mode || 'party',
           trip_id: tripId ?? null,
         }),
       })
-      const data = await res.json()
-      if (data.modifications && pack) {
-        setPack({ ...pack, ...data.modifications }, tripId ?? null)
+      const donneesReponse = await reponse.json()
+      if (donneesReponse.modifications && pack) {
+        setPack({ ...pack, ...donneesReponse.modifications }, tripId ?? null)
       }
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', text: data.reply || 'Modification effectuée ✓' },
+        { role: 'assistant', text: donneesReponse.reply || 'Modification effectuée ✓' },
       ])
     } catch {
       setMessages(prev => [
@@ -65,7 +65,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
         { role: 'assistant', text: 'Erreur de connexion, réessaie.' },
       ])
     } finally {
-      setLoading(false)
+      setChargement(false)
     }
   }
 
@@ -96,7 +96,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
           </motion.div>
         ))}
 
-        {loading && (
+        {chargement && (
           <div className="flex justify-start">
             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center text-white text-[10px] mr-2 mt-1 flex-shrink-0">
               ✦
@@ -111,14 +111,14 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             </div>
           </div>
         )}
-        <div ref={bottomRef} />
+        <div ref={refBas} />
       </div>
 
       {/* Suggestions rapides */}
       {messages.length === 1 && (
         <div className="px-4 pb-2 flex flex-wrap gap-2">
           {SUGGESTIONS.map(s => (
-            <button key={s} onClick={() => send(s)}
+            <button key={s} onClick={() => envoyer(s)}
               className="text-[11px] px-3 py-1.5 rounded-full border border-gold/30 text-gold hover:bg-gold/10 transition-colors">
               {s}
             </button>
@@ -132,15 +132,15 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
+            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && envoyer()}
             placeholder="Remplace l'hôtel par..."
             className="flex-1 bg-white/5 border border-gold/20 rounded-xl px-3.5 py-2.5 text-sm
                        text-ink dark:text-parchment placeholder:text-muted
                        focus:outline-none focus:border-gold/50 transition-colors"
           />
           <button
-            onClick={() => send()}
-            disabled={loading || !input.trim()}
+            onClick={() => envoyer()}
+            disabled={chargement || !input.trim()}
             className="bg-gold hover:bg-gold/80 disabled:opacity-30 text-white
                        w-10 h-10 rounded-xl font-bold transition-all flex items-center justify-center"
           >
