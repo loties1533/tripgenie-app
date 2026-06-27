@@ -25,7 +25,14 @@ export default function TripDetail() {
   useEffect(() => {
     if (data?.trip?.pack_data && tripId !== data.trip.id) {
       setPack(data.trip.pack_data, data.trip.id, data.trip.pack_id ?? null)
+    }
+    // Toujours hydrater le store depuis la BDD (source de vérité), même sur un voyage
+    // fraîchement généré : le store top-level garde sinon ses défauts (2 voyageurs, dates vides).
+    if (data?.trip) {
       setField('mode', data.trip.mode || 'party')
+      if (data.trip.travelers != null)   setField('travelers', data.trip.travelers)
+      if (data.trip.departure)           setField('departure', data.trip.departure)
+      if (data.trip.return_date)         setField('returnDate', data.trip.return_date)
     }
     if (data?.trip?.status) setStatus(data.trip.status)
   }, [data])

@@ -92,7 +92,8 @@ export async function suggestDestinations({
       STRATÉGIE : propose des destinations RECONNUES pour ce mode de voyage. Pour party = vraies destinations fête (beach clubs, clubs, festivals). Varie les continents mais reste cohérent avec le mode.
 
       FORMAT JSON STRICT :
-      {"destinations": [{"city": "Nom", "country": "Pays", "tagline": "Accroche courte", "reason": "Raison MAX 8 mots", "budget_estimate": "~${budgetPerPers}€/pers", "match_score": 95}]}`,
+      {"destinations": [{"city": "Nom", "country": "Pays", "tagline": "Accroche courte", "reason": "Raison MAX 8 mots", "budget_estimate": "~${budgetPerPers}€/pers", "match_score": 95}]}
+      ⚠️ "tagline" et "reason" DOIVENT être rédigés EN FRANÇAIS. Seuls "city" et "country" gardent leur nom d'origine.`,
       undefined,
       'destinations'
     );

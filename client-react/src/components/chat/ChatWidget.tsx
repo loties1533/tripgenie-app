@@ -74,10 +74,10 @@ const QUIZ_STEPS = [
     key:      'budget',
     question: 'Quel budget souhaitez-vous allouer à cette escapade ?',
     chips: [
-      { label: 'Dès 1 500€',     data: { budget: 1500  } },
-      { label: 'Environ 5 000€', data: { budget: 5000  } },
-      { label: '10 000€ et +',   data: { budget: 15000 } },
-      { label: 'Surprise-moi ✦', data: { budget: 30000 } },
+      { label: 'Dès 1 500€',         data: { budget: 1500  } },
+      { label: 'Environ 5 000€',     data: { budget: 5000  } },
+      { label: '10 000€ et +',       data: { budget: 15000 } },
+      { label: '✏️ Montant précis...', data: null },
     ]
   },
   {
@@ -163,14 +163,18 @@ function InlineInput({
   setDateRange,
   travelersCount,
   setTravelersCount,
+  budgetAmount,
+  setBudgetAmount,
   onConfirm,
   onCancel,
 }: {
-  mode: 'date' | 'travelers'
+  mode: 'date' | 'travelers' | 'budget'
   dateRange: { departure: string; return_date: string }
   setDateRange: (v: { departure: string; return_date: string }) => void
   travelersCount: number | ''
   setTravelersCount: (v: number | '') => void
+  budgetAmount: number | ''
+  setBudgetAmount: (v: number | '') => void
   onConfirm: () => void
   onCancel: () => void
 }) {
@@ -179,7 +183,9 @@ function InlineInput({
 
   const canConfirm = mode === 'date'
     ? !!dateRange.departure
-    : travelersCount !== '' && (travelersCount as number) >= 1
+    : mode === 'travelers'
+    ? travelersCount !== '' && (travelersCount as number) >= 1
+    : budgetAmount !== '' && (budgetAmount as number) >= 1
 
   return (
     <motion.div
@@ -210,7 +216,7 @@ function InlineInput({
             />
           </div>
         </>
-      ) : (
+      ) : mode === 'travelers' ? (
         <div className="flex flex-col gap-1">
           <label className="text-[10px] uppercase tracking-widest text-gold font-semibold">Nombre de voyageurs</label>
           <input
@@ -224,6 +230,25 @@ function InlineInput({
             )}
             className="bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-parchment outline-none transition-colors w-32"
           />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1">
+          <label className="text-[10px] uppercase tracking-widest text-gold font-semibold">Budget total (€)</label>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              max={50000}
+              step={500}
+              placeholder="Ex : 8 000"
+              value={budgetAmount}
+              onChange={e => setBudgetAmount(
+                e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1)
+              )}
+              className="bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-parchment outline-none transition-colors w-32"
+            />
+            <span className="text-gold text-sm font-semibold">€</span>
+          </div>
         </div>
       )}
       <div className="flex gap-2 mt-1">
@@ -257,7 +282,7 @@ async function processAIMessage(value: string, ctx: any) {
     if (res.isReady || forceReady) {
       setReady(true)
       addMessage({ role: 'bot', text: "🎯 Parfait, j'ai tout ce qu'il me faut ! Je cherche les meilleures destinations pour vous..." })
-      await suggestDestinations(merged, { addMessage, setTyping, setLoading, setPack, setField })
+      await suggestDestinations(merged, { addMessage, setTyping, setLoading, setPack, setField, setReady })
     } else {
       addMessage({ role: 'bot', text: res.response, chips: res.chips || [] })
     }
@@ -276,7 +301,7 @@ async function suggestDestinations(
   // FIX 11 : guard montage pour éviter les setField sur composant démonté
   guard?: { mounted: { current: boolean } }
 ) {
-  const { addMessage, setTyping, setLoading, setPack, setField } = ctx
+  const { addMessage, setTyping, setLoading, setPack, setField, setReady } = ctx
   setTyping(true)
   try {
     const res = await getDestinations({
@@ -295,11 +320,14 @@ async function suggestDestinations(
     if (dests.length) {
       setField('concepts', dests)
     } else {
+      // Échec : on rouvre l'UI quiz (setReady=false) pour permettre un retry.
+      setReady?.(false)
       addMessage({ role: 'bot', text: 'Impossible de charger les destinations. Réessaie !' })
     }
   } catch {
     if (guard && !guard.mounted.current) return
     setTyping(false)
+    setReady?.(false)
     addMessage({ role: 'bot', text: 'Impossible de charger les destinations. Réessaie !' })
   }
 }
@@ -310,7 +338,7 @@ async function suggestDestinations(
 export default function ChatWidget() {
   const {
     messages, isTyping, addMessage, mergeChatData, setTyping,
-    setReady, setMockMode, chatData, turnCount, isMockMode,
+    setReady, setMockMode, chatData, turnCount, isMockMode, isReady,
     quizMode, quizStep, setQuizMode, nextQuizStep,
   } = useChatStore()
   const { setLoading, setPack, setField } = useSearchStore()
@@ -320,16 +348,23 @@ export default function ChatWidget() {
   const sendingRef          = useRef(false)
   const [sending, setSending] = useState(false) // pour l'UI (spinner)
   const [awaitingConfirm, setAwaitingConfirm] = useState(false)
-  const [inputMode, setInputMode]             = useState<null | 'date' | 'travelers'>(null)
+  const [inputMode, setInputMode]             = useState<null | 'date' | 'travelers' | 'budget'>(null)
   const [dateRange, setDateRange]             = useState({ departure: '', return_date: '' })
   const [travelersCount, setTravelersCount]   = useState<number | ''>('')
+  const [budgetAmount, setBudgetAmount]       = useState<number | ''>('')
 
   const bottomRef  = useRef<HTMLDivElement>(null)
   const inputRef   = useRef<HTMLTextAreaElement>(null)
   const initRef    = useRef<boolean>(false)
-  // FIX 11 : ref de montage — empêche setField sur composant démonté
+  // FIX 11 : ref de montage — empêche setField sur composant démonté.
+  // ⚠️ On REMET à true à chaque (re)montage : en React.StrictMode (dev), le cycle
+  // mount→unmount→remount laisserait sinon mountedRef à false → le guard bloquerait
+  // setField('concepts') et les cartes n'apparaîtraient jamais ("ça charge, rien n'arrive").
   const mountedRef = useRef(true)
-  useEffect(() => { return () => { mountedRef.current = false } }, [])
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   // Message de bienvenue
   useEffect(() => {
@@ -352,6 +387,7 @@ export default function ChatWidget() {
       setInputMode(null)
       setDateRange({ departure: '', return_date: '' })
       setTravelersCount('')
+      setBudgetAmount('')
     }
   }, [messages.length])
 
@@ -363,35 +399,30 @@ export default function ChatWidget() {
   const handleQuizChip = useCallback(async (chip: any) => {
     // Chip d'input inline (data === null)
     if (chip.data === null) {
-      if (chip.label.includes('Date précise'))  setInputMode('date')
-      if (chip.label.includes('Autre nombre')) setInputMode('travelers')
+      if (chip.label.includes('Date précise'))   setInputMode('date')
+      if (chip.label.includes('Autre nombre'))   setInputMode('travelers')
+      if (chip.label.includes('Montant précis')) setInputMode('budget')
       return
     }
 
     const chipData = typeof chip.data === 'function' ? chip.data() : chip.data
     addMessage({ role: 'user', text: chip.label })
 
-    // Explication pour budget "Surprise-moi"
-    if (chipData?.budget === 30000) {
-      setTimeout(() => {
-        addMessage({
-          role: 'bot',
-          text: "✦ Nous orchestrons votre escapade sur un budget d'exception (30 000€+). Chaque détail sera traité avec le soin qui vous est dû.",
-        })
-      }, 150)
-    }
-
     mergeChatData(chipData)
 
     const currentStep = QUIZ_STEPS[quizStep]
     const isLast      = quizStep === QUIZ_STEPS.length - 1
+    // Les chips rapides de l'étape "departure" (Ce week-end, Dans 1 mois…) fournissent
+    // DÉJÀ la durée → inutile de redemander l'étape "duration" : on file au récap.
+    const departureProvidesDuration = currentStep.key === 'departure' && chipData?.duration != null
 
     // FIX 6 : recalcul return_date via utilitaire centralisé
     if (currentStep.key === 'duration' && chipData?.duration && chatData.departure) {
       mergeChatData({ return_date: computeReturnDate(chatData.departure as string, chipData.duration as number) })
     }
 
-    if (isLast) {
+    if (isLast || departureProvidesDuration) {
+      if (departureProvidesDuration) nextQuizStep() // step 3 → 4 (durée) pour cohérence d'état
       const merged: Record<string, unknown> = { ...chatData, ...chipData }
       if (merged.departure && merged.duration) {
         merged.return_date = computeReturnDate(merged.departure as string, merged.duration as number)
@@ -428,7 +459,7 @@ export default function ChatWidget() {
     setTimeout(() => addMessage({ role: 'bot', text: '🎯 Parfait ! Je cherche les meilleures destinations pour votre voyage...' }), 200)
     setReady(true)
     // FIX 11 : passage du guard de montage
-    await suggestDestinations(merged, { addMessage, setTyping, setLoading, setPack, setField }, { mounted: mountedRef })
+    await suggestDestinations(merged, { addMessage, setTyping, setLoading, setPack, setField, setReady }, { mounted: mountedRef })
   }, [chatData])
 
   // ---- Modifier → reset chatData + retour step 0 ----
@@ -475,6 +506,13 @@ export default function ChatWidget() {
           label: `${travelersCount} personne${(travelersCount as number) > 1 ? 's' : ''}`,
           data:  { travelers: travelersCount },
         })
+      } else if (inputMode === 'budget') {
+        // Budget exact saisi à la main — délégué comme un chip budget normal
+        if (budgetAmount === '') return
+        await handleQuizChip({
+          label: `${Number(budgetAmount).toLocaleString('fr-FR')}€`,
+          data:  { budget: budgetAmount },
+        })
       }
     } catch {
       // FIX 4 : en cas d'erreur, on informe sans bloquer l'UI
@@ -484,8 +522,9 @@ export default function ChatWidget() {
       setInputMode(null)
       setDateRange({ departure: '', return_date: '' })
       setTravelersCount('')
+      setBudgetAmount('')
     }
-  }, [inputMode, dateRange, travelersCount, handleQuizChip, chatData])
+  }, [inputMode, dateRange, travelersCount, budgetAmount, handleQuizChip, chatData])
 
   // ---- Envoi texte libre ----
   const sendMessage = useCallback(async () => {
@@ -590,8 +629,10 @@ export default function ChatWidget() {
           </motion.div>
         )}
 
-        {/* Quiz : input inline OU chips OU récap */}
-        {quizMode && !isWelcomeState && (
+        {/* Quiz : input inline OU chips OU récap — masqué dès que l'onboarding
+            est validé (isReady) pour ne pas laisser traîner de chips pendant
+            le chargement des destinations. */}
+        {quizMode && !isWelcomeState && !isReady && (
           <>
             {inputMode ? (
               <InlineInput
@@ -600,6 +641,8 @@ export default function ChatWidget() {
                 setDateRange={setDateRange}
                 travelersCount={travelersCount}
                 setTravelersCount={setTravelersCount}
+                budgetAmount={budgetAmount}
+                setBudgetAmount={setBudgetAmount}
                 onConfirm={handleInlineConfirm}
                 onCancel={() => setInputMode(null)}
               />

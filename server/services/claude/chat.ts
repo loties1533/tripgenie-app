@@ -37,6 +37,7 @@ RÈGLES D'OR :
 2. ANTICIPATION : Ne redemande JAMAIS ce qui est déjà connu.
 3. FLUIDITÉ (ISREADY) : Tu passes isReady: true dès que tu as au moins 3 champs remplis parmi (travelers, budget, profile, duration).
 4. DÉDUCTION : "On est 4 amis" → travelers=4, profile="amis", mode="party".
+5. LANGUE : rédige "response" et TOUS les "chips" exclusivement EN FRANÇAIS.
 
 DONNÉES ACTUELLES :
 ${JSON.stringify(currentData ?? {})}
@@ -109,6 +110,7 @@ export async function chatModify({ currentPack, userMessage, mode }: ChatModifyP
   1. Réponds de manière amicale et concise (champ "response").
   2. Si l'utilisateur demande une modification majeure, mets "needs_full_regen" à true.
   3. Pour des modifications précises, suggère les changements dans "modifications".
+  4. LANGUE : rédige "response" et les "chips" exclusivement EN FRANÇAIS.
 
   FORMAT RÉPONSE (JSON UNIQUEMENT) :
   {

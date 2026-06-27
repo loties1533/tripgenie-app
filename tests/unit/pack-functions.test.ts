@@ -234,7 +234,7 @@ describe('mapFlights — mapping vols → Pack[\'flights\']', () => {
   it('fallback sans données Tavily : vols estimés générés', () => {
     const flights = mapFlights(undefined, 'IBZ', 'CDG', 'Paris', 'Ibiza', 2000, 2);
     expect(flights).toHaveLength(2);
-    expect(flights[0].airline).toBe('Air France');
+    expect(flights[0].airline).toBe('À confirmer');
   });
 
   it('fallback sans données : prix = 15% budget/pers', () => {
@@ -248,10 +248,10 @@ describe('mapFlights — mapping vols → Pack[\'flights\']', () => {
     expect(f[0].links?.skyscanner).toContain('/cdg/ibz/'); // codes IATA en minuscules
     expect(f[0].links?.skyscanner).toContain('260715');     // date aller au format YYMMDD
     expect(f[0].links?.skyscanner).toContain('adults=2');
-    // Codes IATA invalides (XXX) → repli sur Google Flights (jamais de 404)
+    // Codes IATA invalides (XXX) → repli sur google.com/search (google/travel ne pré-remplit pas)
     const g = mapFlights([flight], 'XXX', 'XXX', 'Paris', 'Ibiza', 2000, 2, '2026-07-15');
-    expect(g[0].links?.skyscanner).toContain('google.com/travel/flights');
-    expect(g[0].links?.google).toContain('google.com/travel/flights');
+    expect(g[0].links?.skyscanner).toContain('google.com/search');
+    expect(g[0].links?.google).toContain('google.com/search');
   });
 });
 
