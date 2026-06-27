@@ -23,7 +23,7 @@ export class AppError extends Error {
 /**
  * Middleware de gestion d'erreurs global pour Express.
  */
-export const globalErrorHandler = (
+export const gestionnairreErreurGlobal = (
   err: AppError & { stack?: string },
   _req: Request,
   res: Response,

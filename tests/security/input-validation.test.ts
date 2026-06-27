@@ -27,7 +27,7 @@ vi.mock('../../server/services/claude/index.js', () => ({
   suggestDestinations: vi.fn().mockResolvedValue({ destinations: [] }),
   chatIntake:          vi.fn().mockResolvedValue({ response: 'ok', isReady: false }),
   chatModify:          vi.fn().mockResolvedValue({ reply: 'ok', modifications: {} }),
-  assemblePack:        vi.fn().mockResolvedValue({
+  assemblerPack:        vi.fn().mockResolvedValue({
     destination: 'Paris', country: 'France', tagline: 'Test', overview: '',
     summary: { total_budget: '1000€', nights: 3, activities_count: 2 },
     flights: [], hotels: [], itinerary: [], activities: [], events: [],

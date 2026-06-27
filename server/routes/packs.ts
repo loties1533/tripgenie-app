@@ -15,12 +15,12 @@ import { validateParams } from '../middleware/validation.js';
 const router = express.Router();
 router.use(requireAuth);
 
-const packParamsSchema = z.object({
+const schemaParamsPack = z.object({
   trip_id: z.string().min(1, 'trip_id requis'),
   pack_id: z.string().min(1, 'pack_id requis').optional(),
 });
 
-router.get('/:trip_id', validateParams(packParamsSchema), async (req: Request, res: Response): Promise<void> => {
+router.get('/:trip_id', validateParams(schemaParamsPack), async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ error: 'Non authentifié' });
@@ -29,11 +29,11 @@ router.get('/:trip_id', validateParams(packParamsSchema), async (req: Request, r
     const userId = req.user.id;
 
     // Vérif propriété AVANT de lire les packs (isolation par user_id)
-    const owned = await prisma.trip.findFirst({
+    const voyagePossede = await prisma.trip.findFirst({
       where:  { id: String(req.params.trip_id), user_id: userId },
       select: { id: true },
     });
-    if (!owned) {
+    if (!voyagePossede) {
       res.status(403).json({ error: 'Accès non autorisé' });
       return;
     }
@@ -50,7 +50,7 @@ router.get('/:trip_id', validateParams(packParamsSchema), async (req: Request, r
   }
 });
 
-router.post('/:trip_id/select/:pack_id', validateParams(packParamsSchema), async (req: Request, res: Response): Promise<void> => {
+router.post('/:trip_id/select/:pack_id', validateParams(schemaParamsPack), async (req: Request, res: Response): Promise<void> => {
   try {
     if (!req.user) {
       res.status(401).json({ error: 'Non authentifié' });
@@ -60,18 +60,18 @@ router.post('/:trip_id/select/:pack_id', validateParams(packParamsSchema), async
 
     // Tout dans UNE transaction atomique : propriété → existence pack → bascule
     // selected → MAJ du trip. Si une étape échoue, ROLLBACK (pas d'état incohérent).
-    const outcome = await prisma.$transaction(async (tx): Promise<
+    const resultatTransaction = await prisma.$transaction(async (tx): Promise<
       { status: 403 } | { status: 404 } | { status: 200; pack: unknown }
     > => {
-      const owned = await tx.trip.findFirst({
+      const voyagePossede = await tx.trip.findFirst({
         where: { id: String(req.params.trip_id), user_id: userId }, select: { id: true },
       });
-      if (!owned) return { status: 403 };
+      if (!voyagePossede) return { status: 403 };
 
-      const exists = await tx.pack.findFirst({
+      const packExiste = await tx.pack.findFirst({
         where: { id: String(req.params.pack_id), trip_id: String(req.params.trip_id) }, select: { id: true },
       });
-      if (!exists) return { status: 404 };
+      if (!packExiste) return { status: 404 };
 
       // Désélectionne tous les packs du trip, puis sélectionne le choisi
       await tx.pack.updateMany({ where: { trip_id: String(req.params.trip_id) }, data: { selected: false } });
@@ -86,10 +86,10 @@ router.post('/:trip_id/select/:pack_id', validateParams(packParamsSchema), async
       return { status: 200, pack };
     });
 
-    if (outcome.status === 403) { res.status(403).json({ error: 'Accès non autorisé' }); return; }
-    if (outcome.status === 404) { res.status(404).json({ error: 'Pack introuvable' });   return; }
+    if (resultatTransaction.status === 403) { res.status(403).json({ error: 'Accès non autorisé' }); return; }
+    if (resultatTransaction.status === 404) { res.status(404).json({ error: 'Pack introuvable' });   return; }
 
-    res.json({ pack: outcome.pack, message: 'Pack sélectionné !' });
+    res.json({ pack: resultatTransaction.pack, message: 'Pack sélectionné !' });
   } catch (err) {
     console.error('SELECT pack error:', err);
     res.status(500).json({ error: 'Erreur lors de la sélection' });

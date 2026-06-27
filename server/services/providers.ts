@@ -5,31 +5,31 @@
 
 import 'dotenv/config';
 
-const ANTHROPIC_KEY  = process.env.ANTHROPIC_API_KEY?.trim() ?? null;
-const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY?.trim() ?? null;
-const AI_TIMEOUT_MS  = 45_000;
+const CLE_ANTHROPIC  = process.env.ANTHROPIC_API_KEY?.trim() ?? null;
+const CLE_OPENROUTER = process.env.OPENROUTER_API_KEY?.trim() ?? null;
+const TIMEOUT_IA_MS  = 45_000;
 
-interface FetchOptions extends RequestInit {
+interface OptionsFetch extends RequestInit {
   signal?: AbortSignal;
 }
 
-function fetchWithTimeout(url: string, options: FetchOptions, timeoutMs = AI_TIMEOUT_MS): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+function fetchAvecTimeout(url: string, options: OptionsFetch, timeoutMs = TIMEOUT_IA_MS): Promise<Response> {
+  const controleurAbort = new AbortController();
+  const minuterie = setTimeout(() => controleurAbort.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controleurAbort.signal }).finally(() => clearTimeout(minuterie));
 }
 
-interface AnthropicResponse {
+interface ReponseAnthropic {
   content: Array<{ text: string }>;
   error?: { message: string };
 }
 
 export async function callClaude(systemPrompt: string, userPrompt: string): Promise<string> {
-  const res = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
+  const res = await fetchAvecTimeout('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type':      'application/json',
-      'x-api-key':         ANTHROPIC_KEY ?? '',
+      'x-api-key':         CLE_ANTHROPIC ?? '',
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
@@ -39,12 +39,12 @@ export async function callClaude(systemPrompt: string, userPrompt: string): Prom
       messages:   [{ role: 'user', content: userPrompt }],
     }),
   });
-  const data = (await res.json()) as AnthropicResponse;
+  const data = (await res.json()) as ReponseAnthropic;
   if (!res.ok) throw new Error(`Claude error: ${JSON.stringify(data.error)}`);
   return data.content[0].text;
 }
 
-const FREE_MODELS = [
+const MODELES_GRATUITS = [
   'openai/gpt-oss-20b:free',
   'google/gemma-3-27b-it:free',
   'google/gemma-4-26b-a4b-it:free',
@@ -59,19 +59,19 @@ const FREE_MODELS = [
   // 'z-ai/glm-4.5-air:free',             ❌ limite ~1240 chars output
 ];
 
-interface OpenRouterResponse {
+interface ReponseOpenRouter {
   choices: Array<{ message: { content: string } }>;
   error?: { code?: number; message?: string };
 }
 
 export async function callOpenRouter(systemPrompt: string, userPrompt: string): Promise<string> {
-  for (const model of FREE_MODELS) {
+  for (const model of MODELES_GRATUITS) {
     try {
-      const res = await fetchWithTimeout('https://openrouter.ai/api/v1/chat/completions', {
+      const res = await fetchAvecTimeout('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type':  'application/json',
-          'Authorization': `Bearer ${OPENROUTER_KEY}`,
+          'Authorization': `Bearer ${CLE_OPENROUTER}`,
           'HTTP-Referer':  'http://localhost:3001',
           'X-Title':       'TripGenie',
         },
@@ -84,7 +84,7 @@ export async function callOpenRouter(systemPrompt: string, userPrompt: string): 
           ],
         }),
       });
-      const data = (await res.json()) as OpenRouterResponse;
+      const data = (await res.json()) as ReponseOpenRouter;
       if (!res.ok || data.error?.code === 429) {
         console.warn(`Model ${model} unavailable, trying next...`);
         continue;
@@ -99,13 +99,13 @@ export async function callOpenRouter(systemPrompt: string, userPrompt: string): 
   throw new Error('QUOTA_EXCEEDED: Tous les modèles gratuits sont épuisés.');
 }
 
-interface GeminiResponse {
+interface ReponseGemini {
   candidates: Array<{ content: { parts: Array<{ text: string }> } }>;
   error?: { message: string };
 }
 
 export async function callGemini(systemPrompt: string, userPrompt: string): Promise<string> {
-  const res = await fetchWithTimeout(
+  const res = await fetchAvecTimeout(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
     {
       method: 'POST',
@@ -116,18 +116,18 @@ export async function callGemini(systemPrompt: string, userPrompt: string): Prom
       }),
     }
   );
-  const data = (await res.json()) as GeminiResponse;
+  const data = (await res.json()) as ReponseGemini;
   if (res.status === 429) throw new Error('QUOTA_EXCEEDED: Limite gratuite Gemini atteinte.');
   if (!res.ok) throw new Error(`Gemini error: ${JSON.stringify(data.error)}`);
   return data.candidates[0].content.parts[0].text;
 }
 
-interface OllamaResponse {
+interface ReponseOllama {
   message: { content: string };
 }
 
 export async function callOllama(systemPrompt: string, userPrompt: string): Promise<string> {
-  const res = await fetchWithTimeout(
+  const res = await fetchAvecTimeout(
     `${process.env.OLLAMA_BASE_URL}/api/chat`,
     {
       method: 'POST',
@@ -143,7 +143,7 @@ export async function callOllama(systemPrompt: string, userPrompt: string): Prom
     },
     60_000
   );
-  const data = (await res.json()) as OllamaResponse;
+  const data = (await res.json()) as ReponseOllama;
   if (!res.ok) throw new Error(`Ollama error: ${JSON.stringify(data)}`);
   return data.message.content;
 }

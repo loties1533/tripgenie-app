@@ -12,13 +12,13 @@ const router = express.Router();
 // ---- GET /api/photos/:city ----
 router.get('/:city', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const cityParam = req.params.city;
-    if (typeof cityParam !== 'string' || !cityParam.trim()) {
+    const nomVille = req.params.city;
+    if (typeof nomVille !== 'string' || !nomVille.trim()) {
       res.status(400).json({ error: 'city requis' });
       return;
     }
 
-    const url = await getDestinationPhoto(cityParam.trim());
+    const url = await getDestinationPhoto(nomVille.trim());
     res.json({ url });
   } catch (err) {
     next(err);

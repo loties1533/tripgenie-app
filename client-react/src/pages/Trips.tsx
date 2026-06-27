@@ -7,7 +7,7 @@ import { SkeletonCard } from '../components/ui'
 import { getTrips, deleteTrip } from '../lib/api'
 import { useAuthStore } from '../store'
 
-interface TripData {
+interface DonneesVoyage {
   id: string
   destination: string
   departure: string
@@ -19,8 +19,8 @@ interface TripData {
   [key: string]: any
 }
 
-interface TripsResponse {
-  trips: TripData[]
+interface ReponseVoyages {
+  trips: DonneesVoyage[]
 }
 
 const MODE_COLORS: Record<string, string> = {
@@ -39,15 +39,15 @@ const MODE_LABELS: Record<string, string> = {
   relax:   'Relax 🌿',
 }
 
-function ScoreBar({ score }: { score: number }) {
-  const pct   = Math.round((score || 0) * 100)
-  const color = pct >= 80 ? 'bg-emerald-400' : pct >= 60 ? 'bg-gold' : 'bg-coral'
+function BarreScore({ score }: { score: number }) {
+  const pourcentage   = Math.round((score || 0) * 100)
+  const color = pourcentage >= 80 ? 'bg-emerald-400' : pourcentage >= 60 ? 'bg-gold' : 'bg-coral'
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
-        <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${pct}%` }} />
+        <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${pourcentage}%` }} />
       </div>
-      <span className={`text-xs font-bold ${color.replace('bg-', 'text-')}`}>{pct}%</span>
+      <span className={`text-xs font-bold ${color.replace('bg-', 'text-')}`}>{pourcentage}%</span>
     </div>
   )
 }
@@ -56,13 +56,13 @@ export default function Trips() {
   const { user }   = useAuthStore()
   const navigate   = useNavigate()
 
-  const { data, isLoading, error, refetch } = useQuery<TripsResponse>({
+  const { data, isLoading, error, refetch } = useQuery<ReponseVoyages>({
     queryKey: ['trips'],
     queryFn:  () => getTrips(),
     enabled:  !!user,
   })
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const gererSuppression = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     if (!window.confirm('Supprimer ce voyage définitivement ?')) return
     try {
@@ -88,7 +88,7 @@ export default function Trips() {
   }
 
   const trips     = data?.trips ?? []
-  const avgScore  = trips.length
+  const scoreMoyen  = trips.length
     ? Math.round(trips.reduce((acc, t) => acc + (t.score || 0), 0) / trips.length * 100)
     : 0
 
@@ -114,7 +114,7 @@ export default function Trips() {
                 </div>
                 <div className="glass-premium px-4 py-2.5 rounded-xl text-center">
                   <p className="text-[10px] text-muted uppercase tracking-wider font-semibold">Score moy.</p>
-                  <p className="text-xl font-bold text-gold font-display">{avgScore}%</p>
+                  <p className="text-xl font-bold text-gold font-display">{scoreMoyen}%</p>
                 </div>
               </div>
             )}
@@ -190,13 +190,13 @@ export default function Trips() {
                     </p>
                   </div>
                   <button
-                    onClick={e => handleDelete(e, trip.id)}
+                    onClick={e => gererSuppression(e, trip.id)}
                     className="ml-2 w-7 h-7 rounded-full bg-coral/10 text-coral flex-shrink-0
                                opacity-0 group-hover:opacity-100 transition-all
                                hover:bg-coral hover:text-white flex items-center justify-center"
                     title="Supprimer"
                   >
-                    <TrashIcon />
+                    <IconePoubelle />
                   </button>
                 </div>
 
@@ -222,7 +222,7 @@ export default function Trips() {
                   <div className="flex items-center justify-between mb-1.5">
                     <p className="text-[10px] uppercase tracking-widest text-muted font-semibold">Score</p>
                   </div>
-                  <ScoreBar score={trip.score} />
+                  <BarreScore score={trip.score} />
                 </div>
 
                 {/* Budget + flèche */}
@@ -247,7 +247,7 @@ export default function Trips() {
   )
 }
 
-function TrashIcon() {
+function IconePoubelle() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="3 6 5 6 21 6" />

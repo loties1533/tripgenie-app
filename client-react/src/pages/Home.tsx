@@ -14,7 +14,7 @@ const FALLBACK_PHOTOS = [
   'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800&q=80',
 ]
 
-function CityPhoto({ city, photo }: { city: string; photo?: string }) {
+function PhotoVille({ city, photo }: { city: string; photo?: string }) {
   const [src, setSrc] = useState(photo || null)
   const fetched = useRef(false)
 
@@ -50,11 +50,11 @@ function Hero() {
   const [fading, setFading]   = useState(false)
 
   useEffect(() => {
-    const t = setInterval(() => {
+    const minuterie = setInterval(() => {
       setFading(true)
       setTimeout(() => { setCurrent(p => (p + 1) % HERO_SLIDES.length); setFading(false) }, 600)
     }, 5000)
-    return () => clearInterval(t)
+    return () => clearInterval(minuterie)
   }, [])
 
   const slide = HERO_SLIDES[current]
@@ -159,46 +159,46 @@ function ChatSection() {
 }
 
 /* ─────────────── Sélection de destination ─────────────── */
-function TripConcepts() {
+function ConceptsVoyage() {
   const { concepts, setField, setLoading, setPack } = useSearchStore()
   const { chatData, addMessage }                    = useChatStore()
   const navigate                                    = useNavigate()
 
   if (!concepts) return null
 
-  const normalizeDate = (d: string) => {
+  const normaliserDate = (d: string) => {
     if (!d) return null
     if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d
     const [day, month, year] = d.split('/')
     if (!day || !month) return null
-    const y = year ? (year.length === 2 ? '20' + year : year) : new Date().getFullYear()
-    return `${y}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    const annee = year ? (year.length === 2 ? '20' + year : year) : new Date().getFullYear()
+    return `${annee}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
   }
 
-  const handleSelect = async (dest: any) => {
+  const gererSelection = async (dest: any) => {
     setField('concepts', null)
     setField('destination', dest.city)   // le loader affiche la ville en cours, pas une valeur persistée
     setLoading(true)
     addMessage({ role: 'assistant', text: `Excellent choix ! 🚀 Je génère ton pack VIP pour **${dest.city}**...` })
 
-    const dep = normalizeDate(chatData.departure as string) || new Date(Date.now() + 86400000 * 30).toISOString().slice(0, 10)
-    const ret = normalizeDate(chatData.return_date as string) || new Date(new Date(dep).getTime() + 86400000 * ((chatData.duration as number) || 7)).toISOString().slice(0, 10)
+    const dateDepart = normaliserDate(chatData.departure as string) || new Date(Date.now() + 86400000 * 30).toISOString().slice(0, 10)
+    const dateRetour = normaliserDate(chatData.return_date as string) || new Date(new Date(dateDepart).getTime() + 86400000 * ((chatData.duration as number) || 7)).toISOString().slice(0, 10)
 
     try {
       // FIX 10 : generatePack() passe par api.ts qui respecte VITE_API_URL
       // et throw automatiquement si !res.ok avec le message d'erreur serveur
-      const data = await generatePack({
+      const reponse = await generatePack({
         destination: dest.city,
         origin:      chatData.origin    || 'Paris',
-        departure:   dep,
-        return_date: ret,
+        departure:   dateDepart,
+        return_date: dateRetour,
         budget:      chatData.budget    || 5000,
         travelers:   chatData.travelers || 2,
         mode:        chatData.mode      || 'party',
       })
-      setPack(data.pack, data.trip_id, data.pack_id)
-      if (data.trip_id) {
-        navigate(`/trip/${data.trip_id}`)
+      setPack(reponse.pack, reponse.trip_id, reponse.pack_id)
+      if (reponse.trip_id) {
+        navigate(`/trip/${reponse.trip_id}`)
       } else {
         setTimeout(() => {
           document.getElementById('pack-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -226,13 +226,13 @@ function TripConcepts() {
             role="button"
             tabIndex={0}
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}
-            onClick={() => handleSelect(c)}
-            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleSelect(c)}
+            onClick={() => gererSelection(c)}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && gererSelection(c)}
             className="group cursor-pointer relative h-[320px] sm:h-[420px] rounded-2xl overflow-hidden
                        shadow-2xl border border-gold/20 hover:border-gold/60 focus:outline-none focus:ring-2 focus:ring-gold/60
                        transition-all duration-500 hover:-translate-y-2">
             <div className="absolute inset-0 bg-ink">
-              <CityPhoto city={c.city} photo={c.photo} />
+              <PhotoVille city={c.city} photo={c.photo} />
               <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
             </div>
             <div className="absolute inset-0 p-6 flex flex-col justify-end">
@@ -349,7 +349,7 @@ export default function Home() {
             {!concepts && !isLoading && <ChatSection />}
 
             {/* Sélection destination */}
-            {concepts && !isLoading && <TripConcepts />}
+            {concepts && !isLoading && <ConceptsVoyage />}
 
             {/* Skeleton */}
             {isLoading && (

@@ -20,7 +20,7 @@ interface SearchState {
   packId: string | null;
   isLoading: boolean;
   error: string | null;
-  setField: (key: keyof SearchState, val: SearchState[keyof SearchState]) => void;
+  setField: (key: keyof SearchState, valeur: SearchState[keyof SearchState]) => void;
   setPack: (pack: Pack | null, tripId: string | null, packId?: string | null) => void;
   setLoading: (v: boolean) => void;
   setError: (e: string | null) => void;
@@ -49,7 +49,7 @@ export const useSearchStore = create<SearchState>()(
       error:       null,
 
       // Actions
-      setField:    (key, val) => set({ [key]: val } as Partial<SearchState>),
+      setField:    (key, valeur) => set({ [key]: valeur } as Partial<SearchState>),
       // packId optionnel : si non fourni (ex: chat de modif), on garde l'ancien
       setPack:     (pack, tripId, packId) => set((s) => ({ pack, tripId, packId: packId !== undefined ? packId : s.packId, isLoading: false, error: null })),
       setLoading:  (v) => set({ isLoading: v }),
@@ -83,7 +83,7 @@ interface ChatState {
   isMockMode: boolean;
   quizMode: boolean;
   quizStep: number;
-  addMessage: (msg: ChatMessage) => void;
+  addMessage: (message: ChatMessage) => void;
   setTyping: (v: boolean) => void;
   mergeChatData: (data: Record<string, unknown>) => void;
   seedChatData: (data: Record<string, unknown>) => void;
@@ -119,7 +119,7 @@ export const useChatStore = create<ChatState>()(
       quizMode:   false,
       quizStep:   0,
 
-      addMessage:    (msg) => set((s) => ({ messages: [...s.messages, { id: Date.now() + Math.random(), ...msg }] })),
+      addMessage:    (message) => set((s) => ({ messages: [...s.messages, { id: Date.now() + Math.random(), ...message }] })),
       setTyping:     (v) => set({ isTyping: v }),
       mergeChatData: (data) => set((s) => ({ chatData: { ...s.chatData, ...data }, turnCount: s.turnCount + 1 })),
       // Pré-remplissage (préférences user) — ne compte PAS comme un tour de conversation

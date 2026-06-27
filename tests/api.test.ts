@@ -85,7 +85,7 @@ prismaMock.tripVote.findMany.mockResolvedValue([]);
 vi.mock('../server/services/claude/index.js', () => ({
   chatIntake:          vi.fn().mockResolvedValue({ response: 'Bonjour !', chips: ['Paris', 'Tokyo'], extractedData: {}, isReady: false }),
   chatModify:          vi.fn().mockResolvedValue({ reply: 'Modifications appliquées.', modifications: {} }),
-  assemblePack:        vi.fn().mockResolvedValue({
+  assemblerPack:        vi.fn().mockResolvedValue({
     destination: 'Tokyo', country: 'Japon', tagline: 'La ville qui ne dort jamais',
     overview: 'Tokyo...', hotels: [], activities: [], flights: [], itinerary: [],
     events: [], budget_breakdown: { vols: '0€', hebergement: '0€', activites: '0€', restauration: '0€', transports: '0€', divers: '0€', total: '2000€' },

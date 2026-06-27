@@ -16,17 +16,17 @@ export interface WeatherData {
   wind: string;
 }
 
-interface GeoResult {
+interface ResultatGeo {
   latitude: number;
   longitude: number;
   name: string;
 }
 
-interface GeoResponse {
-  results?: GeoResult[];
+interface ReponseGeo {
+  results?: ResultatGeo[];
 }
 
-interface ForecastResponse {
+interface ReponsePrevision {
   daily?: {
     temperature_2m_max?: number[];
     temperature_2m_min?: number[];
@@ -39,7 +39,7 @@ interface ForecastResponse {
   };
 }
 
-interface ClimateResponse {
+interface ReponseClimat {
   daily?: {
     temperature_2m_mean?: number[];
     precipitation_sum?: number[];
@@ -47,7 +47,7 @@ interface ClimateResponse {
 }
 
 /** Convertit un WMO weather code en description lisible */
-function wmoToCondition(code: number): string {
+function codeMeteoEnTexte(code: number): string {
   if (code === 0)               return 'Ciel dégagé';
   if (code <= 2)                return 'Partiellement nuageux';
   if (code === 3)               return 'Couvert';
@@ -60,20 +60,20 @@ function wmoToCondition(code: number): string {
 }
 
 /** Géocode une ville → coordonnées GPS */
-async function geocode(city: string): Promise<GeoResult | null> {
+async function geocoderVille(city: string): Promise<ResultatGeo | null> {
   const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=fr&format=json`;
   const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
   if (!res.ok) return null;
-  const data = (await res.json()) as GeoResponse;
+  const data = (await res.json()) as ReponseGeo;
   return data.results?.[0] ?? null;
 }
 
 /** Météo de prévision (départ dans ≤ 16 jours) */
-async function getForecastWeather(lat: number, lon: number, date: string): Promise<WeatherData | null> {
+async function getMeteoPrevision(lat: number, lon: number, date: string): Promise<WeatherData | null> {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&hourly=relativehumidity_2m&timezone=auto&start_date=${date}&end_date=${date}`;
   const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
   if (!res.ok) return null;
-  const data = (await res.json()) as ForecastResponse;
+  const data = (await res.json()) as ReponsePrevision;
 
   const maxT = data.daily?.temperature_2m_max?.[0] ?? 20;
   const minT = data.daily?.temperature_2m_min?.[0] ?? 15;
@@ -84,24 +84,24 @@ async function getForecastWeather(lat: number, lon: number, date: string): Promi
 
   return {
     temp:     `${avgT}°C`,
-    cond:     wmoToCondition(code),
+    cond:     codeMeteoEnTexte(code),
     humidity: Math.round(hum),
     wind:     `${Math.round(wind)} km/h`,
   };
 }
 
 /** Météo climatique (départ dans > 16 jours — même mois, année précédente) */
-async function getClimateWeather(lat: number, lon: number, date: string): Promise<WeatherData | null> {
-  const d        = new Date(date);
-  const lastYear = d.getFullYear() - 1;
-  const month    = String(d.getMonth() + 1).padStart(2, '0');
-  const startRef = `${lastYear}-${month}-01`;
-  const endRef   = `${lastYear}-${month}-${String(new Date(lastYear, d.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
+async function getMeteoClimat(lat: number, lon: number, date: string): Promise<WeatherData | null> {
+  const dateRef         = new Date(date);
+  const anneeReference  = dateRef.getFullYear() - 1;
+  const moisRef         = String(dateRef.getMonth() + 1).padStart(2, '0');
+  const startRef = `${anneeReference}-${moisRef}-01`;
+  const endRef   = `${anneeReference}-${moisRef}-${String(new Date(anneeReference, dateRef.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
 
   const url = `https://climate-api.open-meteo.com/v1/climate?latitude=${lat}&longitude=${lon}&start_date=${startRef}&end_date=${endRef}&daily=temperature_2m_mean,precipitation_sum&models=EC_Earth3P_HR`;
   const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
   if (!res.ok) return null;
-  const data = (await res.json()) as ClimateResponse;
+  const data = (await res.json()) as ReponseClimat;
 
   const temps = data.daily?.temperature_2m_mean?.filter((v): v is number => v != null) ?? [];
   const precs = data.daily?.precipitation_sum?.filter((v): v is number => v != null) ?? [];
@@ -120,9 +120,9 @@ async function getClimateWeather(lat: number, lon: number, date: string): Promis
 }
 
 /** Météo actuelle (pas de date fournie) */
-async function getCurrentWeather(lat: number, lon: number): Promise<WeatherData | null> {
+async function getMeteoActuelle(lat: number, lon: number): Promise<WeatherData | null> {
   const today = new Date().toISOString().slice(0, 10);
-  return getForecastWeather(lat, lon, today);
+  return getMeteoPrevision(lat, lon, today);
 }
 
 /**
@@ -131,33 +131,33 @@ async function getCurrentWeather(lat: number, lon: number): Promise<WeatherData 
  */
 export async function getRealWeather(city: string, departureDate?: string): Promise<WeatherData | null> {
   try {
-    const geo = await geocode(city);
-    if (!geo) {
+    const donneesGeo = await geocoderVille(city);
+    if (!donneesGeo) {
       console.warn(`Weather: géocodage échoué pour "${city}"`);
       return null;
     }
 
-    const { latitude: lat, longitude: lon } = geo;
+    const { latitude: lat, longitude: lon } = donneesGeo;
 
     if (!departureDate) {
-      return await getCurrentWeather(lat, lon);
+      return await getMeteoActuelle(lat, lon);
     }
 
     const departure = new Date(departureDate);
     if (isNaN(departure.getTime())) {
-      return await getCurrentWeather(lat, lon);
+      return await getMeteoActuelle(lat, lon);
     }
 
-    const daysUntil = Math.round((departure.getTime() - Date.now()) / 86400000);
+    const joursAvantDepart = Math.round((departure.getTime() - Date.now()) / 86400000);
 
-    if (daysUntil <= 0) {
-      return await getCurrentWeather(lat, lon);
-    } else if (daysUntil <= 16) {
-      console.log(`🌤️  Météo forecast J+${daysUntil} pour ${city}`);
-      return await getForecastWeather(lat, lon, departureDate.slice(0, 10));
+    if (joursAvantDepart <= 0) {
+      return await getMeteoActuelle(lat, lon);
+    } else if (joursAvantDepart <= 16) {
+      console.log(`🌤️  Météo forecast J+${joursAvantDepart} pour ${city}`);
+      return await getMeteoPrevision(lat, lon, departureDate.slice(0, 10));
     } else {
-      console.log(`🌡️  Météo climatique (J+${daysUntil}) pour ${city}`);
-      return await getClimateWeather(lat, lon, departureDate.slice(0, 10));
+      console.log(`🌡️  Météo climatique (J+${joursAvantDepart}) pour ${city}`);
+      return await getMeteoClimat(lat, lon, departureDate.slice(0, 10));
     }
   } catch (err) {
     console.error('Weather error:', (err as Error).message);

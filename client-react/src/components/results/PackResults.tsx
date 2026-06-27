@@ -308,25 +308,25 @@ export default function PackResults() {
 
   if (!pack) return null
 
-  const d = pack
+  const donneesPack = pack
 
   // Score TripGenie (algo déterministe) — rendu visible + détaillé par critère.
-  const scoreVal      = typeof d.score === 'number' ? d.score : (d.score?.total ?? 0)
-  const scorePct      = Math.round(scoreVal * 100)
-  const scoreDetails  = typeof d.score === 'object' ? d.score?.details : undefined
-  const scoreCriteria = scoreDetails
+  const valeurScore      = typeof donneesPack.score === 'number' ? donneesPack.score : (donneesPack.score?.total ?? 0)
+  const scorePourcentage      = Math.round(valeurScore * 100)
+  const detailsScore  = typeof donneesPack.score === 'object' ? donneesPack.score?.details : undefined
+  const criteresScore = detailsScore
     ? [
-        { label: 'Ambiance',  val: Math.round((scoreDetails.events     ?? 0) * 100) },
-        { label: 'Prix',      val: Math.round((scoreDetails.prix       ?? 0) * 100) },
-        { label: 'Hôtel',     val: Math.round((scoreDetails.hotel      ?? 0) * 100) },
-        { label: 'Vol',       val: Math.round((scoreDetails.vol        ?? 0) * 100) },
-        { label: 'Activités', val: Math.round((scoreDetails.activities ?? 0) * 100) },
+        { label: 'Ambiance',  val: Math.round((detailsScore.events     ?? 0) * 100) },
+        { label: 'Prix',      val: Math.round((detailsScore.prix       ?? 0) * 100) },
+        { label: 'Hôtel',     val: Math.round((detailsScore.hotel      ?? 0) * 100) },
+        { label: 'Vol',       val: Math.round((detailsScore.vol        ?? 0) * 100) },
+        { label: 'Activités', val: Math.round((detailsScore.activities ?? 0) * 100) },
       ]
     : []
 
   // Bandeau Mode Survie — affiché quand toutes les IA ont échoué et que le pack
   // est un fallback statique. Important pour la transparence envers l'utilisateur.
-  const MockBanner = d.isMock ? (
+  const MockBanner = donneesPack.isMock ? (
     <div className="mx-4 mb-4 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
       <span className="text-xl flex-shrink-0">⚠️</span>
       <div>
@@ -339,10 +339,10 @@ export default function PackResults() {
   ) : null
 
   // Function to center map on an item
-  const handleLocate = async (name: string) => {
+  const gererLocalisation = async (name: string) => {
     setActiveTab('overview')
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name + ' ' + d.destination)}&limit=1`)
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name + ' ' + donneesPack.destination)}&limit=1`)
       const data = await res.json()
       if (data && data.length > 0) {
         setFocusedLocation([parseFloat(data[0].lat), parseFloat(data[0].lon)])
@@ -357,11 +357,11 @@ export default function PackResults() {
   // Function to share via WhatsApp
   const handleShare = () => {
     const url = window.location.href
-    const text = `🌍 *TripGenie* : Voyage à ${d.destination} !\n\n` +
+    const text = `🌍 *TripGenie* : Voyage à ${donneesPack.destination} !\n\n` +
                  `📅 *Dates* : Du ${departure || '?'} au ${returnDate || '?'}\n` +
-                 `🏨 *Hôtel* : ${d.hotels?.[0]?.name || 'À choisir'}\n` +
-                 `💰 *Budget* : ${d.summary?.total_budget || 'À définir'}\n\n` +
-                 `✨ _"${d.tagline}"_\n\n` +
+                 `🏨 *Hôtel* : ${donneesPack.hotels?.[0]?.name || 'À choisir'}\n` +
+                 `💰 *Budget* : ${donneesPack.summary?.total_budget || 'À définir'}\n\n` +
+                 `✨ _"${donneesPack.tagline}"_\n\n` +
                  `Découvre le programme complet ici : ${url}`
 
     const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`
@@ -378,13 +378,13 @@ export default function PackResults() {
           <p className="text-xs text-muted mt-0.5">{hotel.location} · {hotel.stars}★</p>
           <div className="flex gap-2 mt-2">
             <button 
-              onClick={() => handleLocate(hotel.name)}
+              onClick={() => gererLocalisation(hotel.name)}
               className="text-[10px] uppercase tracking-wider font-bold text-gold hover:text-gold/80 flex items-center gap-1 transition-colors"
             >
               📍 Carte
             </button>
             <a
-              href={hotel.booking_url || hotel.links?.booking || `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + ' ' + d.destination)}`}
+              href={hotel.booking_url || hotel.links?.booking || `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name + ' ' + donneesPack.destination)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[10px] uppercase tracking-wider font-bold text-sage hover:text-sage/80 flex items-center gap-1 transition-colors"
@@ -434,7 +434,7 @@ export default function PackResults() {
       <div className="flex justify-between items-center pt-3 border-t border-parchment-dark dark:border-white/10 mt-auto">
         <div className="flex gap-2">
           <a
-            href={`https://maps.google.com/?q=${encodeURIComponent(activity.name + ' ' + d.destination)}`}
+            href={`https://maps.google.com/?q=${encodeURIComponent(activity.name + ' ' + donneesPack.destination)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[11px] font-semibold text-ink dark:text-parchment bg-parchment-dark dark:bg-ink-light hover:bg-gold hover:text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
@@ -442,7 +442,7 @@ export default function PackResults() {
             📍 Carte
           </a>
           <a
-            href={activity.reserve_url || activity.links?.getyourguide || activity.links?.viator || `https://www.getyourguide.fr/s/?q=${encodeURIComponent((activity.name || activity.title) + ' ' + d.destination)}`}
+            href={activity.reserve_url || activity.links?.getyourguide || activity.links?.viator || `https://www.getyourguide.fr/s/?q=${encodeURIComponent((activity.name || activity.title) + ' ' + donneesPack.destination)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[11px] font-semibold text-white bg-gold hover:bg-gold-dark px-4 py-1.5 rounded-lg transition-colors shadow-glow-gold hover:shadow-none flex items-center gap-1.5"
@@ -470,8 +470,8 @@ export default function PackResults() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
-            src={d.photo_url || `https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80`}
-            alt={d.destination}
+            src={donneesPack.photo_url || `https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80`}
+            alt={donneesPack.destination}
             className="w-full h-full object-cover opacity-40 transition-transform duration-[20s]"
             onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80' }}
           />
@@ -493,8 +493,8 @@ export default function PackResults() {
                 )}
               </div>
               <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink dark:text-parchment flex flex-wrap items-center gap-2">
-                {d.destination}
-                <span className="text-muted text-lg sm:text-xl font-normal">{d.country}</span>
+                {donneesPack.destination}
+                <span className="text-muted text-lg sm:text-xl font-normal">{donneesPack.country}</span>
                 <button
                   onClick={handleShare}
                   className="bg-sage/20 hover:bg-sage/40 text-sage px-3 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 border border-sage/20"
@@ -503,23 +503,23 @@ export default function PackResults() {
                   <span className="hidden sm:inline">Partager</span>
                 </button>
               </h2>
-              <p className="text-gold-dark dark:text-gold italic font-display mt-1 drop-shadow-sm">{d.tagline}</p>
+              <p className="text-gold-dark dark:text-gold italic font-display mt-1 drop-shadow-sm">{donneesPack.tagline}</p>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
               {/* Score TripGenie — visible dès l'apparition du pack + détail de l'algo par critère */}
-              {d.score != null && (
+              {donneesPack.score != null && (
                 <div className="glass-premium rounded-xl px-3 py-1.5 border border-gold/30 shadow-glow-gold w-full sm:w-auto">
                   <div className="flex items-center gap-2">
                     <div className="text-center flex-shrink-0">
                       <div className="flex items-baseline gap-0.5 justify-center">
-                        <span className="text-lg font-bold text-gold font-display leading-none">{scorePct}</span>
+                        <span className="text-lg font-bold text-gold font-display leading-none">{scorePourcentage}</span>
                         <span className="text-[10px] text-muted">/100</span>
                       </div>
                       <span className="text-[8px] uppercase tracking-widest text-muted">Score</span>
                     </div>
-                    {scoreCriteria.length > 0 && (
+                    {criteresScore.length > 0 && (
                       <div className="border-l border-gold/20 pl-2 grid grid-cols-2 gap-x-2 gap-y-0">
-                        {scoreCriteria.map(c => (
+                        {criteresScore.map(c => (
                           <div key={c.label} className="flex items-center justify-between gap-1.5 text-[9px] whitespace-nowrap">
                             <span className="text-muted">{c.label}</span>
                             <span className="font-bold text-ink dark:text-parchment">{c.val}%</span>
@@ -536,11 +536,11 @@ export default function PackResults() {
                   <span className="text-[10px] text-muted uppercase tracking-tighter">voy.</span>
                 </div>
                 <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
-                  <span className="text-gold font-bold text-base font-display">{d.summary?.nights}</span>
+                  <span className="text-gold font-bold text-base font-display">{donneesPack.summary?.nights}</span>
                   <span className="text-[10px] text-muted uppercase tracking-tighter">nuits</span>
                 </div>
                 <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
-                  <span className="text-gold font-bold text-base font-display">{d.summary?.total_budget}</span>
+                  <span className="text-gold font-bold text-base font-display">{donneesPack.summary?.total_budget}</span>
                   <span className="text-[10px] text-muted uppercase tracking-tighter">budget</span>
                 </div>
               </div>
@@ -548,30 +548,30 @@ export default function PackResults() {
           </div>
 
           {/* Weather */}
-          {d.weather && (
+          {donneesPack.weather && (
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted">
               <span className="text-xl">🌤</span>
-              <span className="font-medium text-ink dark:text-parchment">{d.weather.avg_temp}</span>
+              <span className="font-medium text-ink dark:text-parchment">{donneesPack.weather.avg_temp}</span>
               <span>·</span>
-              <span>{d.weather.conditions}</span>
-              {d.weather.humidity != null && <><span>·</span><span>💧 {d.weather.humidity}%</span></>}
-              {d.weather.wind && <><span>·</span><span>💨 {d.weather.wind}</span></>}
+              <span>{donneesPack.weather.conditions}</span>
+              {donneesPack.weather.humidity != null && <><span>·</span><span>💧 {donneesPack.weather.humidity}%</span></>}
+              {donneesPack.weather.wind && <><span>·</span><span>💨 {donneesPack.weather.wind}</span></>}
               <span>·</span>
-              <span className="italic">{d.weather.tip}</span>
+              <span className="italic">{donneesPack.weather.tip}</span>
             </div>
           )}
 
           {/* Overview */}
-          {d.overview && (
+          {donneesPack.overview && (
             <p className="mt-4 text-sm leading-relaxed text-muted border-l-2 border-gold/40 pl-4 italic">
-              {d.overview}
+              {donneesPack.overview}
             </p>
           )}
 
           {/* Tips */}
-          {(d.tips?.length ?? 0) > 0 && (
+          {(donneesPack.tips?.length ?? 0) > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
-              {d.tips?.map((tip, i) => (
+              {donneesPack.tips?.map((tip, i) => (
                 <div key={i} className="bg-gold/5 rounded-xl px-3 py-2 text-xs">
                   <span className="font-semibold text-ink dark:text-parchment">{tip.title} · </span>
                   <span className="text-muted">{tip.content}</span>
@@ -581,11 +581,11 @@ export default function PackResults() {
           )}
 
           {/* Phrase locale */}
-          {d.local_phrases?.[0] && (
+          {donneesPack.local_phrases?.[0] && (
             <div className="mt-3 flex items-center gap-2 text-sm">
               <span className="text-xl">🗣</span>
-              <span className="font-display italic text-gold">"{d.local_phrases[0].phrase}"</span>
-              <span className="text-muted text-xs">= {d.local_phrases[0].translation}</span>
+              <span className="font-display italic text-gold">"{donneesPack.local_phrases[0].phrase}"</span>
+              <span className="text-muted text-xs">= {donneesPack.local_phrases[0].translation}</span>
             </div>
           )}
         </div>
@@ -603,44 +603,44 @@ export default function PackResults() {
           {activeTab === 'overview' && (
             <div className="space-y-4">
               <TripMap
-                destination={d.destination}
-                hotels={d.hotels}
+                destination={donneesPack.destination}
+                hotels={donneesPack.hotels}
                 focusedLocation={focusedLocation}
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {d.hotels?.slice(0, 2).map((h, i) => <LocalHotelCard key={i} hotel={h} />)}
-                {d.flights?.slice(0, 2).map((f, i) => <FlightCard key={i} flight={f} packId={packId ?? ''} destination={d.destination} />)}
-                {d.events?.slice(0, 3).map((e, i) => <EventCard key={i} event={e} destination={d.destination} />)}
+                {donneesPack.hotels?.slice(0, 2).map((h, i) => <LocalHotelCard key={i} hotel={h} />)}
+                {donneesPack.flights?.slice(0, 2).map((f, i) => <FlightCard key={i} flight={f} packId={packId ?? ''} destination={donneesPack.destination} />)}
+                {donneesPack.events?.slice(0, 3).map((e, i) => <EventCard key={i} event={e} destination={donneesPack.destination} />)}
               </div>
             </div>
           )}
 
           {activeTab === 'hotels' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {d.hotels?.map((h, i) => <LocalHotelCard key={i} hotel={h} />)}
+              {donneesPack.hotels?.map((h, i) => <LocalHotelCard key={i} hotel={h} />)}
             </div>
           )}
 
           {activeTab === 'flights' && (
             <div className="space-y-3">
-              {d.flights?.map((f, i) => <FlightCard key={i} flight={f} packId={packId ?? ''} destination={d.destination} />)}
+              {donneesPack.flights?.map((f, i) => <FlightCard key={i} flight={f} packId={packId ?? ''} destination={donneesPack.destination} />)}
             </div>
           )}
 
           {activeTab === 'itinerary' && (
             <div className="space-y-3">
-              {d.itinerary?.map((day, i) => <ItineraryDay key={i} day={day} destination={d.destination} />)}
+              {donneesPack.itinerary?.map((day, i) => <ItineraryDay key={i} day={day} destination={donneesPack.destination} />)}
             </div>
           )}
 
           {activeTab === 'activities' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {d.activities?.map((a, i) => <LocalActivityCard key={i} activity={a} />)}
+              {donneesPack.activities?.map((a, i) => <LocalActivityCard key={i} activity={a} />)}
             </div>
           )}
 
-          {activeTab === 'budget' && <BudgetChart breakdown={d.budget_breakdown} />}
+          {activeTab === 'budget' && <BudgetChart breakdown={donneesPack.budget_breakdown} />}
         </motion.div>
       </AnimatePresence>
     </motion.div>

@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 import swaggerUi from 'swagger-ui-express';
 
 // Middlewares persos
-import { globalErrorHandler, AppError } from './lib/AppError.js';
+import { gestionnairreErreurGlobal, AppError } from './lib/AppError.js';
 
 // Spécification OpenAPI (interface Swagger sur /api/docs)
 import { openapiSpec } from './docs/openapi.js';
@@ -128,7 +128,7 @@ app.all('*', (req, res, next) => {
 });
 
 // ---- Middleware Global d'erreurs ----
-app.use(globalErrorHandler);
+app.use(gestionnairreErreurGlobal);
 
 export default app;
 
