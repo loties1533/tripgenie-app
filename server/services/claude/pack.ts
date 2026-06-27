@@ -235,13 +235,14 @@ export function buildFlightLinks(params: {
   const dep = ymd(departure);
   const ret = ymd(return_date);
 
-  const q = `Vols ${originCity} ${destCity}`
-    + (dep ? ` le ${dep}` : '')
-    + (ret ? ` retour ${ret}` : '')
-    + ` pour ${adults} adulte${adults > 1 ? 's' : ''}`;
-  const google = `https://www.google.com/travel/flights?q=${encodeURIComponent(q)}`;
-
   const iataOk = isValidIATA(originIATA) && isValidIATA(destIATA);
+
+  // Google Flights : URL avec IATA + dates si dispo (format hash), sinon recherche Google.
+  // Le format ?q=... de google.com/travel/flights ne pré-remplit pas la destination.
+  const google = iataOk && dep
+    ? `https://www.google.com/flights#flt=${originIATA}.${destIATA}.${dep}${ret ? `*${destIATA}.${originIATA}.${ret}` : ''};c:EUR;e:1;a:${adults};px:0`
+    : `https://www.google.com/search?q=${encodeURIComponent(`vols ${originCity} ${destCity}${dep ? ' ' + dep : ''}${adults > 1 ? ' ' + adults + ' personnes' : ''}`)}`;
+
   const skyscanner = iataOk && dep
     ? `https://www.skyscanner.fr/transport/flights/${originIATA!.toLowerCase()}/${destIATA!.toLowerCase()}/${yymmdd(departure)}/${ret ? yymmdd(return_date) + '/' : ''}?adults=${adults}`
     : google;
@@ -257,17 +258,21 @@ export function buildHotelBookingUrl(
   hotelName: string, city: string,
   departure?: string, return_date?: string, travelers = 2,
 ): string {
-  // Évite la double-ville (« Mandarin Oriental Bangkok » + « Bangkok »).
+  // Booking.com redirige les liens non-affiliés vers leur accueil (perd les params).
+  // Google Hotels fonctionne sans affiliation et pré-remplit la recherche.
   const term = hotelName.toLowerCase().includes(city.toLowerCase()) ? hotelName : `${hotelName} ${city}`;
-  const p = new URLSearchParams({ ss: term, group_adults: String(Math.max(1, travelers)), no_rooms: '1' });
-  if (ymd(departure))   p.set('checkin',  ymd(departure));
-  if (ymd(return_date)) p.set('checkout', ymd(return_date));
-  return `https://www.booking.com/searchresults.html?${p.toString()}`;
+  const p = new URLSearchParams({ q: term });
+  if (ymd(departure))   p.set('dates',   `${ymd(departure)},${ymd(return_date) ?? ''}`);
+  if (travelers > 1)    p.set('adults',  String(travelers));
+  return `https://www.google.com/travel/hotels?${p.toString()}`;
 }
 
 /** Lien de réservation réel pour une activité (plateforme de booking, pas une carte). */
 export function buildActivityReserveUrl(name: string, city: string): string {
-  return `https://www.getyourguide.fr/s/?q=${encodeURIComponent(`${name} ${city}`)}`;
+  // N'ajoute la ville que si le nom ne la contient pas déjà (évite "Nobu Maldives Maldives").
+  const q = name.toLowerCase().includes(city.toLowerCase()) ? name : `${name} ${city}`;
+  // Google Search : plus fiable que GYG pour trouver le vrai site d'un lieu nommé.
+  return `https://www.google.com/search?q=${encodeURIComponent(q + ' réservation')}`;
 }
 
 // ============================================================
@@ -289,6 +294,25 @@ function addDurationToTime(time: string, duration: string): string {
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
 
+/**
+ * Résout le prix d'un billet PAR PERSONNE et PAR TRAJET (aller simple).
+ * Source unique de vérité partagée par mapFlights (affichage) et le calcul du
+ * budget (camembert) — garantit que les deux montrent le même prix.
+ *
+ * - Prix réel Tavily si dispo et plausible (≤ 1800€/billet).
+ * - Sinon estimation = 15 % du budget / voyageur.
+ */
+export function resolveFlightPricePerPerson(
+  flights: FlightSearchResult[] | undefined,
+  budget: number,
+  travelers: number,
+): number {
+  const volPriceEst = Math.round(budget * 0.15 / travelers);
+  const rawPrice    = flights?.[0]?.price ?? 0;
+  const priceCapped = rawPrice > 1800 ? volPriceEst : rawPrice;
+  return priceCapped || volPriceEst;
+}
+
 export function mapFlights(
   flights: FlightSearchResult[] | undefined,
   airportCode: string,
@@ -307,13 +331,11 @@ export function mapFlights(
     originCity, destCity: dest, originIATA: originCode, destIATA: airportCode,
     departure, return_date, travelers,
   });
-  const rawPrice       = flights?.[0]?.price ?? 0;
-  const pricePerPerson = rawPrice > 0 ? rawPrice : 0;
-  const priceCapped    = pricePerPerson > 1800 ? volPriceEst : pricePerPerson;
-  const finalPrice     = `${priceCapped || volPriceEst}€`;
+  const finalPrice     = `${resolveFlightPricePerPerson(flights, budget, travelers)}€`;
 
   if (flights?.length) {
-    const dur    = flights[0].duration || '2h00';
+    const dur    = flights[0].duration   || null;
+    const stops  = flights[0].stops      || null;
     const outDep = flights[0].outbound_time || '10:30';
     return [
       {
@@ -322,10 +344,10 @@ export function mapFlights(
         to:               airportCode,
         to_city:          dest,
         departure_time:   outDep,
-        arrival_time:     addDurationToTime(outDep, dur),   // arrivée = départ + durée (cohérent)
-        duration:         dur,
-        stops:            flights[0].stops         || 'Direct',
-        airline:          flights[0].airline       || 'Air France',
+        arrival_time:     dur ? addDurationToTime(outDep, dur) : '—',
+        duration:         dur ?? '—',
+        stops:            stops ?? '—',
+        airline:          flights[0].airline ?? 'À confirmer',
         price_per_person: finalPrice,
         type:             'outbound' as const,
         links,
@@ -335,11 +357,11 @@ export function mapFlights(
         from_city:        dest,
         to:               originCode,
         to_city:          originCity,
-        departure_time:   '18:00',
-        arrival_time:     addDurationToTime('18:00', dur),  // idem retour
-        duration:         dur,
-        stops:            'Direct',
-        airline:          flights[0].airline  || 'Air France',
+        departure_time:   '—',
+        arrival_time:     '—',
+        duration:         dur ?? '—',
+        stops:            stops ?? '—',
+        airline:          flights[0].airline ?? 'À confirmer',
         price_per_person: finalPrice,
         type:             'return' as const,
         links,
@@ -347,14 +369,14 @@ export function mapFlights(
     ];
   }
 
-  // Fallback : vols estimés sans données Tavily (arrivée = départ + durée)
+  // Fallback : aucune donnée Tavily — prix estimé, durée inconnue
   return [
     { from: originCode, from_city: originCity, to: airportCode, to_city: dest,
-      departure_time: '10:30', arrival_time: addDurationToTime('10:30', '1h30'), duration: '1h30',
-      stops: 'Direct', airline: 'Air France', price_per_person: `${volPriceEst}€`, type: 'outbound' as const, links },
+      departure_time: '—', arrival_time: '—', duration: '—',
+      stops: '—', airline: 'À confirmer', price_per_person: `${volPriceEst}€`, type: 'outbound' as const, links },
     { from: airportCode, from_city: dest, to: originCode, to_city: originCity,
-      departure_time: '18:00', arrival_time: addDurationToTime('18:00', '1h30'), duration: '1h30',
-      stops: 'Direct', airline: 'Air France', price_per_person: `${volPriceEst}€`, type: 'return' as const, links },
+      departure_time: '—', arrival_time: '—', duration: '—',
+      stops: '—', airline: 'À confirmer', price_per_person: `${volPriceEst}€`, type: 'return' as const, links },
   ];
 }
 
@@ -402,35 +424,52 @@ export function mapActivities(
 // ============================================================
 
 /**
- * Répartit le budget total selon les ratios définis dans BUDGET_RATIOS.
- * Plafonne le prix par nuit d'hébergement (250€ standard, 800€ luxury).
+ * Répartit le budget total en postes cohérents avec les VRAIS prix.
+ *
+ * - Poste « Vols » = vrai coût des billets (`realFlightTotal`, A/R × voyageurs)
+ *   quand il est connu, plafonné à 60 % du budget pour éviter qu'un vol cher
+ *   absorbe tout. Fallback sur le ratio théorique si aucun prix réel.
+ * - Le budget restant (budget − vols) est réparti sur les autres postes selon
+ *   leurs ratios RENORMALISÉS (somme des ratios hors-vols), donc générique quel
+ *   que soit le prix des vols : vols pas chers → plus de budget sur place.
+ * - Hébergement plafonné à un prix/nuit/personne réaliste (250€, 800€ luxury) ;
+ *   le surplus est redistribué sur activités/resto/transports.
  */
 export function calcBudgetBreakdown(
   budget: number,
   mode: TravelMode,
   nights: number,
   travelers: number,
+  realFlightTotal?: number,
 ): Pack['budget_breakdown'] {
   const ratio  = BUDGET_RATIOS[mode] ?? BUDGET_RATIOS.party;
   const maxPpn = mode === MODES.LUXURY ? 800 : 250;
 
+  // ── Poste VOLS : vrai coût (plafonné à 60 % du budget) sinon estimation ratio.
+  const vols = realFlightTotal && realFlightTotal > 0
+    ? Math.min(Math.round(realFlightTotal), Math.round(budget * 0.60))
+    : Math.round(budget * ratio.vols);
+
+  // ── Budget restant réparti sur les postes hors-vols (ratios renormalisés).
+  const remaining = Math.max(0, budget - vols);
+  const otherSum  = ratio.heberg + ratio.activites + ratio.resto + ratio.trans;
+  const part      = (r: number) => (otherSum > 0 ? remaining * (r / otherSum) : 0);
+
   // Hébergement plafonné à un prix/nuit/personne réaliste.
-  const nominalHeberg = Math.round(budget * ratio.heberg);
+  const nominalHeberg = Math.round(part(ratio.heberg));
   let   heberg        = nominalHeberg;
   const ppn           = heberg / nights / travelers;
   if (ppn > maxPpn) heberg = maxPpn * nights * travelers;
 
   // Le budget hébergement non dépensé (à cause du plafond) est REDISTRIBUÉ au
-  // prorata sur les autres postes — au lieu de gonfler « Divers » (qui rendait le
-  // camembert incohérent : « Divers » pouvait devenir la 2ᵉ plus grosse part).
+  // prorata sur activités/resto/transports — au lieu de gonfler « Divers ».
   const surplus   = Math.max(0, nominalHeberg - heberg);
-  const redistSum = ratio.vols + ratio.activites + ratio.resto + ratio.trans;
+  const redistSum = ratio.activites + ratio.resto + ratio.trans;
   const share     = (r: number) => (redistSum > 0 ? (surplus * r) / redistSum : 0);
 
-  const vols      = Math.round(budget * ratio.vols      + share(ratio.vols));
-  const activites = Math.round(budget * ratio.activites + share(ratio.activites));
-  const resto     = Math.round(budget * ratio.resto     + share(ratio.resto));
-  const trans     = Math.round(budget * ratio.trans     + share(ratio.trans));
+  const activites = Math.round(part(ratio.activites) + share(ratio.activites));
+  const resto     = Math.round(part(ratio.resto)     + share(ratio.resto));
+  const trans     = Math.round(part(ratio.trans)     + share(ratio.trans));
   const divers    = Math.max(0, budget - vols - heberg - activites - resto - trans);
 
   return {
@@ -486,7 +525,10 @@ export async function assemblePack({
   const originCode  = t.origin_airport_code?.toUpperCase() ?? 'XXX';
 
   // ── 4. Répartition budgétaire ─────────────────────────────────────────────
-  const budgetBreakdown = calcBudgetBreakdown(budget, mode, nights, travelers);
+  // Vrai coût des vols = prix/pers résolu × 2 trajets (A/R) × voyageurs.
+  const flightPricePerPerson = resolveFlightPricePerPerson(flights, budget, travelers);
+  const realFlightTotal      = flightPricePerPerson * 2 * travelers;
+  const budgetBreakdown = calcBudgetBreakdown(budget, mode, nights, travelers, realFlightTotal);
   const heberg = (budgetBreakdown as Pack['budget_breakdown'] & { _hebergRaw: number })._hebergRaw;
 
   // ── 5. Mapping événements ─────────────────────────────────────────────────

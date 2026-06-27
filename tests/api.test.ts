@@ -368,12 +368,17 @@ describe('🤖 AI — Validation des inputs', () => {
     expect(res.body.error).toMatch(/long/i);
   });
 
-  it('POST /destinations — 400 sans mode', async () => {
-    const res = await request(app)
+  it('POST /destinations — mode robuste : sans mode (défaut) et "luxe" FR acceptés', async () => {
+    // Sans mode → défaut intelligent ('surprise'), plus de 400 (anti-blocage onboarding)
+    const noMode = await request(app)
       .post('/api/ai/destinations')
       .send({ budget: 2000, travelers: 2 });
-    expect(res.status).toBe(400);
-    expect(res.body.error).toMatch(/mode/i);
+    expect(noMode.status).toBe(200);
+    // Mode en français → normalisé (luxe → luxury), accepté
+    const frMode = await request(app)
+      .post('/api/ai/destinations')
+      .send({ mode: 'luxe', budget: 2000, travelers: 2 });
+    expect(frMode.status).toBe(200);
   });
 
   it('POST /destinations — 200 avec mode valide (mock)', async () => {

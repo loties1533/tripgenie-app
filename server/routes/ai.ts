@@ -28,6 +28,29 @@ import type { WeatherData } from '../services/weather.js';
 const router = express.Router();
 
 const travelModeSchema = z.enum(['party', 'student', 'luxury', 'group', 'relax', 'surprise']);
+
+// Normalisation des modes : accepte les synonymes FR (luxe→luxury, fête→party…) et la casse,
+// pour ne pas planter quand le LLM renvoie le mot français saisi par l'utilisateur.
+const MODE_ALIASES: Record<string, string> = {
+  luxe: 'luxury', luxueux: 'luxury', luxury: 'luxury',
+  fete: 'party', 'fête': 'party', party: 'party', 'soirée': 'party', soiree: 'party', amis: 'party',
+  detente: 'relax', 'détente': 'relax', relax: 'relax', calme: 'relax', repos: 'relax', couple: 'relax', romantique: 'relax',
+  etudiant: 'student', 'étudiant': 'student', student: 'student', budget: 'student',
+  groupe: 'group', group: 'group', famille: 'group', family: 'group',
+  surprise: 'surprise',
+};
+function canonicalMode(v: unknown): string | undefined {
+  if (typeof v !== 'string') return undefined;
+  const k = v.trim().toLowerCase();
+  return MODE_ALIASES[k] ?? (['party', 'student', 'luxury', 'group', 'relax', 'surprise'].includes(k) ? k : undefined);
+}
+// /destinations : garantit toujours un mode valide (défaut 'surprise' = l'app choisit) → jamais de 400 sur le mode.
+const destinationsMode = z.preprocess((v) => canonicalMode(v) ?? 'surprise', travelModeSchema);
+// /generate & /chat : tolérant mais optionnel (un mode inconnu est ignoré, pas rejeté).
+const optionalMode = z.preprocess(
+  (v) => (v === undefined || v === null ? undefined : canonicalMode(v)),
+  travelModeSchema.optional(),
+);
 const nonEmptyString = z.string().trim().min(1);
 const currentPackSchema = z.any().optional().refine((value) => {
   return value === undefined || (typeof value === 'object' && value !== null && !Array.isArray(value));
@@ -45,7 +68,7 @@ const analyzeSchema = z.object({
 });
 
 const destinationsSchema = z.object({
-  mode: travelModeSchema,
+  mode: destinationsMode,
   budget: z.number().int().min(0).optional(),
   travelers: z.number().int().min(1).max(20).optional(),
   duration: z.number().int().min(1).optional(),
@@ -66,14 +89,14 @@ const generateSchema = z.object({
   return_date: z.string().trim().optional().nullable(),
   travelers: z.preprocess((val) => typeof val === 'string' ? Number(val) : val, z.number().int().min(1).max(20)).optional(),
   budget: z.preprocess((val) => typeof val === 'string' ? Number(val) : val, z.number().int().min(1).max(50000)),
-  mode: travelModeSchema.optional(),
+  mode: optionalMode,
   preferences: z.array(z.string()).optional(),
 });
 
 const chatSchema = z.object({
   message: nonEmptyString.max(1000, 'Message trop long'),
   current_pack: currentPackSchema.optional(),
-  mode: travelModeSchema.optional(),
+  mode: optionalMode,
   trip_id: z.string().uuid('trip_id invalide').optional(),
 });
 
