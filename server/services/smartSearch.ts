@@ -1,8 +1,3 @@
-/**
- * @fileoverview Recherches web via Tavily pour vols, événements et hôtels.
- * Chaque fonction extrait des données réelles + URLs cliquables.
- */
-
 import { searchWeb } from './tools/webSearch.js';
 import { callAI, parseJSON } from './claude/index.js';
 import { predictHQEventsSearch } from './predictHQ.js';

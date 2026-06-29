@@ -1,9 +1,3 @@
-/**
- * @fileoverview Définitions de types TypeScript pour TripGenie.
- * Source de vérité pour les objets circulant dans le pipeline IA
- * et stockés en JSONB dans la colonne `pack_data` de la table `trips`.
- */
-
 export interface Meteo {
   avg_temp: string;   // ex : "22°C"
   conditions: string; // ex : "Ensoleillé"

@@ -21,7 +21,7 @@ function computeReturnDate(departure: string, durationDays: number): string {
   return localDateStr(new Date(new Date(departure).getTime() + durationDays * 86400000))
 }
 
-// ---- Formatage du récap ----
+// Formatage du récap
 function buildRecapMessage(data: Record<string, unknown>): string {
   const profileMap: Record<string, string> = {
     couple:  'Duo Romantique 💑',
@@ -45,9 +45,7 @@ function buildRecapMessage(data: Record<string, unknown>): string {
   return `✦ Récap de votre escapade :\n• ${profile} — ${travelers}\n• Budget : ${budget}\n• Départ : ${departure}, durée : ${duration}`
 }
 
-// =============================================
 // QUIZ STEPS
-// =============================================
 const QUIZ_STEPS = [
   {
     key:      'occasion',
@@ -103,7 +101,7 @@ const QUIZ_STEPS = [
   },
 ]
 
-// ---- Typing indicator ----
+// Typing indicator
 function TypingDots() {
   return (
     <div className="flex items-end gap-1.5 px-4 py-3">
@@ -115,7 +113,7 @@ function TypingDots() {
   )
 }
 
-// ---- Message bubble ----
+// Message bubble
 function Message({ msg, onChipClick }: { msg: any; onChipClick?: (label: string) => void }) {
   const isBot = msg.role === 'bot' || msg.role === 'assistant'
   return (
@@ -156,7 +154,7 @@ function StaticChip({ label }: { label: string }) {
   return <span className="chip text-sm opacity-60 cursor-default">{label}</span>
 }
 
-// ---- Composant input inline ----
+// Composant input inline
 function InlineInput({
   mode,
   dateRange,
@@ -292,9 +290,7 @@ async function traiterMessageIA(value: string, ctx: any) {
   }
 }
 
-// =============================================
 // SUGGESTION DESTINATIONS
-// =============================================
 async function suggestDestinations(
   chatData: any,
   ctx: any,
@@ -332,9 +328,7 @@ async function suggestDestinations(
   }
 }
 
-// =============================================
 // MAIN CHAT WIDGET
-// =============================================
 export default function ChatWidget() {
   const {
     messages, isTyping, addMessage, mergeChatData, setTyping,
@@ -395,7 +389,7 @@ export default function ChatWidget() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
 
-  // ---- Handler chip quiz ----
+  // Handler chip quiz
   const handleQuizChip = useCallback(async (chip: any) => {
     // Chip d'input inline (data === null)
     if (chip.data === null) {
@@ -437,7 +431,7 @@ export default function ChatWidget() {
   // FIX 9 : awaitingConfirm retiré des deps (non lu dans le corps du callback)
   }, [quizStep, chatData])
 
-  // ---- Confirmation récap ----
+  // Confirmation récap
   const handleConfirm = useCallback(async () => {
     setAwaitingConfirm(false)
     const merged: Record<string, unknown> = { ...chatData }
@@ -471,7 +465,7 @@ export default function ChatWidget() {
     setTimeout(() => addMessage({ role: 'bot', text: QUIZ_STEPS[0].question }), 200)
   }, [])
 
-  // ---- Confirm input inline ----
+  // Confirm input inline
   const handleInlineConfirm = useCallback(async () => {
     // FIX 4 : try/finally — inputMode toujours réinitialisé même en cas d'exception
     try {
@@ -526,7 +520,7 @@ export default function ChatWidget() {
     }
   }, [inputMode, dateRange, travelersCount, budgetAmount, handleQuizChip, chatData])
 
-  // ---- Envoi texte libre ----
+  // Envoi texte libre
   const sendMessage = useCallback(async () => {
     const text = input.trim()
     // FIX 12 : sendingRef.current = toujours à jour (pas de stale closure comme avec le state)
@@ -547,7 +541,7 @@ export default function ChatWidget() {
     }
   }, [input, chatData, turnCount])
 
-  // ---- Clic sur un chip de réponse bot ----
+  // Clic sur un chip de réponse bot
   const sendChip = useCallback(async (label: string) => {
     // FIX 12 : sendingRef empêche la race condition avec sendMessage
     if (sendingRef.current || isTyping) return
@@ -717,7 +711,7 @@ export default function ChatWidget() {
   )
 }
 
-// ---- Quiz chips ----
+// Quiz chips
 function QuizChips({ step, onSelect, disabled }: { step: number; onSelect: (chip: any) => void; disabled: boolean }) {
   const currentStep = QUIZ_STEPS[step]
   if (!currentStep) return null

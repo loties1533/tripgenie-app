@@ -1,10 +1,3 @@
-/**
- * @fileoverview Utilitaires partagés du pipeline IA :
- * - callAI : routeur multi-provider avec fallback automatique
- * - parseJSON : nettoyage et parsing robuste des réponses IA
- * - sanitizeInput : protection contre les injections de prompt
- */
-
 import 'dotenv/config';
 import * as Mocks from '../mocks.js';
 import { callClaude, callOpenRouter, callGemini, callOllama } from '../providers.js';
@@ -104,11 +97,6 @@ export function normalizeChips(chips: unknown): string[] {
   }).filter(Boolean);
 }
 
-/**
- * Routeur multi-provider avec fallback automatique.
- * Ordre de priorité : Gemini (fiable, gratuit) → Claude → OpenRouter (modèles gratuits, dernière option) → Mode Survie (mocks).
- * Note : Gemini est toujours tenté en premier car il produit du JSON valide beaucoup plus régulièrement que les modèles OpenRouter gratuits.
- */
 export async function callAI(
   userPrompt: string,
   systemPrompt: string = SYSTEM_PROMPT,

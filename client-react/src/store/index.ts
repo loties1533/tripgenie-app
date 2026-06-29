@@ -2,9 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Pack, TravelMode } from '../../../server/lib/types'
 
-// =============================================
 // SEARCH STORE — état de la recherche et du pack
-// =============================================
 interface SearchState {
   destination: string;
   origin: string;
@@ -63,9 +61,7 @@ export const useSearchStore = create<SearchState>()(
   )
 )
 
-// =============================================
 // CHAT STORE — état du chatbot onboarding
-// =============================================
 export interface ChatMessage {
   id?: number | string;
   role: 'user' | 'assistant' | 'bot';
@@ -147,9 +143,7 @@ export const useChatStore = create<ChatState>()(
   )
 )
 
-// =============================================
 // AUTH STORE — utilisateur connecté
-// =============================================
 interface User {
   id: string;
   email: string;
@@ -173,9 +167,7 @@ export const useAuthStore = create<AuthState>()(
   )
 )
 
-// =============================================
 // THEME STORE
-// =============================================
 interface ThemeState {
   theme: 'dark' | 'light';
   toggle: () => void;

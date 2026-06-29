@@ -1,7 +1,3 @@
-/**
- * @fileoverview Analyse de la demande utilisateur et suggestion de destinations.
- */
-
 import { searchWeb } from '../tools/webSearch.js';
 import * as Mocks from '../mocks.js';
 import { callAI, parseJSON, sanitizeInput } from './core.js';

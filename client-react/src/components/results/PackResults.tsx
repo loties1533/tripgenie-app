@@ -285,9 +285,7 @@ function ActivityCard({ activity }: { activity: any }) {
   )
 }
 
-// =============================================
 // MAIN PACK RESULTS
-// =============================================
 const TABS = [
   { id: 'overview',    label: 'Aperçu',      icon: '✦' },
   { id: 'hotels',      label: 'Hôtels',      icon: '🏨' },

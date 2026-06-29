@@ -1,8 +1,3 @@
-/**
- * @fileoverview Adaptateurs vers les différents providers IA.
- * Chaque fonction prend (systemPrompt, userPrompt) et retourne le texte brut de la réponse.
- */
-
 import { CLE_ANTHROPIC, CLE_OPENROUTER } from '../lib/keys.js';
 
 const TIMEOUT_IA_MS  = 45_000;

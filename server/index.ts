@@ -1,6 +1,4 @@
-// =============================================
 // TRIPGENIE — server/index.ts (Point d'entrée backend)
-// =============================================
 
 import 'dotenv/config';
 import express from 'express';

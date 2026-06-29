@@ -1,9 +1,3 @@
-/**
- * @fileoverview Yelp Fusion API — restaurants réels par ville.
- * Retourne les meilleurs restaurants avec notes, prix et catégorie.
- * Docs : https://docs.developer.yelp.com/reference/v3_business_search
- */
-
 import 'dotenv/config';
 import type { Activite, TravelMode } from '../lib/types.js';
 import { encoderURL, liensRestaurant } from '../lib/url.js';
@@ -44,10 +38,6 @@ function prixDepuisSymbole(price?: string): number {
 }
 
 
-/**
- * Retourne les meilleurs restaurants Yelp pour une ville selon le mode.
- * Retourne [] si YELP_API_KEY absente ou aucun résultat.
- */
 export async function yelpRestaurantSearch(
   city: string,
   mode: TravelMode

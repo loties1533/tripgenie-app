@@ -1,9 +1,3 @@
-/**
- * @fileoverview Gestion du chat conversationnel :
- * - chatIntake  : onboarding — collecte les infos voyage en max 3 échanges
- * - chatModify  : modification post-génération du pack
- */
-
 import * as Mocks from '../mocks.js';
 import { callAI, parseJSON, sanitizeInput, normalizeChips } from './core.js';
 import type { ResultatOnboarding, Pack, TravelMode } from '../../lib/types.js';

@@ -1,14 +1,3 @@
-/**
- * @fileoverview Photo HD de la destination — pipeline 3 niveaux.
- *
- * 1. Wikipedia REST API (sans clé, fonctionne pour toute ville du monde)
- *    → originalimage de l'article Wikipedia de la destination
- * 2. Unsplash API (si UNSPLASH_ACCESS_KEY valide)
- * 3. Pexels API (si PEXELS_API_KEY valide)
- *
- * Aucune liste hardcodée — ça marche pour Hvar, Katmandou, N'Djamena ou Ibiza.
- */
-
 const PHOTO_PAR_DEFAUT =
   'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80';
 

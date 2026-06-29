@@ -1,14 +1,3 @@
-/**
- * @fileoverview Météo réelle via Open-Meteo (gratuit, sans clé API).
- *
- * 3 modes selon la date de départ :
- * - ≤ 16 jours  → API forecast (prévision exacte)
- * - > 16 jours  → API climate historique (même mois, année précédente)
- * - Pas de date → météo actuelle
- *
- * Géocodage via Open-Meteo Geocoding API (aussi gratuit).
- */
-
 export interface WeatherData {
   temp: string;
   cond: string;
@@ -46,7 +35,6 @@ interface ReponseClimat {
   };
 }
 
-/** Convertit un WMO weather code en description lisible */
 function codeMeteoEnTexte(code: number): string {
   if (code === 0)               return 'Ciel dégagé';
   if (code <= 2)                return 'Partiellement nuageux';
@@ -59,7 +47,6 @@ function codeMeteoEnTexte(code: number): string {
   return 'Variable';
 }
 
-/** Géocode une ville → coordonnées GPS */
 async function geocoderVille(city: string): Promise<ResultatGeo | null> {
   const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=fr&format=json`;
   const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
@@ -68,7 +55,7 @@ async function geocoderVille(city: string): Promise<ResultatGeo | null> {
   return data.results?.[0] ?? null;
 }
 
-/** Météo de prévision (départ dans ≤ 16 jours) */
+// prévision météo réelle (Open-Meteo, ≤ 16 jours)
 async function getMeteoPrevision(lat: number, lon: number, date: string): Promise<WeatherData | null> {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&hourly=relativehumidity_2m&timezone=auto&start_date=${date}&end_date=${date}`;
   const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
@@ -90,7 +77,7 @@ async function getMeteoPrevision(lat: number, lon: number, date: string): Promis
   };
 }
 
-/** Météo climatique (départ dans > 16 jours — même mois, année précédente) */
+// pas de prévision possible > 16j — on prend le même mois l'an dernier
 async function getMeteoClimat(lat: number, lon: number, date: string): Promise<WeatherData | null> {
   const dateRef         = new Date(date);
   const anneeReference  = dateRef.getFullYear() - 1;
@@ -119,16 +106,11 @@ async function getMeteoClimat(lat: number, lon: number, date: string): Promise<W
   };
 }
 
-/** Météo actuelle (pas de date fournie) */
 async function getMeteoActuelle(lat: number, lon: number): Promise<WeatherData | null> {
   const today = new Date().toISOString().slice(0, 10);
   return getMeteoPrevision(lat, lon, today);
 }
 
-/**
- * Point d'entrée principal.
- * Sélectionne automatiquement forecast / climate / current selon la date de départ.
- */
 export async function getRealWeather(city: string, departureDate?: string): Promise<WeatherData | null> {
   try {
     const donneesGeo = await geocoderVille(city);

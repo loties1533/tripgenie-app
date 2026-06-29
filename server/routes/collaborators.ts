@@ -1,7 +1,3 @@
-// =============================================
-// TRIPGENIE — server/routes/collaborators.ts  (Prisma)
-// Collaborateurs de voyage (relation many-to-many trips ↔ users)
-// =============================================
 
 import express from 'express';
 import { z } from 'zod';

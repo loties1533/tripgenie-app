@@ -1,8 +1,3 @@
-/**
- * @fileoverview Classe d'erreur personnalisée pour TripGenie.
- * Permet de capturer le code HTTP et de savoir si l'erreur est "opérationnelle"
- * (prévisible) ou s'il s'agit d'un bug système.
- */
 import type { Request, Response, NextFunction } from 'express';
 
 export class AppError extends Error {
@@ -20,9 +15,6 @@ export class AppError extends Error {
   }
 }
 
-/**
- * Middleware de gestion d'erreurs global pour Express.
- */
 export const gestionnairreErreurGlobal = (
   err: AppError & { stack?: string },
   _req: Request,

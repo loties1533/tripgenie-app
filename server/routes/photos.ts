@@ -1,7 +1,3 @@
-// =============================================
-// TRIPGENIE — server/routes/photos.ts
-// Proxy Unsplash côté serveur — la clé ne sort jamais côté client
-// =============================================
 
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';

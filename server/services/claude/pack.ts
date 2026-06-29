@@ -1,16 +1,3 @@
-/**
- * @fileoverview Génération du pack voyage complet via LLM.
- *
- * Ce module est organisé en fonctions pures testables unitairement :
- * - calculerNuits()          → calcul du nombre de nuits
- * - construirePromptPack()     → construction du prompt LLM selon le mode
- * - parserReponsePack()   → parsing JSON + fallback si LLM renvoie du JSON cassé
- * - transformerVols()          → mapping FlightSearchResult → Pack['flights']
- * - transformerActivites()       → mapping ResultatTexteIA.activities → Pack['activities']
- * - calculerRepartitionBudget() → répartition budgétaire selon BUDGET_RATIOS
- * - assemblerPack()        → orchestrateur principal (appelle les fonctions ci-dessus)
- */
-
 import { callAI, parseJSON, sanitizeInput } from './core.js';
 import { MODES, BUDGET_RATIOS, DEFAULT_VALUES } from '../../lib/constants.js';
 import type { Pack, TravelMode } from '../../lib/types.js';
@@ -52,14 +39,8 @@ export interface ResultatTexteIA {
   phrase_tr?: string;
 }
 
-// ============================================================
 // 1. calculerNuits — calcul du nombre de nuits du séjour
-// ============================================================
 
-/**
- * Calcule le nombre de nuits en fonction des dates ou de la durée.
- * Fallback : estimation par le budget (500€ ≈ 1 nuit, capped à 14).
- */
 export function calculerNuits(
   departure: string | undefined,
   return_date: string | undefined,
@@ -76,14 +57,8 @@ export function calculerNuits(
   return Math.min(Math.max(Math.round(budget / 500), 2), 14);
 }
 
-// ============================================================
 // 2. construirePromptPack — construction du prompt LLM
-// ============================================================
 
-/**
- * Construit le prompt envoyé au LLM selon le mode de voyage, le budget et les données réelles.
- * Séparé d'assemblerPack pour être testable unitairement et modifiable sans risque.
- */
 export function construirePromptPack({
   dest, originCity, travelers, profile, mode, budgetPerPers, nights, events,
 }: {
@@ -155,15 +130,8 @@ export function construirePromptPack({
     ⚠️ airport_code = code IATA de l'aéroport de ${dest}. origin_airport_code = code IATA de l'aéroport de ${originCity} (ville de départ).`;
 }
 
-// ============================================================
 // 3. parserReponsePack — parsing JSON + fallback structuré
-// ============================================================
 
-/**
- * Parse la réponse brute du LLM en ResultatTexteIA.
- * Si le JSON est malformé (parseJSON échoue après ses 5 tentatives),
- * renvoie un fallback générique pour ne jamais bloquer la génération.
- */
 export function parserReponsePack(raw: string, dest: string, nights: number): ResultatTexteIA {
   try {
     return parseJSON(raw) as ResultatTexteIA;
@@ -204,27 +172,21 @@ export function parserReponsePack(raw: string, dest: string, nights: number): Re
 // de la sortie du LLM : les liens restent corrects même si le LLM se trompe de ville.
 // ============================================================
 
-/** 'YYYY-MM-DD' depuis une date ISO (ou '' si absente). */
+// "YYYY-MM-DD" depuis une date ISO, "" si absente
 function versFormatISO(date?: string): string {
   return date ? date.slice(0, 10) : '';
 }
 
-/** 'YYMMDD' pour les deep-links Skyscanner (2026-07-15 → 260715). */
+// format Skyscanner : 2026-07-15 → 260715
 function versFormatCourt(date?: string): string {
   return date ? date.slice(2, 10).replace(/-/g, '') : '';
 }
 
-/** Code IATA plausible (3 lettres, hors placeholder 'XXX'). */
+// code IATA valide (3 lettres, rejette le placeholder XXX)
 function estCodeIATAValide(code?: string): boolean {
   return !!code && /^[A-Za-z]{3}$/.test(code) && code.toUpperCase() !== 'XXX';
 }
 
-/**
- * Liens vols pré-remplis. Google Flights (requête naturelle) = lien primaire
- * fiable : jamais de 404, pas besoin de code IATA. Skyscanner/Kayak en complément
- * UNIQUEMENT si les codes IATA sont valides ET qu'on a une date de départ ;
- * sinon on retombe sur Google Flights (anti page inexistante).
- */
 export function construireLiensVol(params: {
   originCity: string; destCity: string;
   originIATA?: string; destIATA?: string;
@@ -253,7 +215,7 @@ export function construireLiensVol(params: {
   return { google, skyscanner, kayak };
 }
 
-/** Lien Booking pré-rempli : ville + check-in/out + nombre d'adultes. */
+// lien Booking pré-rempli
 export function construireUrlHotel(
   hotelName: string, city: string,
   departure?: string, return_date?: string, travelers = 2,
@@ -267,7 +229,7 @@ export function construireUrlHotel(
   return `https://www.google.com/travel/hotels?${params.toString()}`;
 }
 
-/** Lien de réservation réel pour une activité (plateforme de booking, pas une carte). */
+// lien de booking réel, pas une carte Google Maps
 export function construireUrlActivite(name: string, city: string): string {
   // N'ajoute la ville que si le nom ne la contient pas déjà (évite "Nobu Maldives Maldives").
   const requete = name.toLowerCase().includes(city.toLowerCase()) ? name : `${name} ${city}`;
@@ -275,14 +237,8 @@ export function construireUrlActivite(name: string, city: string): string {
   return `https://www.google.com/search?q=${encodeURIComponent(requete + ' réservation')}`;
 }
 
-// ============================================================
 // 4. transformerVols — mapping vols réels → Pack['flights']
-// ============================================================
 
-/**
- * Transforme les résultats Tavily en tableau de vols typé Pack['flights'].
- * Cap le prix à 15% du budget si le prix trouvé semble aberrant (> 1800€).
- */
 // Ajoute une durée "XhYY" / "Xh" à une heure "HH:MM" → "HH:MM" (même fuseau).
 // Garantit la cohérence : heure d'arrivée = heure de départ + durée.
 function ajouterDureeAHeure(time: string, duration: string): string {
@@ -294,14 +250,6 @@ function ajouterDureeAHeure(time: string, duration: string): string {
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
 
-/**
- * Résout le prix d'un billet PAR PERSONNE et PAR TRAJET (aller simple).
- * Source unique de vérité partagée par transformerVols (affichage) et le calcul du
- * budget (camembert) — garantit que les deux montrent le même prix.
- *
- * - Prix réel Tavily si dispo et plausible (≤ 1800€/billet).
- * - Sinon estimation = 15 % du budget / voyageur.
- */
 export function resolveFlightPricePerPerson(
   flights: FlightSearchResult[] | undefined,
   budget: number,
@@ -380,14 +328,8 @@ export function transformerVols(
   ];
 }
 
-// ============================================================
 // 5. transformerActivites — mapping activités LLM → Pack['activities']
-// ============================================================
 
-/**
- * Transforme les activités brutes du LLM en activités typées avec emoji,
- * catégorie et lien de réservation adapté au type d'activité.
- */
 export function transformerActivites(
   activities: ResultatTexteIA['activities'],
   dest: string,
@@ -419,22 +361,8 @@ export function transformerActivites(
   });
 }
 
-// ============================================================
 // 6. calculerRepartitionBudget — répartition budgétaire par mode
-// ============================================================
 
-/**
- * Répartit le budget total en postes cohérents avec les VRAIS prix.
- *
- * - Poste « Vols » = vrai coût des billets (`realFlightTotal`, A/R × voyageurs)
- *   quand il est connu, plafonné à 60 % du budget pour éviter qu'un vol cher
- *   absorbe tout. Fallback sur le ratio théorique si aucun prix réel.
- * - Le budget restant (budget − vols) est réparti sur les autres postes selon
- *   leurs ratios RENORMALISÉS (somme des ratios hors-vols), donc générique quel
- *   que soit le prix des vols : vols pas chers → plus de budget sur place.
- * - Hébergement plafonné à un prix/nuit/personne réaliste (250€, 800€ luxury) ;
- *   le surplus est redistribué sur activités/resto/transports.
- */
 export function calculerRepartitionBudget(
   budget: number,
   mode: TravelMode,
@@ -485,25 +413,8 @@ export function calculerRepartitionBudget(
   } as Pack['budget_breakdown'] & { _hebergRaw: number };
 }
 
-// ============================================================
 // 7. assemblerPack — orchestrateur principal
-// ============================================================
 
-/**
- * Génère un pack voyage complet.
- *
- * Orchestre les fonctions pures ci-dessus :
- * 1. calculerNuits        → nombre de nuits
- * 2. construirePromptPack   → prompt LLM enrichi avec les données réelles
- * 3. callAI            → appel LLM (Gemini → Claude → OpenRouter → Mocks)
- * 4. parserReponsePack → parsing JSON + fallback
- * 5. transformerVols        → vols structurés
- * 6. transformerActivites     → activités avec emoji + liens de réservation
- * 7. calculerRepartitionBudget → répartition budgétaire
- *
- * @param params - Destination, mode, budget, dates, données réelles (vols/météo/hôtels/events)
- * @returns      Pack complet structuré prêt à être affiché côté client
- */
 export async function assemblerPack({
   destination, origin, flights, events, hotels: realHotels, mode, profile, travelers, budget,
   departure, return_date, duration, realWeather, realPhoto,

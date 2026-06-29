@@ -1,11 +1,3 @@
-/**
- * @fileoverview Intégration PredictHQ — événements réels par ville et dates.
- * PredictHQ retourne des données structurées (concerts, festivals, sports…)
- * sans passer par un LLM pour parser les résultats.
- *
- * Docs : https://docs.predicthq.com/api/events
- */
-
 import 'dotenv/config';
 import type { TravelMode, ActivityLinks } from '../lib/types.js';
 import type { EventSearchResult } from './smartSearch.js';
@@ -68,11 +60,6 @@ async function obtenirIdLieu(city: string): Promise<string | null> {
   }
 }
 
-/**
- * Recherche les événements réels pour une ville et des dates données.
- * Utilise l'ID de lieu PredictHQ pour un filtrage précis par ville.
- * Retourne [] si pas de clé API ou aucun événement trouvé.
- */
 export async function predictHQEventsSearch(
   city: string,
   dateFrom: string,

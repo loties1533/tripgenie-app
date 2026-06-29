@@ -1,7 +1,3 @@
-// =============================================
-// TRIPGENIE — server/routes/preferences.ts  (Prisma)
-// Préférences utilisateur (relation 1-1 avec users)
-// =============================================
 
 import express from 'express';
 import { z } from 'zod';

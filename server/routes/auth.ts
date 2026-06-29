@@ -1,7 +1,3 @@
-// =============================================
-// TRIPGENIE — server/routes/auth.ts
-// Inscription, Connexion et Déconnexion avec JWT
-// =============================================
 
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';

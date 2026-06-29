@@ -4,7 +4,7 @@ import React from 'react'
 
 export { default as GenerationLoader } from './GenerationLoader'
 
-// ---- Skeleton loader ----
+// Skeleton loader
 export function Skeleton({ className }: { className?: string }) {
   return <div className={clsx('skeleton', className)} />
 }
@@ -23,7 +23,7 @@ export function SkeletonCard() {
   )
 }
 
-// ---- Score badge ----
+// Score badge
 export function ScoreBadge({ score }: { score: any }) {
   const pourcentage   = Math.round((score?.total ?? score ?? 0) * 100)
   const color = pourcentage >= 75 ? 'bg-sage/20 text-sage' : pourcentage >= 50 ? 'bg-gold/20 text-gold-dark' : 'bg-coral/20 text-coral'
@@ -34,7 +34,7 @@ export function ScoreBadge({ score }: { score: any }) {
   )
 }
 
-// ---- Verified badge ----
+// Verified badge
 export function VerifiedBadge() {
   return (
     <span className="verified">
@@ -46,7 +46,7 @@ export function VerifiedBadge() {
   )
 }
 
-// ---- Tab bar ----
+// Tab bar
 export function TabBar({ tabs, active, onChange }: { tabs: any[], active: string, onChange: (id: string) => void }) {
   return (
     <div className="overflow-x-auto scroll-hide -mx-1">
@@ -64,7 +64,7 @@ export function TabBar({ tabs, active, onChange }: { tabs: any[], active: string
   )
 }
 
-// ---- Section header ----
+// Section header
 export function SectionTitle({ children, sub }: { children: React.ReactNode, sub?: string }) {
   return (
     <div className="mb-4">
@@ -74,7 +74,7 @@ export function SectionTitle({ children, sub }: { children: React.ReactNode, sub
   )
 }
 
-// ---- Stars ----
+// Stars
 export function Stars({ count = 3 }: { count?: number }) {
   return (
     <span className="text-gold text-sm tracking-tight">
@@ -84,7 +84,7 @@ export function Stars({ count = 3 }: { count?: number }) {
   )
 }
 
-// ---- Animated counter ----
+// Animated counter
 export function AnimatedNumber({ value, suffix = '' }: { value: number, suffix?: string }) {
   return (
     <motion.span
@@ -98,7 +98,7 @@ export function AnimatedNumber({ value, suffix = '' }: { value: number, suffix?:
   )
 }
 
-// ---- Mode badge ----
+// Mode badge
 const MODE_LABELS = {
   party:   { label: 'Fête',      emoji: '🎉', cls: 'bg-coral/10 text-coral' },
   student: { label: 'Étudiant',  emoji: '🎒', cls: 'bg-sky/10 text-sky' },

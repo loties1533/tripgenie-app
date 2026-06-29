@@ -1,8 +1,3 @@
-/**
- * @fileoverview Foursquare Places API — restaurants et bars réels par ville.
- * 1000 requêtes/jour gratuites. Docs : https://location.foursquare.com/developer/
- */
-
 import 'dotenv/config';
 import type { Activite, TravelMode } from '../lib/types.js';
 import { encoderURL, liensRestaurant } from '../lib/url.js';

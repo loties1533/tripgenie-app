@@ -1,7 +1,3 @@
-// =============================================
-// TRIPGENIE — server/routes/votes.ts
-// Gestion du consensus (Voter pour/contre un item)
-// =============================================
 
 import express from 'express';
 import { z } from 'zod';
