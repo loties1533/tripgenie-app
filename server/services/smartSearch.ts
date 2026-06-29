@@ -7,10 +7,7 @@ import { searchWeb } from './tools/webSearch.js';
 import { callAI, parseJSON } from './claude/index.js';
 import { predictHQEventsSearch } from './predictHQ.js';
 import type { TravelMode, FlightLinks, HotelLinks, ActivityLinks } from '../lib/types.js';
-
-function encoderURL(str: string): string {
-  return encodeURIComponent(str?.trim() ?? '');
-}
+import { encoderURL } from '../lib/url.js';
 
 function liensVol(origin: string, destination: string, departure?: string): FlightLinks {
   const dateDepart = departure?.slice(0, 10).replace(/-/g, '') ?? '';

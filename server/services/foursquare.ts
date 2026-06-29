@@ -4,7 +4,8 @@
  */
 
 import 'dotenv/config';
-import type { Activite, TravelMode, ActivityLinks } from '../lib/types.js';
+import type { Activite, TravelMode } from '../lib/types.js';
+import { encoderURL, liensRestaurant } from '../lib/url.js';
 
 const CLE_FOURSQUARE = process.env.FOURSQUARE_API_KEY;
 // Nouvelle API Places (FSQ OS Places) — l'ancienne (api.foursquare.com/v3) est
@@ -34,9 +35,6 @@ interface ReponseFoursquare {
   results: LieuFoursquare[];
 }
 
-function encoderURL(str: string): string {
-  return encodeURIComponent(str?.trim() ?? '');
-}
 
 function etiquettePrix(price?: number): string {
   return ['', '$', '$$', '$$$', '$$$$'][price ?? 2] ?? '$$';
@@ -46,13 +44,6 @@ function prixNumerique(price?: number): number {
   return [0, 15, 35, 65, 120][price ?? 2] ?? 35;
 }
 
-function liensRestaurant(name: string, city: string): ActivityLinks {
-  return {
-    viator:       `https://www.thefork.fr/recherche?q=${encoderURL(name + ' ' + city)}`,
-    getyourguide: `https://www.google.com/search?q=${encoderURL(name + ' ' + city + ' réservation')}`,
-    airbnb:       `https://foursquare.com/explore?q=restaurants&near=${encoderURL(city)}`,
-  };
-}
 
 export async function foursquareRestaurantSearch(
   city: string,
@@ -101,7 +92,7 @@ export async function foursquareRestaurantSearch(
       price:       prixNumerique(p.price),
       price_range: etiquettePrix(p.price),
       booking_url: `https://www.google.com/maps/search/?api=1&query=${encoderURL(p.name + ' ' + city)}`,
-      links:       liensRestaurant(p.name, city),
+      links:       liensRestaurant(p.name, city, `https://foursquare.com/explore?q=restaurants&near=${encoderURL(city)}`),
     }));
 
   } catch (err) {
