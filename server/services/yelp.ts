@@ -5,7 +5,8 @@
  */
 
 import 'dotenv/config';
-import type { Activite, TravelMode, ActivityLinks } from '../lib/types.js';
+import type { Activite, TravelMode } from '../lib/types.js';
+import { encoderURL, liensRestaurant } from '../lib/url.js';
 
 const CLE_YELP = process.env.YELP_API_KEY;
 const URL_BASE_YELP = 'https://api.yelp.com/v3';
@@ -36,22 +37,12 @@ interface ReponseYelp {
   total: number;
 }
 
-function encoderURL(str: string): string {
-  return encodeURIComponent(str?.trim() ?? '');
-}
 
 function prixDepuisSymbole(price?: string): number {
   const map: Record<string, number> = { '$': 15, '$$': 35, '$$$': 65, '$$$$': 120 };
   return price ? (map[price] ?? 30) : 30;
 }
 
-function liensRestaurant(name: string, city: string): ActivityLinks {
-  return {
-    viator:       `https://www.thefork.fr/recherche?q=${encoderURL(name + ' ' + city)}`,
-    getyourguide: `https://www.google.com/search?q=${encoderURL(name + ' ' + city + ' réservation')}`,
-    airbnb:       `https://www.yelp.fr/search?find_desc=restaurants&find_loc=${encoderURL(city)}`,
-  };
-}
 
 /**
  * Retourne les meilleurs restaurants Yelp pour une ville selon le mode.
@@ -104,7 +95,7 @@ export async function yelpRestaurantSearch(
       price:       prixDepuisSymbole(b.price),
       price_range: b.price ?? '$$',
       booking_url: `https://www.google.com/maps/search/?api=1&query=${encoderURL(b.name + ' ' + city)}`,
-      links:       liensRestaurant(b.name, city),
+      links:       liensRestaurant(b.name, city, `https://www.yelp.fr/search?find_desc=restaurants&find_loc=${encoderURL(city)}`),
     }));
 
   } catch (err) {

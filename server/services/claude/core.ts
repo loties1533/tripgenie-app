@@ -8,9 +8,7 @@
 import 'dotenv/config';
 import * as Mocks from '../mocks.js';
 import { callClaude, callOpenRouter, callGemini, callOllama } from '../providers.js';
-
-const CLE_ANTHROPIC  = process.env.ANTHROPIC_API_KEY?.trim() ?? null;
-const CLE_OPENROUTER = process.env.OPENROUTER_API_KEY?.trim() ?? null;
+import { CLE_ANTHROPIC, CLE_OPENROUTER } from '../../lib/keys.js';
 
 export const SYSTEM_PROMPT = `Tu es TripGenie, expert voyage. Réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après.`;
 

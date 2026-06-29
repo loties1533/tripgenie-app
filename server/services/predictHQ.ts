@@ -9,6 +9,7 @@
 import 'dotenv/config';
 import type { TravelMode, ActivityLinks } from '../lib/types.js';
 import type { EventSearchResult } from './smartSearch.js';
+import { encoderURL } from '../lib/url.js';
 
 const CLE_PREDICTHQ = process.env.PREDICTHQ_API_KEY;
 const URL_BASE_PREDICTHQ = 'https://api.predicthq.com/v1';
@@ -40,9 +41,6 @@ interface EvenementPredictHQ {
   rank?: number;
 }
 
-function encoderURL(str: string): string {
-  return encodeURIComponent(str?.trim() ?? '');
-}
 
 function liensEvenement(title: string, city: string): ActivityLinks {
   return {

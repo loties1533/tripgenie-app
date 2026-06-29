@@ -6,6 +6,7 @@
 import jwt from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
 import type { JwtPayload } from '../lib/types.js';
+import { NOM_COOKIE_AUTH } from '../lib/constants.js';
 
 // Augmentation de l'interface Express Request pour inclure req.user
 declare global {
@@ -29,8 +30,6 @@ declare global {
  * @param req - Requête Express entrante
  * @returns   Token JWT brut, ou null si absent
  */
-const NOM_COOKIE_AUTH = 'tg_token';
-
 function extraireToken(req: Request): string | null {
   if (req.cookies?.[NOM_COOKIE_AUTH]) return req.cookies[NOM_COOKIE_AUTH] as string;
   const authHeader = req.headers.authorization;

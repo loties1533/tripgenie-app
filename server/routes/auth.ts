@@ -10,6 +10,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { authLimiter } from '../middleware/limiter.js';
+import { NOM_COOKIE_AUTH } from '../lib/constants.js';
 
 // Schemas de validation
 const schemaInscription = z.object({
@@ -24,9 +25,6 @@ const schemaConnexion = z.object({
 });
 
 const router = express.Router();
-
-// Nom du cookie httpOnly qui transporte le JWT (préfixe « tg » = TripGenie)
-const NOM_COOKIE_AUTH = 'tg_token';
 
 const OPTIONS_COOKIE = {
   httpOnly: true,                                // inaccessible au JS du navigateur → protège du vol de token par XSS

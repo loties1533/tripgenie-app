@@ -43,3 +43,6 @@ export const DEFAULT_VALUES = {
   NIGHTS:    4,
   MODE:      MODES.PARTY as TravelMode,
 } as const;
+
+/** Nom du cookie httpOnly portant le JWT d'authentification (lecture côté middleware + pose côté routes auth). */
+export const NOM_COOKIE_AUTH = 'tg_token';

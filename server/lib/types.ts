@@ -214,3 +214,14 @@ export interface JwtPayload {
   iat?: number;
   exp?: number;
 }
+
+// Une suggestion de destination renvoyée par /ai/destinations (type partagé client/serveur)
+export interface ElementDestination {
+  city: string;
+  country: string;
+  tagline?: string;
+  reason?: string;
+  budget_estimate?: string;
+  match_score?: number;
+  photo?: string | null;
+}

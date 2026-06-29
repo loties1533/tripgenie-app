@@ -4,8 +4,10 @@
 // =============================================
 
 import type {
-  Pack, EnregistrementVoyage, User, ResultatOnboarding, ResultatScore
+  Pack, EnregistrementVoyage, User, ResultatOnboarding, ResultatScore, ElementDestination
 } from '../../../server/lib/types'
+
+export type { ElementDestination }
 
 // En développement : Vite proxifie /api → localhost:3000
 // En production : VITE_API_URL pointe vers l'API distante
@@ -37,15 +39,6 @@ export const getMe = () => request<{ user: User }>('/auth/me')
 export const chatOnboarding = (userMessage: string, currentData: Record<string, unknown>) =>
   request<ResultatOnboarding>('/ai/onboarding', { method: 'POST', body: JSON.stringify({ userMessage, currentData }) })
 
-export interface ElementDestination {
-  city: string;
-  country: string;
-  tagline?: string;
-  reason?: string;
-  budget_estimate?: string;
-  match_score?: number;
-  photo?: string | null;
-}
 export const getDestinations = (params: Record<string, unknown>) =>
   request<{ destinations: ElementDestination[] }>('/ai/destinations', { method: 'POST', body: JSON.stringify(params) })
 

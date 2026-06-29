@@ -6,7 +6,7 @@ import { searchWeb } from '../tools/webSearch.js';
 import * as Mocks from '../mocks.js';
 import { callAI, parseJSON, sanitizeInput } from './core.js';
 import { getDestinationPhoto } from '../photo.js';
-import type { ResultatOnboarding } from '../../lib/types.js';
+import type { ResultatOnboarding, ElementDestination } from '../../lib/types.js';
 
 export async function analyzeRequest(userInput: string): Promise<unknown> {
   const reponseIABrute = await callAI(
@@ -30,16 +30,6 @@ interface ParamsSuggestionDestinations {
   discoveryMode?: string;
   preferences?: string[];
   departure?: string;
-}
-
-interface ElementDestination {
-  city: string;
-  country: string;
-  tagline?: string;
-  reason?: string;
-  budget_estimate?: string;
-  match_score?: number;
-  photo?: string | null;
 }
 
 interface ResultatDestinations {

@@ -3,10 +3,8 @@
  * Chaque fonction prend (systemPrompt, userPrompt) et retourne le texte brut de la réponse.
  */
 
-import 'dotenv/config';
+import { CLE_ANTHROPIC, CLE_OPENROUTER } from '../lib/keys.js';
 
-const CLE_ANTHROPIC  = process.env.ANTHROPIC_API_KEY?.trim() ?? null;
-const CLE_OPENROUTER = process.env.OPENROUTER_API_KEY?.trim() ?? null;
 const TIMEOUT_IA_MS  = 45_000;
 
 interface OptionsFetch extends RequestInit {
