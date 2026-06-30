@@ -36,8 +36,8 @@ type ScoreKey =
 interface ScoreValues extends Record<ScoreKey, number> {}
 
 const POIDS_PAR_MODE: Record<TravelMode, PoidsMode> = {
-  party:    { events: 0.40, prix: 0.30, hotel: 0.20, vol: 0.10 },
-  student:  { prix: 0.50, activities_free: 0.25, hotel: 0.15, events: 0.10 },
+  party:    { activities: 0.35, hotel: 0.25, prix: 0.20, vol: 0.10, events: 0.10 },
+  student:  { prix: 0.45, activities_free: 0.25, hotel: 0.20, events: 0.10 },
   luxury:   { hotel: 0.40, activities: 0.30, vol: 0.20, prix: 0.10 },
   group:    { hotel: 0.35, activities: 0.30, prix: 0.20, vol: 0.15 },
   relax:    { calme: 0.35, hotel: 0.30, activities: 0.25, prix: 0.10 },
@@ -82,7 +82,6 @@ function scoreHotel(hotel: DonneesHotel | null | undefined, mode: TravelMode, tr
 // relax : logique inversée — moins d'événements festifs = meilleur score
 function scoreEvents(events: Evenement[] | undefined, mode: TravelMode, activities?: Activite[]): number {
   if (!events || events.length === 0) {
-    // Fallback party : si Tavily ne trouve rien, score via les activités nightlife du pack
     if (mode === 'party' && activities?.length) {
       const nightlifeActs = activities.filter(a =>
         ['club', 'bar', 'nightlife', 'festival', 'soirée', 'party', 'concert', 'boite', 'beach club'].some(k =>
@@ -90,9 +89,9 @@ function scoreEvents(events: Evenement[] | undefined, mode: TravelMode, activiti
           (a.name ?? '').toLowerCase().includes(k)
         )
       ).length;
-      return Math.min(1, nightlifeActs / 4) * 0.7 + Math.min(1, activities.length / 6) * 0.3;
+      return Math.max(0.5, Math.min(1, nightlifeActs / 3) * 0.7 + Math.min(1, activities.length / 6) * 0.3);
     }
-    return 0;
+    return mode === 'relax' ? 0.7 : 0.4;
   }
 
   const countScore        = normaliser(events.length, 0, 20);
@@ -125,9 +124,9 @@ function scoreActivities(activities: Activite[] | undefined, mode: TravelMode): 
   ).length;
 
   if (mode === 'student') return normaliser(activitesGratuites, 0, total);
-  if (mode === 'luxury')  return normaliser(activitesLuxe, 0, total) * 0.6 + normaliser(total, 0, 20) * 0.4;
-  if (mode === 'relax')   return normaliser(activitesCalmes, 0, total) * 0.7 + normaliser(total, 0, 20) * 0.3;
-  return normaliser(total, 0, 20);
+  if (mode === 'luxury')  return normaliser(activitesLuxe, 0, total) * 0.6 + normaliser(total, 0, 8) * 0.4;
+  if (mode === 'relax')   return normaliser(activitesCalmes, 0, total) * 0.7 + normaliser(total, 0, 8) * 0.3;
+  return Math.max(0.5, normaliser(total, 0, 8));
 }
 
 function scoreCalme(_destination: string, events: Evenement[] | undefined): number {

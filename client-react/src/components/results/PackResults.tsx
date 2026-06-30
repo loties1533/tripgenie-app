@@ -506,26 +506,14 @@ export default function PackResults() {
             <div className="flex flex-col gap-2 sm:items-end">
               {/* Score TripGenie — visible dès l'apparition du pack + détail de l'algo par critère */}
               {donneesPack.score != null && (
-                <div className="glass-premium rounded-xl px-3 py-1.5 border border-gold/30 shadow-glow-gold w-full sm:w-auto">
-                  <div className="flex items-center gap-2">
-                    <div className="text-center flex-shrink-0">
-                      <div className="flex items-baseline gap-0.5 justify-center">
-                        <span className="text-lg font-bold text-gold font-display leading-none">{scorePourcentage}</span>
-                        <span className="text-[10px] text-muted">/100</span>
-                      </div>
-                      <span className="text-[8px] uppercase tracking-widest text-muted">Score</span>
-                    </div>
-                    {criteresScore.length > 0 && (
-                      <div className="border-l border-gold/20 pl-2 grid grid-cols-2 gap-x-2 gap-y-0">
-                        {criteresScore.map(c => (
-                          <div key={c.label} className="flex items-center justify-between gap-1.5 text-[9px] whitespace-nowrap">
-                            <span className="text-muted">{c.label}</span>
-                            <span className="font-bold text-ink dark:text-parchment">{c.val}%</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                <div className="glass-premium rounded-xl px-4 py-2 border border-gold/30 shadow-glow-gold">
+                  <div className="flex items-baseline gap-1 justify-center">
+                    <span className="text-2xl font-bold text-gold font-display leading-none">{scorePourcentage}</span>
+                    <span className="text-xs text-muted">/100</span>
                   </div>
+                  <span className="text-[9px] uppercase tracking-widest text-muted block text-center">
+                    {scorePourcentage >= 80 ? 'Excellent' : scorePourcentage >= 65 ? 'Très bon' : scorePourcentage >= 50 ? 'Bon' : 'Correct'}
+                  </span>
                 </div>
               )}
               <div className="flex flex-wrap gap-2">

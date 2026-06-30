@@ -43,6 +43,10 @@ const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Render (et tout reverse-proxy) ajoute X-Forwarded-For — requis pour que
+// express-rate-limit identifie correctement l'IP réelle des clients.
+app.set('trust proxy', 1);
+
 // ---- Sécurité HTTP headers ----
 app.use(helmet({
   contentSecurityPolicy: {

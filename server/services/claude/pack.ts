@@ -216,17 +216,11 @@ export function construireLiensVol(params: {
 }
 
 // lien Booking pré-rempli
-export function construireUrlHotel(
-  hotelName: string, city: string,
-  departure?: string, return_date?: string, travelers = 2,
-): string {
-  // Booking.com redirige les liens non-affiliés vers leur accueil (perd les params).
-  // Google Hotels fonctionne sans affiliation et pré-remplit la recherche.
-  const termeRecherche = hotelName.toLowerCase().includes(city.toLowerCase()) ? hotelName : `${hotelName} ${city}`;
-  const params = new URLSearchParams({ q: termeRecherche });
-  if (versFormatISO(departure))   params.set('dates',   `${versFormatISO(departure)},${versFormatISO(return_date) ?? ''}`);
-  if (travelers > 1)    params.set('adults',  String(travelers));
-  return `https://www.google.com/travel/hotels?${params.toString()}`;
+export function construireUrlHotel(hotelName: string, city: string): string {
+  const terme = hotelName.toLowerCase().includes(city.toLowerCase())
+    ? hotelName
+    : `${hotelName} ${city}`;
+  return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(terme)}`;
 }
 
 // lien de booking réel, pas une carte Google Maps
@@ -477,7 +471,7 @@ export async function assemblerPack({
       highlights:      (h as { hl?: string; highlights?: string }).hl ?? (h as { highlights?: string }).highlights ?? 'Excellent choix',
       emoji:           i === 0 ? '🏨' : '🏩',
       // Lien Booking pré-rempli : ville demandée + check-in/out + voyageurs.
-      booking_url:     construireUrlHotel(h.name ?? `Hôtel ${i + 1}`, dest, departure, return_date, travelers),
+      booking_url:     construireUrlHotel(h.name ?? `Hôtel ${i + 1}`, dest),
     })),
     itinerary: (texteIA.itinerary ?? []).map(d => ({
       day:      d.day,

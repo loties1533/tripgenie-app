@@ -26,6 +26,8 @@ export async function chatIntake({ currentData, userMessage }: ParamsChatIntake)
 TON OBJECTIF : Collecter les informations essentielles pour orchestrer une escapade signature (Profil, Voyageurs, Budget, Dates).
 Le but est d'être prêt (isReady: true) en MAXIMUM 2-3 échanges.
 
+ANNÉE EN COURS : ${new Date().getFullYear()}. Pour toute date sans année (ex: "15/08", "du 15 au 21 août"), utilise TOUJOURS ${new Date().getFullYear()}.
+
 RÈGLES D'OR :
 1. VOCABULAIRE LUXE : Utilise "escapade" pas "voyage", "résidence" pas "hôtel".
 2. ANTICIPATION : Ne redemande JAMAIS ce qui est déjà connu.
