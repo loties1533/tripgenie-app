@@ -214,8 +214,26 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
     const promesseMeteo = getRealWeather(destination, departure).catch(() => null);
     // Foursquare en premier (1000/jour), Yelp en fallback (500/jour) — les deux gardés
     const promesseRestaurants = foursquareRestaurantSearch(destination, mode as TravelMode)
-      .then(r => r.length > 0 ? r : yelpRestaurantSearch(destination, mode as TravelMode))
-      .catch(() => []);
+      .then(r => {
+        if (r.length > 0) {
+          console.log(`✅ Foursquare: ${r.length} restaurant(s) trouvé(s) pour ${destination}`);
+          return r;
+        }
+        console.log(`⚠️  Foursquare: 0 résultat → Fallback Yelp...`);
+        return yelpRestaurantSearch(destination, mode as TravelMode)
+          .then(yelpResults => {
+            if (yelpResults.length > 0) {
+              console.log(`✅ Yelp: ${yelpResults.length} restaurant(s) trouvé(s) pour ${destination}`);
+            } else {
+              console.log(`⚠️  Yelp: 0 résultat aussi`);
+            }
+            return yelpResults;
+          });
+      })
+      .catch((err) => {
+        console.error(`❌ Foursquare + Yelp error:`, (err as Error).message);
+        return [];
+      });
 
     // Timeout individuel 20s par service : si events timeout, vols + hôtels sont préservés
     // (avant : timeout global 25s qui jetait TOUT si un seul service était lent)
