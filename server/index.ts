@@ -44,7 +44,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ---- Sécurité HTTP headers ----
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc:  ["'self'"],
+      styleSrc:   ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      imgSrc:     ["'self'", 'data:', 'blob:', 'https://images.unsplash.com', 'https://images.pexels.com', 'https://cdnjs.cloudflare.com', 'https://server.arcgisonline.com'],
+      fontSrc:    ["'self'", 'data:', 'https://fonts.gstatic.com'],
+      connectSrc: ["'self'", 'https://nominatim.openstreetmap.org'],
+    },
+  },
+}));
 
 // ---- Configuration CORS ----
 // En PROD, le front React est servi par CE MÊME serveur Express (même origine) :
