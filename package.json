@@ -16,7 +16,7 @@
     "db:reset": "prisma migrate reset --force",
     "db:seed": "tsx prisma/seed.ts",
     "client:dev": "cd client-react && npm run dev",
-    "build": "cd client-react && npm install && npm run build",
+    "build": "cd client-react && npm install --include=dev && npm run build",
     "client:build": "cd client-react && npm run build",
     "test": "vitest run tests/api.test.ts tests/golden_path.test.ts tests/scoring.test.ts tests/middleware.test.ts",
     "test:all": "vitest run",
