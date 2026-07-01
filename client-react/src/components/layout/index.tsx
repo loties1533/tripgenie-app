@@ -1,16 +1,19 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore, useThemeStore } from '../../store'
 import { logout } from '../../lib/api'
 
 export function Header() {
   const { user, clearAuth } = useAuthStore()
   const [menuOpen, setMenuOpen] = useState(false)
+  const queryClient = useQueryClient()
 
   const gererDeconnexion = async () => {
     try { await logout() } catch (_) {}
     clearAuth()
+    queryClient.clear() // Vide le cache React Query : le compte suivant ne voit jamais les données du précédent
     setMenuOpen(false)
   }
   const { theme, toggle } = useThemeStore()

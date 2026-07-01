@@ -204,7 +204,13 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
 // ---- Budget breakdown chart ----
 function BudgetChart({ breakdown }: { breakdown: any }) {
   if (!breakdown) return null
-  const entries = Object.entries(breakdown).filter(([k]) => k !== 'total')
+  const totalNum = parseInt(breakdown.total as string) || 0
+  // On masque les postes négligeables (< 1% du budget) : évite les lignes absurdes
+  // type « Divers : 1€ » issues des arrondis de répartition.
+  const seuil   = Math.max(1, totalNum * 0.01)
+  const entries = Object.entries(breakdown)
+    .filter(([k]) => k !== 'total')
+    .filter(([, v]) => (parseInt(v as string) || 0) >= seuil)
   const colors  = ['#C9A84C', '#5A7A5E', '#3A6B8A', '#C0634A', '#7A6E62', '#8B6914']
   const data    = entries.map(([k, v], i) => ({
     name:  k.charAt(0).toUpperCase() + k.slice(1),
@@ -355,8 +361,14 @@ export default function PackResults() {
   // Function to share via WhatsApp
   const handleShare = () => {
     const url = window.location.href
+    // Formate une date ISO (2026-08-15T00:00:00.000Z) en date lisible (15/08/2026).
+    const formaterDate = (d?: string) => {
+      if (!d) return '?'
+      const date = new Date(d)
+      return isNaN(date.getTime()) ? d : format(date, 'dd/MM/yyyy', { locale: fr })
+    }
     const text = `🌍 *TripGenie* : Voyage à ${donneesPack.destination} !\n\n` +
-                 `📅 *Dates* : Du ${departure || '?'} au ${returnDate || '?'}\n` +
+                 `📅 *Dates* : Du ${formaterDate(departure)} au ${formaterDate(returnDate)}\n` +
                  `🏨 *Hôtel* : ${donneesPack.hotels?.[0]?.name || 'À choisir'}\n` +
                  `💰 *Budget* : ${donneesPack.summary?.total_budget || 'À définir'}\n\n` +
                  `✨ _"${donneesPack.tagline}"_\n\n` +
