@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore, useThemeStore } from '../../store'
 import { logout } from '../../lib/api'
+import Logo from '../ui/Logo'
 
 export function Header() {
   const { user, clearAuth } = useAuthStore()
@@ -24,13 +25,10 @@ export function Header() {
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group" onClick={() => setMenuOpen(false)}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center
-                          shadow-glow-gold transition-transform group-hover:scale-105 shine-effect">
-            <span className="text-white text-lg">✦</span>
-          </div>
+          <Logo size={40} className="text-gold transition-transform group-hover:scale-105" />
           <div className="flex flex-col">
             <span className="font-display font-bold text-ink dark:text-parchment text-xl leading-none tracking-tight">TripGenie</span>
-            <span className="hidden sm:block text-[10px] text-gold-dark dark:text-gold font-bold uppercase tracking-widest mt-1">Conciergerie Privée</span>
+            <span className="hidden sm:block text-[10px] text-gold-dark dark:text-gold font-bold uppercase tracking-widest mt-1">Voyages sur-mesure</span>
           </div>
         </Link>
 
@@ -50,7 +48,6 @@ export function Header() {
                 ? 'text-white bg-gold shadow-glow-gold'
                 : 'text-gold hover:bg-gold/10'
               }`}>
-            <span className="text-lg">📖</span>
             Mes voyages
           </Link>
           {user && (
@@ -116,16 +113,16 @@ export function Header() {
             <nav className="flex flex-col gap-1 p-4">
               <Link to="/" onClick={() => setMenuOpen(false)}
                 className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${emplacement.pathname === '/' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink dark:hover:text-parchment'}`}>
-                🏠 Accueil
+                Accueil
               </Link>
               <Link to="/trips" onClick={() => setMenuOpen(false)}
                 className={`px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${emplacement.pathname === '/trips' ? 'bg-gold text-white' : 'text-gold hover:bg-gold/10'}`}>
-                📖 Mes voyages
+                Mes voyages
               </Link>
               {user && (
                 <Link to="/preferences" onClick={() => setMenuOpen(false)}
                   className={`px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${emplacement.pathname === '/preferences' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink dark:hover:text-parchment'}`}>
-                  ⚙️ Préférences
+                  Préférences
                 </Link>
               )}
               <div className="h-px bg-gold/10 my-1" />
@@ -139,7 +136,7 @@ export function Header() {
                   </>
                 : <Link to="/login" onClick={() => setMenuOpen(false)}
                     className="px-4 py-3 rounded-xl text-sm font-bold bg-gold text-white text-center transition-all">
-                    ✦ Connexion
+                    Connexion
                   </Link>
               }
             </nav>
@@ -187,21 +184,19 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
-                  <span className="text-white text-sm">✦</span>
-                </div>
+                <Logo size={32} className="text-gold" />
                 <span className="font-display font-bold text-white text-lg">TripGenie</span>
               </div>
               <p className="text-white/40 text-sm leading-relaxed font-light">
-                L'intelligence artificielle au service de l'exception. Chaque voyage orchestré avec la précision d'un majordome de palace.
+                L'intelligence artificielle au service de vos voyages, pensés dans le moindre détail.
               </p>
             </div>
 
             {/* Destinations */}
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-5">Destinations Signatures</p>
+              <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-5">Destinations</p>
               <ul className="space-y-2.5">
-                {['Côte d\'Azur', 'Ibiza', 'Mykonos', 'Amalfi', 'Maldives', 'Saint-Tropez'].map(d => (
+                {['Ibiza', 'Mykonos', 'Amalfi', 'Bali', 'Maldives', 'Bangkok'].map(d => (
                   <li key={d}>
                     <span className="text-white/40 text-sm">{d}</span>
                   </li>
@@ -211,9 +206,9 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
 
             {/* Expériences */}
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-5">Expériences</p>
+              <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-5">Styles de voyage</p>
               <ul className="space-y-2.5">
-                {['Yachting Privé', 'Dîners Étoilés', 'Soirées VIP', 'Casinos Exclusifs', 'Villas Privées', 'Jets Privés'].map(e => (
+                {['Fête', 'Luxe', 'Détente', 'En groupe', 'Étudiant'].map(e => (
                   <li key={e}>
                     <span className="text-white/40 text-sm">{e}</span>
                   </li>
@@ -228,10 +223,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
           {/* Bottom footer */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-white/20 text-xs font-light tracking-wider">
-              © 2025 TripGenie ✦ Conciergerie Privée — Tous droits réservés
-            </p>
-            <p className="text-white/15 text-xs font-serif italic">
-              "Le vrai luxe n'a pas de prix, il a une valeur."
+              © 2026 TripGenie — Tous droits réservés
             </p>
           </div>
         </div>

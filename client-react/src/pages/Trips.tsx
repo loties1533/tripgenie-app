@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import React from 'react'
 import { PageLayout } from '../components/layout'
-import { SkeletonCard } from '../components/ui'
+import { SkeletonCard, ModeBadge } from '../components/ui'
 import { getTrips, deleteTrip } from '../lib/api'
 import { useAuthStore } from '../store'
 
@@ -23,28 +23,12 @@ interface ReponseVoyages {
   trips: DonneesVoyage[]
 }
 
-const MODE_COLORS: Record<string, string> = {
-  party:   'bg-purple-500/15 text-purple-400 border-purple-500/30',
-  luxury:  'bg-gold/15 text-gold border-gold/30',
-  student: 'bg-sky-500/15 text-sky-400 border-sky-500/30',
-  group:   'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  relax:   'bg-teal-500/15 text-teal-400 border-teal-500/30',
-}
-
-const MODE_LABELS: Record<string, string> = {
-  party:   'Party 🥂',
-  luxury:  'Luxury ✦',
-  student: 'Student 🎒',
-  group:   'Groupe 👥',
-  relax:   'Relax 🌿',
-}
-
 function BarreScore({ score }: { score: number }) {
   const pourcentage   = Math.round((score || 0) * 100)
   const color = pourcentage >= 80 ? 'bg-emerald-400' : pourcentage >= 60 ? 'bg-gold' : 'bg-coral'
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1 rounded-full bg-white/10 overflow-hidden">
+      <div className="flex-1 h-1 rounded-full bg-ink/10 dark:bg-white/10 overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${pourcentage}%` }} />
       </div>
       <span className={`text-xs font-bold ${color.replace('bg-', 'text-')}`}>{pourcentage}%</span>
@@ -202,16 +186,14 @@ export default function Trips() {
 
                 {/* Mode + Statut badges */}
                 <div className="mb-4 relative z-10 flex items-center gap-2 flex-wrap">
-                  <span className={`text-[11px] font-bold px-3 py-1 rounded-full border ${MODE_COLORS[trip.mode] || MODE_COLORS.party}`}>
-                    {MODE_LABELS[trip.mode] || trip.mode}
-                  </span>
+                  <ModeBadge mode={trip.mode} />
                   {trip.status === 'confirmed' && (
                     <span className="text-[11px] font-bold px-3 py-1 rounded-full border bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
                       🟢 Confirmé
                     </span>
                   )}
                   {trip.status === 'archived' && (
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full border bg-white/5 text-muted border-white/10">
+                    <span className="text-[11px] font-bold px-3 py-1 rounded-full border bg-ink/5 text-muted border-ink/10 dark:bg-white/5 dark:border-white/10">
                       ⬛ Archivé
                     </span>
                   )}

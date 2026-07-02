@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Logo from '../ui/Logo'
 
 // Images et textes qui défilent pendant le chargement
 const LOADING_SLIDES = [
@@ -85,12 +86,12 @@ export default function PackSkeleton() {
           animate={{ rotate: 360 }}
           transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
           className="w-16 h-16 mx-auto mb-10 rounded-full border border-gold/30 flex items-center justify-center">
-          <span className="text-gold text-2xl">✦</span>
+          <Logo size={30} className="text-gold" />
         </motion.div>
 
         {/* Badge */}
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold font-semibold mb-6">
-          TripGenie Concierge — En cours d'orchestration
+          TripGenie — Génération en cours
         </p>
 
         {/* Texte principal qui change */}
@@ -120,7 +121,7 @@ export default function PackSkeleton() {
 
         {/* Barre de progression */}
         <div className="mt-12 w-full max-w-xs mx-auto">
-          <div className="h-px w-full bg-white/10 rounded-full overflow-hidden">
+          <div className="h-px w-full bg-ink/10 dark:bg-white/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-gold-dark via-gold to-gold-light rounded-full"
               style={{ width: `${progress}%` }}

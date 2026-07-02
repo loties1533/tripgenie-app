@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { PageLayout } from '../components/layout'
 import PackResults from '../components/results/PackResults'
 import ModifyChat from '../components/chat/ModifyChat'
+import Logo from '../components/ui/Logo'
 import { SkeletonCard } from '../components/ui'
 import { getPublicTrip, updateTrip } from '../lib/api'
 import { useSearchStore } from '../store'
@@ -162,8 +163,8 @@ export default function TripDetail() {
                                     bg-gradient-to-r from-gold/5 to-transparent">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-light to-gold-dark
-                                        flex items-center justify-center text-white text-sm shadow-glow-gold">
-                          ✦
+                                        flex items-center justify-center shadow-glow-gold">
+                          <Logo size={17} className="text-white" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-ink dark:text-parchment leading-none">
@@ -243,8 +244,8 @@ export default function TripDetail() {
                                     bg-gradient-to-r from-gold/5 to-transparent flex-shrink-0">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-light to-gold-dark
-                                        flex items-center justify-center text-white text-sm shadow-glow-gold">
-                          ✦
+                                        flex items-center justify-center shadow-glow-gold">
+                          <Logo size={17} className="text-white" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-ink dark:text-parchment leading-none">

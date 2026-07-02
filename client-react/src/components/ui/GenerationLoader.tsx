@@ -6,16 +6,16 @@ const STEPS = [
   { icon: '🏨', label: 'Sélection des hôtels',       duration: 8000  },
   { icon: '🎟️', label: 'Découverte des événements',  duration: 8000  },
   { icon: '🍽️', label: 'Meilleurs restaurants',      duration: 6000  },
-  { icon: '🤖', label: 'Assemblage du pack IA',       duration: 12000 },
-  { icon: '✦',  label: 'Finalisation',                duration: 8000  },
+  { icon: '📦',  label: 'Assemblage de votre pack',    duration: 12000 },
+  { icon: '✓',  label: 'Finalisation',                duration: 8000  },
 ]
 
 const TIPS = [
-  'Les meilleurs voyages se préparent avec soin ✦',
-  'On analyse des milliers d\'options pour vous',
-  'Chaque détail compte pour un voyage parfait',
-  'Patience — la magie est en cours de création',
-  'On cherche les pépites que personne ne connaît',
+  'Analyse de milliers d\'options en cours…',
+  'Sélection des meilleures adresses pour vous',
+  'Chaque détail compte pour un voyage réussi',
+  'Comparaison des vols et des hébergements',
+  'Nous cherchons les pépites méconnues',
 ]
 
 export default function GenerationLoader({ destination }: { destination?: string }) {
@@ -144,7 +144,7 @@ export default function GenerationLoader({ destination }: { destination?: string
             <span>Progression</span>
             <span>{elapsed}s</span>
           </div>
-          <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div className="h-1.5 rounded-full bg-ink/10 dark:bg-white/10 overflow-hidden">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-gold-light to-gold"
               animate={{ width: `${progress}%` }}

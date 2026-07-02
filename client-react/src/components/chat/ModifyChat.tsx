@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useSearchStore } from '../../store'
+import Logo from '../ui/Logo'
 
 interface MessageChat {
   role: 'user' | 'assistant'
@@ -82,8 +83,8 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {m.role === 'assistant' && (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center text-white text-[10px] mr-2 mt-1 flex-shrink-0">
-                ✦
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                <Logo size={13} className="text-white" />
               </div>
             )}
             <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
@@ -98,8 +99,8 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
 
         {chargement && (
           <div className="flex justify-start">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center text-white text-[10px] mr-2 mt-1 flex-shrink-0">
-              ✦
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+              <Logo size={13} className="text-white" />
             </div>
             <div className="glass px-4 py-3 rounded-2xl rounded-bl-sm border border-gold/10">
               <span className="flex gap-1.5 items-center">
@@ -134,7 +135,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && envoyer()}
             placeholder="Remplace l'hôtel par..."
-            className="flex-1 bg-white/5 border border-gold/20 rounded-xl px-3.5 py-2.5 text-sm
+            className="flex-1 bg-ink/5 dark:bg-white/5 border border-gold/20 rounded-xl px-3.5 py-2.5 text-sm
                        text-ink dark:text-parchment placeholder:text-muted
                        focus:outline-none focus:border-gold/50 transition-colors"
           />

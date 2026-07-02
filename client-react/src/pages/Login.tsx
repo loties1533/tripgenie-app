@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { PageLayout } from '../components/layout'
+import Logo from '../components/ui/Logo'
 import { useAuthStore } from '../store'
 import { login, signup } from '../lib/api'
 
@@ -45,7 +46,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div className="text-center mb-6">
             <div className="w-12 h-12 rounded-2xl bg-gold/20 border border-gold/40 flex items-center justify-center mx-auto mb-3">
-              <span className="text-gold text-xl">✦</span>
+              <Logo size={24} className="text-gold" />
             </div>
             <h1 className="font-display text-2xl font-bold text-ink dark:text-parchment">TripGenie</h1>
             <p className="text-sm text-muted mt-1">Votre assistant voyage IA</p>
