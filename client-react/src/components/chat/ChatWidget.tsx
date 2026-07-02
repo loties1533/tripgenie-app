@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useChatStore, useSearchStore } from '../../store'
-import { chatOnboarding, getDestinations } from '../../lib/api'
+import { chatOnboarding, getDestinations, getPreferences } from '../../lib/api'
 import Logo from '../ui/Logo'
 
 // ---- FIX 3 : date locale — évite le décalage UTC/local pour les users UTC- ----
@@ -30,7 +30,16 @@ function buildRecapMessage(data: Record<string, unknown>): string {
     famille: 'En Famille 👨‍👩‍👧',
     solo:    'Solo & Liberté 🌍',
   }
+  const modeMap: Record<string, string> = {
+    party:    'Fête 🎉',
+    student:  'Étudiant 🎓',
+    luxury:   'Luxe 💎',
+    group:    'Groupe 👥',
+    relax:    'Détente 🌿',
+    surprise: 'Surprise 🎁',
+  }
   const profile   = profileMap[data.profile as string] || (data.profile as string) || '—'
+  const style     = modeMap[data.mode as string] || (data.mode as string) || '—'
   const travelers = data.travelers
     ? `${data.travelers} personne${(data.travelers as number) > 1 ? 's' : ''}`
     : '—'
@@ -43,30 +52,46 @@ function buildRecapMessage(data: Record<string, unknown>): string {
   const duration  = data.duration
     ? `${data.duration} jour${(data.duration as number) > 1 ? 's' : ''}`
     : '—'
-  return `Récap de votre voyage :\n• ${profile} — ${travelers}\n• Budget : ${budget}\n• Départ : ${departure}, durée : ${duration}`
+  return `Récap de votre voyage :\n• ${profile} — ${travelers}\n• Style : ${style}\n• Budget : ${budget}\n• Départ : ${departure}, durée : ${duration}`
 }
 
 // QUIZ STEPS
 const QUIZ_STEPS = [
   {
+    // L'occasion ne définit QUE le profil (avec qui) — jamais le mode/ambiance.
+    // Associer une personne à un mode faussait tout (un duo peut être luxe, fête…).
     key:      'occasion',
     question: "Quelle est l'occasion de ce voyage ?",
     chips: [
-      { label: 'Duo Romantique 💑',    data: { mode: 'relax',   profile: 'couple'  } },
-      { label: 'Entre Amis 🥂',       data: { mode: 'party',   profile: 'amis'    } },
-      { label: 'En Famille 👨‍👩‍👧',     data: { mode: 'group',   profile: 'famille' } },
-      { label: 'Solo & Liberté 🌍',   data: { mode: 'relax',   profile: 'solo'    } },
+      { label: 'Duo Romantique 💑',    data: { profile: 'couple'  } },
+      { label: 'Entre Amis 🥂',       data: { profile: 'amis'    } },
+      { label: 'En Famille 👨‍👩‍👧',     data: { profile: 'famille' } },
+      { label: 'Solo & Liberté 🌍',   data: { profile: 'solo'    } },
+    ]
+  },
+  {
+    // Étape « ambiance/style » = le vrai mode. Sautée si l'utilisateur a une
+    // préférence de style (default_mode) → appliquée directement, pas de question.
+    key:      'style',
+    question: 'Quelle ambiance pour ce voyage ?',
+    chips: [
+      { label: '🎉 Fête',     data: { mode: 'party'    } },
+      { label: '🎓 Étudiant', data: { mode: 'student'  } },
+      { label: '💎 Luxe',     data: { mode: 'luxury'   } },
+      { label: '👥 Groupe',   data: { mode: 'group'    } },
+      { label: '🌿 Détente',  data: { mode: 'relax'    } },
+      { label: '🎁 Surprise', data: { mode: 'surprise' } },
     ]
   },
   {
     key:      'travelers',
     question: 'Vous serez combien ?',
     chips: [
-      { label: '2 personnes',      data: { travelers: 2  } },
-      { label: '3-4 personnes',    data: { travelers: 4  } },
-      { label: '5-8 personnes',    data: { travelers: 6  } },
-      { label: '9+ personnes',     data: { travelers: 10 } },
-      { label: 'Autre nombre...', data: null               },
+      { label: '2 personnes',       data: { travelers: 2 } },
+      { label: '3-4 personnes',     data: { travelers: 4 } },
+      { label: '5-8 personnes',     data: { travelers: 6 } },
+      // Au-delà de 8 : on laisse saisir le nombre EXACT (input inline), pas un preset flou.
+      { label: '✏️ Nombre exact...', data: null            },
     ]
   },
   {
@@ -80,13 +105,14 @@ const QUIZ_STEPS = [
     ]
   },
   {
+    // Le départ ne fixe QUE la date de départ — plus de durée imposée en douce
+    // (avant, « Dans 1 mois » collait 7 jours sans le dire). La durée est demandée
+    // à l'étape suivante, ou dérivée des dates si l'utilisateur les précise.
     key:      'departure',
     question: 'Quand souhaitez-vous partir ?',
     chips: [
-      { label: 'Ce week-end',        data: () => ({ departure: ajouterJours(3),   return_date: ajouterJours(5),   duration: 2  }) },
-      { label: 'Dans 1 mois',        data: () => ({ departure: ajouterJours(30),  return_date: ajouterJours(37),  duration: 7  }) },
-      { label: 'Dans 3 mois',        data: () => ({ departure: ajouterJours(90),  return_date: ajouterJours(97),  duration: 7  }) },
-      { label: 'Dans 6 mois',        data: () => ({ departure: ajouterJours(180), return_date: ajouterJours(187), duration: 7  }) },
+      { label: 'Ce week-end',        data: () => ({ departure: ajouterJours(3) }) },
+      { label: 'La semaine prochaine', data: () => ({ departure: ajouterJours(7) }) },
       { label: '📅 Date précise...', data: null },
     ]
   },
@@ -269,7 +295,7 @@ function InlineInput({
 // =============================================
 async function traiterMessageIA(value: string, ctx: any) {
   const { addMessage, mergeChatData, setTyping, setReady, setMockMode,
-          setLoading, setPack, setField, chatData, turnCount } = ctx
+          setField, chatData, turnCount, homeCity } = ctx
   const forceReady = turnCount >= 5
   try {
     setTyping(true)
@@ -278,10 +304,12 @@ async function traiterMessageIA(value: string, ctx: any) {
     if (reponse.isMock) setMockMode(true)
     if (reponse.extractedData) mergeChatData(reponse.extractedData)
     const merged = { ...chatData, ...(reponse.extractedData || {}) }
+    // Origine : ce que l'utilisateur a précisé, sinon sa ville de préférence, sinon Paris
+    merged.origin = merged.origin || homeCity || 'Paris'
     if (reponse.isReady || forceReady) {
       setReady(true)
       addMessage({ role: 'bot', text: "🎯 Parfait, j'ai tout ce qu'il me faut ! Je cherche les meilleures destinations pour vous..." })
-      await suggestDestinations(merged, { addMessage, setTyping, setLoading, setPack, setField, setReady })
+      await suggestDestinations(merged, { addMessage, setTyping, setField, setReady })
     } else {
       addMessage({ role: 'bot', text: reponse.response, chips: reponse.chips || [] })
     }
@@ -298,18 +326,18 @@ async function suggestDestinations(
   // FIX 11 : guard montage pour éviter les setField sur composant démonté
   guard?: { mounted: { current: boolean } }
 ) {
-  const { addMessage, setTyping, setLoading, setPack, setField, setReady } = ctx
+  const { addMessage, setTyping, setField, setReady } = ctx
   setTyping(true)
   try {
     const reponse = await getDestinations({
       mode:        chatData.mode,
       profile:     chatData.profile,
+      interests:   chatData.interests,
       budget:      chatData.budget,
       travelers:   chatData.travelers,
       duration:    chatData.duration,
       origin:      chatData.origin || 'Paris',
       departure:   chatData.departure,
-      preferences: [],
     })
     if (guard && !guard.mounted.current) return
     setTyping(false)
@@ -334,9 +362,9 @@ export default function ChatWidget() {
   const {
     messages, isTyping, addMessage, mergeChatData, setTyping,
     setReady, setMockMode, chatData, turnCount, isMockMode, isReady,
-    quizMode, quizStep, setQuizMode, nextQuizStep,
+    quizMode, quizStep, setQuizMode, nextQuizStep, seedChatData,
   } = useChatStore()
-  const { setLoading, setPack, setField } = useSearchStore()
+  const { setField } = useSearchStore()
 
   const [input, setInput]   = useState('')
   // FIX 12 : sendingRef = ref pour éviter la race condition sendMessage/sendChip
@@ -347,8 +375,34 @@ export default function ChatWidget() {
   const [dateRange, setDateRange]             = useState({ departure: '', return_date: '' })
   const [travelersCount, setTravelersCount]   = useState<number | ''>('')
   const [budgetAmount, setBudgetAmount]       = useState<number | ''>('')
+  // Préférences utilisateur chargées au montage : ville de départ (home_city) ET
+  // style de voyage (default_mode). Le mode vient de la PRÉFÉRENCE, jamais de
+  // l'occasion → si une préf de mode existe, on saute l'étape « style » du quiz.
+  const [homeCity, setHomeCity] = useState<string>('')
+  const [modePref, setModePref] = useState<string>('')
+  useEffect(() => {
+    getPreferences()
+      .then(({ preferences }) => {
+        if (!preferences) return
+        if (preferences.home_city) {
+          setHomeCity(preferences.home_city)
+          // Persiste l'origine si l'utilisateur n'a rien précisé → génération depuis sa ville.
+          if (!chatData.origin) seedChatData({ origin: preferences.home_city })
+        }
+        if (preferences.default_mode) {
+          setModePref(preferences.default_mode)
+          seedChatData({ mode: preferences.default_mode })
+        }
+        // Centres d'intérêt → orientent destinations ET activités (sur-mesure).
+        if (preferences.preferred_prefs?.length) {
+          seedChatData({ interests: preferences.preferred_prefs })
+        }
+      })
+      .catch(() => {})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const bottomRef  = useRef<HTMLDivElement>(null)
+  const scrollRef  = useRef<HTMLDivElement>(null)
   const inputRef   = useRef<HTMLTextAreaElement>(null)
   const initRef    = useRef<boolean>(false)
   // FIX 11 : ref de montage — empêche setField sur composant démonté.
@@ -387,7 +441,11 @@ export default function ChatWidget() {
   }, [messages.length])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    // On scrolle UNIQUEMENT le conteneur des messages (pas la page).
+    // scrollIntoView() faisait remonter tous les ancêtres scrollables, dont la
+    // fenêtre → toute la page sautait en bas au moindre message / focus input.
+    const el = scrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
   }, [messages, isTyping])
 
   // Handler chip quiz
@@ -395,7 +453,7 @@ export default function ChatWidget() {
     // Chip d'input inline (data === null)
     if (chip.data === null) {
       if (chip.label.includes('Date précise'))   setInputMode('date')
-      if (chip.label.includes('Autre nombre'))   setInputMode('travelers')
+      if (chip.label.includes('Nombre exact'))   setInputMode('travelers')
       if (chip.label.includes('Montant précis')) setInputMode('budget')
       return
     }
@@ -407,17 +465,13 @@ export default function ChatWidget() {
 
     const currentStep = QUIZ_STEPS[quizStep]
     const isLast      = quizStep === QUIZ_STEPS.length - 1
-    // Les chips rapides de l'étape "departure" (Ce week-end, Dans 1 mois…) fournissent
-    // DÉJÀ la durée → inutile de redemander l'étape "duration" : on file au récap.
-    const departureProvidesDuration = currentStep.key === 'departure' && chipData?.duration != null
 
     // FIX 6 : recalcul return_date via utilitaire centralisé
     if (currentStep.key === 'duration' && chipData?.duration && chatData.departure) {
       mergeChatData({ return_date: computeReturnDate(chatData.departure as string, chipData.duration as number) })
     }
 
-    if (isLast || departureProvidesDuration) {
-      if (departureProvidesDuration) nextQuizStep() // step 3 → 4 (durée) pour cohérence d'état
+    if (isLast) {
       const merged: Record<string, unknown> = { ...chatData, ...chipData }
       if (merged.departure && merged.duration) {
         merged.return_date = computeReturnDate(merged.departure as string, merged.duration as number)
@@ -425,17 +479,23 @@ export default function ChatWidget() {
       setAwaitingConfirm(true)
       setTimeout(() => addMessage({ role: 'bot', text: buildRecapMessage(merged), chips: [] }), 200)
     } else {
-      nextQuizStep()
-      const next = QUIZ_STEPS[quizStep + 1]
+      // Après « occasion » : si l'utilisateur a une préférence de mode, on SAUTE
+      // l'étape « style » (mode déjà seedé depuis la préf) → on avance de 2 crans.
+      const skipStyle = currentStep.key === 'occasion' && !!modePref
+      const pas = skipStyle ? 2 : 1
+      for (let k = 0; k < pas; k++) nextQuizStep()
+      const next = QUIZ_STEPS[quizStep + pas]
       setTimeout(() => addMessage({ role: 'bot', text: next.question }), 300)
     }
   // FIX 9 : awaitingConfirm retiré des deps (non lu dans le corps du callback)
-  }, [quizStep, chatData])
+  }, [quizStep, chatData, modePref])
 
   // Confirmation récap
   const handleConfirm = useCallback(async () => {
     setAwaitingConfirm(false)
     const merged: Record<string, unknown> = { ...chatData }
+    // Origine : ce que l'utilisateur a précisé, sinon sa ville de préférence, sinon Paris
+    merged.origin = merged.origin || homeCity || 'Paris'
     if (merged.departure && merged.duration) {
       merged.return_date = computeReturnDate(merged.departure as string, merged.duration as number)
     }
@@ -454,17 +514,19 @@ export default function ChatWidget() {
     setTimeout(() => addMessage({ role: 'bot', text: '🎯 Parfait ! Je cherche les meilleures destinations pour votre voyage...' }), 200)
     setReady(true)
     // FIX 11 : passage du guard de montage
-    await suggestDestinations(merged, { addMessage, setTyping, setLoading, setPack, setField, setReady }, { mounted: mountedRef })
-  }, [chatData])
+    await suggestDestinations(merged, { addMessage, setTyping, setField, setReady }, { mounted: mountedRef })
+  }, [chatData, homeCity])
 
   // ---- Modifier → reset chatData + retour step 0 ----
   const handleModify = useCallback(() => {
     setAwaitingConfirm(false)
-    // FIX 7 : réinitialiser chatData pour éviter les données fantômes du quiz précédent
-    mergeChatData({ travelers: null, profile: null, mode: 'party', budget: null, departure: null, return_date: null, duration: null })
+    // FIX 7 : réinitialiser chatData pour éviter les données fantômes du quiz précédent.
+    // Le mode retombe sur la PRÉFÉRENCE si elle existe, sinon 'party' → Modifier ne
+    // réécrase pas le style choisi par l'utilisateur (préférence prime).
+    mergeChatData({ travelers: null, profile: null, mode: modePref || 'party', budget: null, departure: null, return_date: null, duration: null })
     setQuizMode(true) // reset quizStep = 0
     setTimeout(() => addMessage({ role: 'bot', text: QUIZ_STEPS[0].question }), 200)
-  }, [])
+  }, [modePref])
 
   // Confirm input inline
   const handleInlineConfirm = useCallback(async () => {
@@ -474,25 +536,26 @@ export default function ChatWidget() {
         const dateDepart = dateRange.departure
         const dateRetour = dateRange.return_date
         if (!dateDepart) return
-        const durationDays = dateRetour
-          ? Math.max(1, Math.round((new Date(dateRetour).getTime() - new Date(dateDepart).getTime()) / 86400000))
-          : 7
 
         const label = `Du ${dateDepart}${dateRetour ? ` au ${dateRetour}` : ''}`
         addMessage({ role: 'user', text: label })
-        mergeChatData({ departure: dateDepart, return_date: computeReturnDate(dateDepart, durationDays), duration: durationDays })
 
-        // FIX 1 : ne pas déléguer à handleQuizChip (quizStep=3 → isLast=false → step duration redemandé)
-        // On avance quizStep jusqu'au dernier step et on déclenche le récap directement
-        nextQuizStep() // step 3 → 4 (duration, le dernier)
-        const merged: Record<string, unknown> = {
-          ...chatData,
-          departure:   dateDepart,
-          return_date: computeReturnDate(dateDepart, durationDays),
-          duration:    durationDays,
+        if (dateRetour) {
+          // Dates complètes → durée DÉRIVÉE des dates, on saute l'étape durée → récap.
+          const durationDays = Math.max(1, Math.round((new Date(dateRetour).getTime() - new Date(dateDepart).getTime()) / 86400000))
+          mergeChatData({ departure: dateDepart, return_date: dateRetour, duration: durationDays })
+          nextQuizStep() // départ → durée (dernier step) pour cohérence d'état
+          const merged: Record<string, unknown> = { ...chatData, departure: dateDepart, return_date: dateRetour, duration: durationDays }
+          setAwaitingConfirm(true)
+          setTimeout(() => addMessage({ role: 'bot', text: buildRecapMessage(merged), chips: [] }), 300)
+        } else {
+          // Seule la date de départ est fournie → on demande la durée comme étape
+          // normale (plus de durée « fantôme » de 7 jours imposée en douce).
+          mergeChatData({ departure: dateDepart })
+          nextQuizStep() // départ → durée
+          const durationStep = QUIZ_STEPS.find(s => s.key === 'duration')!
+          setTimeout(() => addMessage({ role: 'bot', text: durationStep.question }), 300)
         }
-        setAwaitingConfirm(true)
-        setTimeout(() => addMessage({ role: 'bot', text: buildRecapMessage(merged), chips: [] }), 300)
 
       } else if (inputMode === 'travelers') {
         // FIX 8 : !travelersCount est faux positif sur 0 → guard explicite
@@ -533,14 +596,15 @@ export default function ChatWidget() {
     try {
       await traiterMessageIA(text, {
         addMessage, mergeChatData, setTyping, setReady, setMockMode,
-        setLoading, setPack, setField, chatData, turnCount,
+        setField, chatData, turnCount, homeCity,
       })
     } finally {
       sendingRef.current = false
       setSending(false)
-      inputRef.current?.focus()
+      // preventScroll : re-focus l'input SANS que le navigateur fasse défiler la page.
+      inputRef.current?.focus({ preventScroll: true })
     }
-  }, [input, chatData, turnCount])
+  }, [input, chatData, turnCount, homeCity])
 
   // Clic sur un chip de réponse bot
   const sendChip = useCallback(async (label: string) => {
@@ -552,13 +616,13 @@ export default function ChatWidget() {
     try {
       await traiterMessageIA(label, {
         addMessage, mergeChatData, setTyping, setReady, setMockMode,
-        setLoading, setPack, setField, chatData, turnCount,
+        setField, chatData, turnCount, homeCity,
       })
     } finally {
       sendingRef.current = false
       setSending(false)
     }
-  }, [isTyping, chatData, turnCount])
+  }, [isTyping, chatData, turnCount, homeCity])
 
   const onKey = (e: any) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() }
@@ -595,7 +659,7 @@ export default function ChatWidget() {
       </AnimatePresence>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto scroll-hide px-4 py-4 flex flex-col gap-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto scroll-hide px-4 py-4 flex flex-col gap-4">
         <AnimatePresence initial={false}>
           {messages.map((msg, idx) => {
             const isLastBot = idx === messages.length - 1
@@ -670,7 +734,6 @@ export default function ChatWidget() {
             </motion.div>
           )}
         </AnimatePresence>
-        <div ref={bottomRef} />
       </div>
 
       {/* Input texte libre (mode freeform uniquement) */}

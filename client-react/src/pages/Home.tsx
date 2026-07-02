@@ -213,6 +213,8 @@ function ConceptsVoyage() {
         budget:      chatData.budget    || 5000,
         travelers:   chatData.travelers || 2,
         mode:        chatData.mode      || 'party',
+        profile:     chatData.profile,
+        interests:   chatData.interests,
       })
       setPack(reponse.pack, reponse.trip_id, reponse.pack_id)
       if (reponse.trip_id) {

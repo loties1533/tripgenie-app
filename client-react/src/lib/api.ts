@@ -33,8 +33,6 @@ export const login  = (email: string, password: string) =>
 export const signup = (email: string, password: string, name: string) =>
   request<{ user: User }>('/auth/signup', { method: 'POST', body: JSON.stringify({ email, password, name }) })
 
-export const getMe = () => request<{ user: User }>('/auth/me')
-
 // ---- IA ----
 export const chatOnboarding = (userMessage: string, currentData: Record<string, unknown>) =>
   request<ResultatOnboarding>('/ai/onboarding', { method: 'POST', body: JSON.stringify({ userMessage, currentData }) })
@@ -66,7 +64,6 @@ export const chatModify = (message: string, currentPack: Pack, mode: string, tri
 export const getTrips      = (filters: Record<string, string> = {}) =>
   request<{ trips: EnregistrementVoyage[]; count: number }>(`/trips?${new URLSearchParams(filters)}`)
 
-export const getTrip       = (id: string) => request<{ trip: EnregistrementVoyage }>(`/trips/${id}`)
 export const getPublicTrip = (id: string) => request<{ trip: EnregistrementVoyage & { pack_id: string | null } }>(`/trips/share/${id}`)
 export const deleteTrip    = (id: string) => request<{ message: string }>(`/trips/${id}`, { method: 'DELETE' })
 export const updateTrip    = (id: string, fields: { status?: string; travelers?: number; budget?: string }) =>
