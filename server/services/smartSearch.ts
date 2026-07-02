@@ -1,17 +1,12 @@
 import { searchWeb } from './tools/webSearch.js';
 import { callAI, parseJSON } from './claude/index.js';
 import { predictHQEventsSearch } from './predictHQ.js';
-import type { TravelMode, FlightLinks, HotelLinks, ActivityLinks } from '../lib/types.js';
+import type { TravelMode, HotelLinks, ActivityLinks } from '../lib/types.js';
 import { encoderURL } from '../lib/url.js';
 
-function liensVol(origin: string, destination: string, departure?: string): FlightLinks {
-  const dateDepart = departure?.slice(0, 10).replace(/-/g, '') ?? '';
-  return {
-    skyscanner: `https://www.skyscanner.fr/transport/flights/${encoderURL(origin)}/${encoderURL(destination)}/${dateDepart}/`,
-    kayak:      `https://www.kayak.fr/flights/${encoderURL(origin)}-${encoderURL(destination)}/${departure ?? ''}`,
-    google:     `https://www.google.com/travel/flights?q=vols+${encoderURL(origin)}+${encoderURL(destination)}`,
-  };
-}
+// NB : les liens de VOL ne sont plus fabriqués ici. transformerVols (pack.ts)
+// les reconstruit systématiquement via construireLiensVol (IATA + dates + pax) ;
+// l'ancien liensVol posait un volIA.links jamais lu = code mort → supprimé.
 
 function liensHotel(hotelName: string, city: string): HotelLinks {
   // N'ajoute pas la ville si elle est déjà dans le nom (LLM inclut souvent "Mandarin Oriental, Miami")
@@ -20,7 +15,6 @@ function liensHotel(hotelName: string, city: string): HotelLinks {
     : `${hotelName} ${city}`;
   return {
     booking: `https://www.booking.com/searchresults.html?ss=${encoderURL(termeRecherche)}`,
-    hotels:  `https://fr.hotels.com/search.do?q-destination=${encoderURL(city)}&q-localised-check-in=&q-room-0-adults=2`,
     google:  `https://www.google.com/travel/hotels/${encoderURL(city)}?q=${encoderURL(hotelName)}`,
   };
 }
@@ -30,7 +24,6 @@ function liensActivite(activityName: string, city: string): ActivityLinks {
     // Google Search : fiable pour n'importe quel événement, jamais de 404
     viator:       `https://www.google.com/search?q=${encoderURL(activityName + ' ' + city + ' tickets')}`,
     getyourguide: `https://www.getyourguide.fr/s/?q=${encoderURL(activityName + ' ' + city)}`,
-    airbnb:       `https://www.airbnb.fr/experiences/search?q=${encoderURL(city)}`,
   };
 }
 
@@ -44,7 +37,8 @@ export interface FlightSearchResult {
   duration: string;
   stops: string;
   booking_url: string | null;
-  links: FlightLinks;
+  // Pas de `links` ici : les liens de vol sont construits en aval par
+  // transformerVols/construireLiensVol (IATA + dates + voyageurs).
 }
 
 export interface EventSearchResult {
@@ -115,8 +109,9 @@ Retourne UNIQUEMENT ce JSON :
 }`;
 
     const reponseIABrute = await callAI(prompt, undefined, 'pack');
-    const donneesVol = parseJSON(reponseIABrute) as Omit<FlightSearchResult, 'links'>;
-    return { ...donneesVol, links: liensVol(origin, destination, departure) };
+    // Pas de liens ici : ils sont posés par transformerVols (construireLiensVol).
+    const donneesVol = parseJSON(reponseIABrute) as FlightSearchResult;
+    return donneesVol;
   } catch (err) {
     console.error('SmartFlightSearch error:', (err as Error).message);
     return null;

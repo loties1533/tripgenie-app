@@ -14,6 +14,7 @@ export interface ParamsAssemblagePack {
   hotels?: HotelSearchResult[];
   mode: TravelMode;
   profile?: string;
+  interests?: string[];
   travelers: number;
   budget: number;
   departure?: string;
@@ -60,12 +61,13 @@ export function calculerNuits(
 // 2. construirePromptPack — construction du prompt LLM
 
 export function construirePromptPack({
-  dest, originCity, travelers, profile, mode, budgetPerPers, nights, events,
+  dest, originCity, travelers, profile, interests, mode, budgetPerPers, nights, events,
 }: {
   dest: string;
   originCity: string;
   travelers: number;
   profile: string | undefined;
+  interests?: string[];
   mode: TravelMode;
   budgetPerPers: number;
   nights: number;
@@ -115,12 +117,17 @@ export function construirePromptPack({
     ? `\nÉVÉNEMENTS RÉELS :\n${events.slice(0, 4).map(e => `- ${e.title} @ ${e.venue}`).join('\n')}`
     : '';
 
+  // Centres d'intérêt du voyageur : orientent le choix des activités (en plus du mode).
+  const interetsContext = interests?.length
+    ? `\n⚠️ CENTRES D'INTÉRÊT DU VOYAGEUR (à privilégier fortement dans le choix des activités, tout en respectant le mode) : ${interests.join(', ')}.`
+    : '';
+
   return `Tu es le concierge privé de TripGenie. Destination : ${dest}. Ville de départ : ${originCity}.
     VOYAGEURS : ${travelers} personne(s). PROFIL : ${profile ?? mode}. VIBE : ${mode}. BUDGET : ${budgetPerPers}€/pers. DURÉE : ${nights} nuits.
 
     ${modePersona}
     ${budgetTone}
-    ${activityInstruction}
+    ${activityInstruction}${interetsContext}
     ${realVenuesContext}
 
     Génère ce JSON COMPACT (itinerary = 3 jours, activities = 6) :
@@ -199,11 +206,10 @@ export function construireLiensVol(params: {
 
   const iataOk = estCodeIATAValide(originIATA) && estCodeIATAValide(destIATA);
 
-  // Google Flights : URL avec IATA + dates si dispo (format hash), sinon recherche Google.
-  // Le format ?q=... de google.com/travel/flights ne pré-remplit pas la destination.
-  const google = iataOk && dateDepart
-    ? `https://www.google.com/flights#flt=${originIATA}.${destIATA}.${dateDepart}${dateRetour ? `*${destIATA}.${originIATA}.${dateRetour}` : ''};c:EUR;e:1;a:${adults};px:0`
-    : `https://www.google.com/search?q=${encodeURIComponent(`vols ${originCity} ${destCity}${dateDepart ? ' ' + dateDepart : ''}${adults > 1 ? ' ' + adults + ' personnes' : ''}`)}`;
+  // Google : l'ancien format google.com/flights#flt=... n'est plus honoré par
+  // Google (ouvre une page vide, ni dates ni trajet) → recherche Google fiable
+  // (villes + date + pax en clair). Sert aussi de repli à Skyscanner/Kayak.
+  const google = `https://www.google.com/search?q=${encodeURIComponent(`vols ${originCity} ${destCity}${dateDepart ? ' ' + dateDepart : ''}${adults > 1 ? ' ' + adults + ' personnes' : ''}`)}`;
 
   const skyscanner = iataOk && dateDepart
     ? `https://www.skyscanner.fr/transport/flights/${originIATA!.toLowerCase()}/${destIATA!.toLowerCase()}/${versFormatCourt(departure)}/${dateRetour ? versFormatCourt(return_date) + '/' : ''}?adults=${adults}`
@@ -216,11 +222,28 @@ export function construireLiensVol(params: {
 }
 
 // lien Booking pré-rempli
-export function construireUrlHotel(hotelName: string, city: string): string {
+export function construireUrlHotel(
+  hotelName: string,
+  city: string,
+  opts?: { checkin?: string; checkout?: string; travelers?: number },
+): string {
   const terme = hotelName.toLowerCase().includes(city.toLowerCase())
     ? hotelName
     : `${hotelName} ${city}`;
-  return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(terme)}`;
+  const params = new URLSearchParams({ ss: terme });
+  // Dates + voyageurs pré-remplis → Booking affiche le VRAI prix pour les vraies
+  // chambres/suites (2 pers/chambre par défaut). C'est Booking, pas nous, qui
+  // connaît les prix réels : on ne fait que l'ouvrir correctement configuré.
+  const checkin  = opts?.checkin?.slice(0, 10);
+  const checkout = opts?.checkout?.slice(0, 10);
+  if (checkin)  params.set('checkin', checkin);
+  if (checkout) params.set('checkout', checkout);
+  if (opts?.travelers && opts.travelers > 0) {
+    params.set('group_adults', String(opts.travelers));
+    params.set('no_rooms', String(Math.max(1, Math.ceil(opts.travelers / 2))));
+    params.set('group_children', '0');
+  }
+  return `https://www.booking.com/searchresults.html?${params.toString()}`;
 }
 
 // lien de booking réel, pas une carte Google Maps
@@ -324,17 +347,36 @@ export function transformerVols(
 
 // 5. transformerActivites — mapping activités LLM → Pack['activities']
 
+// Source UNIQUE catégorie + emoji : ils ne peuvent plus diverger.
+// L'ordre compte (premier mot-clé trouvé gagne) ; le défaut neutre « Expérience »
+// évite d'étiqueter à tort « Culture » tout ce qui n'entre dans aucune case.
+const CATEGORIES_ACTIVITE: { keys: string[]; category: string; emoji: string }[] = [
+  { keys: ['club', 'bar', 'nightlife', 'soirée', 'discothèque'],       category: 'Nightlife',   emoji: '🎉' },
+  { keys: ['restaurant', 'food', 'gastronomie', 'resto', 'table'],     category: 'Gastronomie', emoji: '🍽' },
+  { keys: ['bateau', 'yacht', 'boat', 'croisière', 'voile', 'nautique'], category: 'Nautique',  emoji: '⛵' },
+  { keys: ['plage', 'beach', 'crique', 'baignade'],                    category: 'Plage',       emoji: '🏖' },
+  { keys: ['spa', 'massage', 'yoga', 'bien-être', 'wellness', 'détente', 'thermes'], category: 'Bien-être', emoji: '💆' },
+  { keys: ['rando', 'sentier', 'nature', 'trek', 'hike', 'parc', 'montagne'],        category: 'Nature',    emoji: '🥾' },
+  { keys: ['culture', 'musée', 'monument', 'histoire', 'art', 'patrimoine', 'église'], category: 'Culture', emoji: '🏛' },
+];
+
 export function transformerActivites(
   activities: ResultatTexteIA['activities'],
   dest: string,
 ): Pack['activities'] {
   return (activities ?? []).map(a => {
-    const type    = a.type ?? 'activité';
-    const isNight = ['club', 'bar', 'nightlife', 'soirée'].some(k => type.toLowerCase().includes(k));
-    const isFood  = ['restaurant', 'food', 'gastronomie'].some(k => type.toLowerCase().includes(k));
-    const isBoat  = ['bateau', 'yacht', 'boat', 'croisière'].some(k => type.toLowerCase().includes(k));
-    const emoji   = isNight ? '🎉' : isFood ? '🍽' : isBoat ? '⛵' : type === 'plage' ? '🏖' : type === 'spa' ? '💆' : '🏛';
-    const name    = a.name ?? 'Activité';
+    const name = a.name ?? 'Activité';
+    // On classe d'abord sur le `type` du LLM ; s'il est trop générique (aucun
+    // mot-clé), on retombe sur le NOM de l'activité — c'est ce qui rattrape
+    // « Yoga », « Sentier côtier », « Criques privées » que le LLM typait mal.
+    const typeStr = (a.type ?? '').toLowerCase();
+    const nameStr = name.toLowerCase();
+    const match =
+      CATEGORIES_ACTIVITE.find(c => c.keys.some(k => typeStr.includes(k))) ??
+      CATEGORIES_ACTIVITE.find(c => c.keys.some(k => nameStr.includes(k)));
+    const category = match?.category ?? 'Expérience';
+    const emoji    = match?.emoji ?? '🎯';
+
     const requete = encodeURIComponent(`${name} ${dest}`);
     // Lien universel Google Maps : ouvre la fiche du lieu DANS LA BONNE VILLE,
     // partout dans le monde. TheFork (resto FR) renvoyait vers Paris pour une
@@ -343,12 +385,12 @@ export function transformerActivites(
 
     return {
       name,
-      category:    isNight ? 'Nightlife' : isFood ? 'Gastronomie' : isBoat ? 'Nautique' : 'Culture',
+      category,
       emoji,
       description: a.desc ?? 'Incontournable',
       duration:    '2-3h',
       price:       'Variable',
-      best_time:   isNight ? 'Soir' : 'Journée',
+      best_time:   category === 'Nightlife' ? 'Soir' : 'Journée',
       booking_url,                                  // bouton « Carte » → localisation Google Maps
       reserve_url: construireUrlActivite(name, dest), // bouton « Réserver » → plateforme de booking
     };
@@ -383,15 +425,21 @@ export function calculerRepartitionBudget(
   const prixParNuit        = hebergement / nights / travelers;
   if (prixParNuit > maxPpn) hebergement = maxPpn * nights * travelers;
 
-  // Le budget hébergement non dépensé (à cause du plafond) est REDISTRIBUÉ au
-  // prorata sur activités/resto/transports — au lieu de gonfler « Divers ».
-  const surplus   = Math.max(0, nominalHebergement - hebergement);
-  const redistSum = ratio.activites + ratio.restauration + ratio.transports;
-  const share     = (r: number) => (redistSum > 0 ? (surplus * r) / redistSum : 0);
+  // Plafonds réalistes €/jour/personne sur les postes dépensables. Au-delà, il
+  // est irréaliste de "dépenser" le budget sur un court séjour : le reliquat va
+  // honnêtement dans « Divers » (Marge / imprévus) au lieu de gonfler resto ou
+  // activités (ex. 1218€ de resto pour un week-end à 2). Le total reste = budget.
+  // Valeurs ajustables ; on ne redistribue plus le surplus d'hébergement.
+  const isLux   = mode === MODES.LUXURY;
+  const jours    = Math.max(1, nights);
+  const capJour  = (parPersJour: number) => parPersJour * travelers * jours;
+  const plafActivites = capJour(isLux ? 250 : 80);
+  const plafResto     = capJour(isLux ? 150 : 60);
+  const plafTransp    = capJour(isLux ? 60  : 25);
 
-  const activites    = Math.round(part(ratio.activites)    + share(ratio.activites));
-  const restauration = Math.round(part(ratio.restauration) + share(ratio.restauration));
-  const transports   = Math.round(part(ratio.transports)   + share(ratio.transports));
+  const activites    = Math.min(Math.round(part(ratio.activites)),    plafActivites);
+  const restauration = Math.min(Math.round(part(ratio.restauration)), plafResto);
+  const transports   = Math.min(Math.round(part(ratio.transports)),   plafTransp);
   const divers       = Math.max(0, budget - vols - hebergement - activites - restauration - transports);
 
   return {
@@ -410,7 +458,7 @@ export function calculerRepartitionBudget(
 // 7. assemblerPack — orchestrateur principal
 
 export async function assemblerPack({
-  destination, origin, flights, events, hotels: realHotels, mode, profile, travelers, budget,
+  destination, origin, flights, events, hotels: realHotels, mode, profile, interests, travelers, budget,
   departure, return_date, duration, realWeather, realPhoto,
 }: ParamsAssemblagePack): Promise<Pack> {
   const dest       = sanitizeInput(destination);
@@ -419,7 +467,7 @@ export async function assemblerPack({
   const budgetPerPers = Math.round(budget / travelers);
 
   // ── 1. Appel LLM ──────────────────────────────────────────────────────────
-  const prompt = construirePromptPack({ dest, originCity, travelers, profile, mode, budgetPerPers, nights, events });
+  const prompt = construirePromptPack({ dest, originCity, travelers, profile, interests, mode, budgetPerPers, nights, events });
   const texteBrutIA = await callAI(prompt, undefined, 'pack');
 
   // ── 2. Parsing JSON (5 stratégies de récupération) ────────────────────────
@@ -465,13 +513,17 @@ export async function assemblerPack({
       name:            h.name ?? `Hôtel ${i + 1}`,
       location:        (h as { loc?: string }).loc ?? (h as { location?: string }).location ?? 'Centre',
       stars:           h.stars ?? (i === 0 && mode === 'luxury' ? 5 : 4),
+      // Prix par CHAMBRE/nuit (2 pers/chambre), pas le budget total du groupe :
+      // sinon à 10 pers on affichait « 2500€/nuit » comme si c'était une chambre.
+      // C'est une ESTIMATION indicative (on n'interroge aucun prix hôtel réel) —
+      // le vrai prix vient du lien Booking pré-rempli ci-dessous.
       price_per_night: (h as { price_per_night?: number }).price_per_night
         ? `${(h as { price_per_night: number }).price_per_night}€`
-        : `${Math.round(hebergementBrut / nights / (i + 1))}€`,
+        : `${Math.round(hebergementBrut / nights / Math.max(1, Math.ceil(travelers / 2)))}€`,
       highlights:      (h as { hl?: string; highlights?: string }).hl ?? (h as { highlights?: string }).highlights ?? 'Excellent choix',
       emoji:           i === 0 ? '🏨' : '🏩',
-      // Lien Booking pré-rempli : ville demandée + check-in/out + voyageurs.
-      booking_url:     construireUrlHotel(h.name ?? `Hôtel ${i + 1}`, dest),
+      // Lien Booking pré-rempli : ville + check-in/out + voyageurs + nb chambres.
+      booking_url:     construireUrlHotel(h.name ?? `Hôtel ${i + 1}`, dest, { checkin: departure, checkout: return_date, travelers }),
     })),
     itinerary: (texteIA.itinerary ?? []).map(d => ({
       day:      d.day,

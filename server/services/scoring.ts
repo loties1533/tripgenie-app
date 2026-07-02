@@ -1,5 +1,3 @@
-
-import { MODES } from '../lib/constants.js';
 import type { TravelMode, ResultatScore, Activite, Evenement } from '../lib/types.js';
 
 interface DonneesVol {

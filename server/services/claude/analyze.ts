@@ -2,7 +2,7 @@ import { searchWeb } from '../tools/webSearch.js';
 import * as Mocks from '../mocks.js';
 import { callAI, parseJSON, sanitizeInput } from './core.js';
 import { getDestinationPhoto } from '../photo.js';
-import type { ResultatOnboarding, ElementDestination } from '../../lib/types.js';
+import type { ElementDestination } from '../../lib/types.js';
 
 export async function analyzeRequest(userInput: string): Promise<unknown> {
   const reponseIABrute = await callAI(
@@ -22,7 +22,6 @@ interface ParamsSuggestionDestinations {
   travelers?: number;
   duration?: number;
   origin?: string;
-  preferences?: string[];
   departure?: string;
 }
 
@@ -32,7 +31,7 @@ interface ResultatDestinations {
 }
 
 export async function suggestDestinations({
-  mode, profile, interests, budget, travelers, duration, origin, preferences, departure,
+  mode, profile, interests, budget, travelers, duration, origin, departure,
 }: ParamsSuggestionDestinations): Promise<ResultatDestinations> {
   try {
     const interetsStr = interests?.join(', ') ?? 'voyage';
