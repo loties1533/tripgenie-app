@@ -22,8 +22,6 @@ interface ParamsSuggestionDestinations {
   travelers?: number;
   duration?: number;
   origin?: string;
-  moods?: string[];
-  discoveryMode?: string;
   preferences?: string[];
   departure?: string;
 }
@@ -34,11 +32,10 @@ interface ResultatDestinations {
 }
 
 export async function suggestDestinations({
-  mode, profile, interests, budget, travelers, duration, origin, moods, discoveryMode, preferences, departure,
+  mode, profile, interests, budget, travelers, duration, origin, preferences, departure,
 }: ParamsSuggestionDestinations): Promise<ResultatDestinations> {
   try {
     const interetsStr = interests?.join(', ') ?? 'voyage';
-    const humeursStr  = moods?.join(', ')     ?? '';
     const dateDepart  = departure ? new Date(departure) : null;
     const moisDepart  = dateDepart && !isNaN(dateDepart.getTime())
       ? new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(dateDepart)
@@ -54,10 +51,7 @@ export async function suggestDestinations({
     } else if (mode === 'student') {
       query += `Destinations pas chères et animées : Prague, Budapest, Lisbonne, Porto, Bangkok, Hanoï, Cracovie, Bucarest. `;
     }
-    query += `Budget total ${budget}€ pour ${travelers} personnes. Intérêts: ${interetsStr} ${humeursStr}.`;
-    if (discoveryMode === 'hidden_gem') {
-      query += ` Cherche des pépites cachées, pas les destinations ultra-touristiques habituelles.`;
-    }
+    query += `Budget total ${budget}€ pour ${travelers} personnes. Intérêts: ${interetsStr}.`;
 
     const contexteWeb = await searchWeb(query);
     const budgetParPersonne = budget && travelers ? Math.round(budget / travelers) : 0;
@@ -79,7 +73,7 @@ export async function suggestDestinations({
 
       FORMAT JSON STRICT :
       {"destinations": [{"city": "Nom", "country": "Pays", "tagline": "Accroche courte", "reason": "Raison MAX 8 mots", "budget_estimate": "~${budgetParPersonne}€/pers", "match_score": 95}]}
-      ⚠️ "tagline" et "reason" DOIVENT être rédigés EN FRANÇAIS. Seuls "city" et "country" gardent leur nom d'origine.`,
+      ⚠️ "tagline", "reason" ET "country" DOIVENT être EN FRANÇAIS (ex : "Chypre", "Espagne", "États-Unis"). Seul "city" garde son nom d'origine.`,
       undefined,
       'destinations'
     );

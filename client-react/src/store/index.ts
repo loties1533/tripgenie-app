@@ -105,8 +105,6 @@ export const useChatStore = create<ChatState>()(
         duration:      null,
         departure:     null,
         return_date:   null,
-        discoveryMode: null,
-        moods:         [],
       },
       isTyping:   false,
       isReady:    false,
@@ -127,7 +125,7 @@ export const useChatStore = create<ChatState>()(
 
       resetChat: () => set({
         messages:   [],
-        chatData:   { travelers: null, profile: null, mode: 'party', interests: [], budget: null, origin: 'Paris', destination: null, duration: null, departure: null, return_date: null, discoveryMode: null, moods: [] },
+        chatData:   { travelers: null, profile: null, mode: 'party', interests: [], budget: null, origin: 'Paris', destination: null, duration: null, departure: null, return_date: null },
         isTyping:   false,
         isReady:    false,
         turnCount:  0,

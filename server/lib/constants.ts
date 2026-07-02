@@ -21,7 +21,7 @@ export interface RatioBudget {
 }
 
 export const BUDGET_RATIOS: Record<TravelMode, RatioBudget> = {
-  party:    { vols: 0.25, hebergement: 0.25, activites: 0.25, restauration: 0.12, transports: 0.08 },
+  party:    { vols: 0.25, hebergement: 0.25, activites: 0.27, restauration: 0.10, transports: 0.08 },
   student:  { vols: 0.35, hebergement: 0.30, activites: 0.10, restauration: 0.15, transports: 0.05 },
   luxury:   { vols: 0.20, hebergement: 0.45, activites: 0.20, restauration: 0.10, transports: 0.03 },
   group:    { vols: 0.30, hebergement: 0.35, activites: 0.15, restauration: 0.12, transports: 0.05 },

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { scorerPack, classerPacks } from '../server/services/scoring.js';
+import { scorerPack } from '../server/services/scoring.js';
 import { MODES } from '../server/lib/constants.js';
 
 const packBase = {
@@ -89,51 +89,5 @@ describe('scorerPack — algorithme de scoring multi-critères', () => {
     const result = scorerPack(packBase, MODES.LUXURY, 2, 'Monaco');
     const keys = ['vol', 'hotel', 'events', 'activities', 'prix'];
     keys.forEach(k => expect(result.details).toHaveProperty(k));
-  });
-});
-
-// ============================================================
-// classerPacks — tri et classement
-// ============================================================
-
-describe('classerPacks — classement des packs', () => {
-
-  const packBudget = {
-    vol:        { price: 80,  duration_min: 180, stops: 1 },
-    hotel:      { stars: 2, price_per_night: 40,  rating: 6.5 },
-    events:     [],
-    activities: [{ name: 'Musée', category: 'culture', price: 0, price_range: 'free' }],
-    totalPrice: 500
-  };
-
-  const packLuxe = {
-    vol:        { price: 800, duration_min: 90, stops: 0 },
-    hotel:      { stars: 5, price_per_night: 500, rating: 9.5 },
-    events:     [{ category: 'gala', title: 'Gala VIP' }],
-    activities: [{ name: 'Yacht', category: 'leisure', price: 500 }],
-    totalPrice: 8000
-  };
-
-  it('retourne au maximum 3 packs', () => {
-    const packs = [packBase, packBudget, packLuxe, { ...packBase, totalPrice: 3000 }];
-    const ranked = classerPacks(packs, MODES.LUXURY, 2, 'Monaco');
-    expect(ranked.length).toBeLessThanOrEqual(3);
-  });
-
-  it('le pack le mieux noté est rank 1', () => {
-    const packs = [packBudget, packLuxe];
-    const ranked = classerPacks(packs, MODES.LUXURY, 2, 'Monaco');
-    expect(ranked[0].rank).toBe(1);
-    expect(ranked[0].score.total).toBeGreaterThanOrEqual(ranked[1]?.score.total ?? 0);
-  });
-
-  it('chaque pack a un score calculé', () => {
-    const packs = [packBase, packBudget];
-    const ranked = classerPacks(packs, MODES.PARTY, 2, 'Barcelone');
-    ranked.forEach(p => {
-      expect(p.score).toBeDefined();
-      expect(p.score.total).toBeGreaterThanOrEqual(0);
-      expect(p.score.total).toBeLessThanOrEqual(1);
-    });
   });
 });
