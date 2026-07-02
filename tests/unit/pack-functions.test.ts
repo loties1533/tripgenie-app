@@ -33,6 +33,7 @@ import {
   transformerVols,
   transformerActivites,
   calculerRepartitionBudget,
+  construireUrlHotel,
 } from '../../server/services/claude/pack.js';
 
 // ============================================================
@@ -108,7 +109,7 @@ describe('construirePromptPack — construction du prompt LLM', () => {
 
   it('injecte les événements réels si fournis', () => {
     const events = [
-      { title: 'Pacha Opening', venue: 'Pacha Ibiza', category: 'Nightlife', start: '2026-07-15', description: '', booking_url: null, links: { viator: '', getyourguide: '', airbnb: '' } },
+      { title: 'Pacha Opening', venue: 'Pacha Ibiza', category: 'Nightlife', start: '2026-07-15', description: '', booking_url: null, links: { viator: '', getyourguide: '' } },
     ];
     const prompt = construirePromptPack({ ...base, events });
     expect(prompt).toContain('Pacha Opening');
@@ -127,6 +128,17 @@ describe('construirePromptPack — construction du prompt LLM', () => {
   it('contient le nombre de voyageurs', () => {
     const prompt = construirePromptPack(base);
     expect(prompt).toContain('2');
+  });
+
+  it('injecte les centres d\'intérêt du voyageur dans le prompt (activités sur-mesure)', () => {
+    const prompt = construirePromptPack({ ...base, interests: ['Culture', 'Histoire'] });
+    expect(prompt).toContain("CENTRES D'INTÉRÊT");
+    expect(prompt).toContain('Culture, Histoire');
+  });
+
+  it('sans centres d\'intérêt : aucune ligne intérêts (rétrocompat)', () => {
+    const prompt = construirePromptPack(base);
+    expect(prompt).not.toContain("CENTRES D'INTÉRÊT");
   });
 });
 
@@ -286,10 +298,35 @@ describe('transformerActivites — mapping activités → Pack[\'activities\']',
     expect(acts[0].emoji).toBe('⛵');
   });
 
-  it('catégorie Culture par défaut', () => {
+  it('catégorie Culture pour type culture', () => {
     const acts = transformerActivites([{ name: 'Musée Dali', type: 'culture', desc: 'art' }], 'Figueres');
     expect(acts[0].category).toBe('Culture');
     expect(acts[0].emoji).toBe('🏛');
+  });
+
+  it('catégorie Bien-être pour un yoga (repli sur le nom)', () => {
+    // type générique 'activité' → on retombe sur le nom « Yoga »
+    const acts = transformerActivites([{ name: 'Yoga Paros - Naoussa', type: 'activité', desc: 'zen' }], 'Paros');
+    expect(acts[0].category).toBe('Bien-être');
+    expect(acts[0].emoji).toBe('💆');
+  });
+
+  it('catégorie Nature pour un sentier de randonnée (repli sur le nom)', () => {
+    const acts = transformerActivites([{ name: 'Sentier côtier Paros-Naxos', type: 'activité', desc: 'rando' }], 'Paros');
+    expect(acts[0].category).toBe('Nature');
+    expect(acts[0].emoji).toBe('🥾');
+  });
+
+  it('catégorie Plage pour des criques (repli sur le nom)', () => {
+    const acts = transformerActivites([{ name: 'Criques privées Antiparos', type: 'activité', desc: 'baignade' }], 'Paros');
+    expect(acts[0].category).toBe('Plage');
+    expect(acts[0].emoji).toBe('🏖');
+  });
+
+  it('catégorie neutre « Expérience » quand rien ne matche (plus de faux « Culture »)', () => {
+    const acts = transformerActivites([{ name: 'Atelier mystère', type: 'activité', desc: 'surprise' }], 'Paros');
+    expect(acts[0].category).toBe('Expérience');
+    expect(acts[0].emoji).toBe('🎯');
   });
 
   it('lien Google Maps universel pour un restaurant', () => {
@@ -393,5 +430,39 @@ describe('calculerRepartitionBudget — répartition BUDGET_RATIOS', () => {
     expect(bd.vols).toMatch(/^\d+€$/);
     expect(bd.hebergement).toMatch(/^\d+€$/);
     expect(bd.total).toMatch(/^\d+€$/);
+  });
+
+  // Piste A : plafonds réalistes €/jour/pers → le reliquat va dans « divers »
+  // (Marge) au lieu de gonfler resto/activités sur un budget trop gros.
+  it('plafond restauration : gros budget court séjour → resto plafonnée, marge dans divers', () => {
+    // relax, 5000€, 2 nuits, 2 pers, vols 720€ : sans plafond la resto montait à ~1218€.
+    const bd = calculerRepartitionBudget(5000, 'relax', 2, 2, 720);
+    const resto  = parseInt(bd.restauration.replace('€', ''));
+    const divers = parseInt(bd.divers.replace('€', ''));
+    expect(resto).toBeLessThanOrEqual(60 * 2 * 2);   // 60€/jour/pers × 2 pers × 2 nuits = 240€
+    expect(divers).toBeGreaterThan(0);               // le surplus honnête part en Marge
+  });
+});
+
+// ============================================================
+// 7. construireUrlHotel — lien Booking pré-rempli
+// ============================================================
+describe('construireUrlHotel — lien Booking dates + voyageurs + chambres', () => {
+
+  it('injecte check-in/out, group_adults et nb de chambres (2 pers/chambre)', () => {
+    const url = construireUrlHotel('Hotel Metropole', 'Monaco', {
+      checkin: '2026-07-17', checkout: '2026-07-19', travelers: 10,
+    });
+    expect(url).toContain('checkin=2026-07-17');
+    expect(url).toContain('checkout=2026-07-19');
+    expect(url).toContain('group_adults=10');
+    expect(url).toContain('no_rooms=5');   // ceil(10 / 2) = 5 chambres
+  });
+
+  it('sans options : lien de recherche simple par nom (rétrocompat)', () => {
+    const url = construireUrlHotel('Hotel Metropole', 'Monaco');
+    expect(url).toContain('booking.com/searchresults');
+    expect(url).not.toContain('checkin=');
+    expect(url).not.toContain('no_rooms=');
   });
 });

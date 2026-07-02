@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { RadialBarChart, RadialBar, Cell, ResponsiveContainer, PieChart, Pie, Tooltip } from 'recharts'
+import { Cell, ResponsiveContainer, PieChart, Pie, Tooltip } from 'recharts'
 import { useSearchStore } from '../../store'
-import { TabBar, SectionTitle, Stars, VerifiedBadge, ModeBadge } from '../ui'
-import { saveVote } from '../../lib/api'
+import { TabBar, SectionTitle, ModeBadge } from '../ui'
 import PackSkeleton from './PackSkeleton'
 import TripMap from './TripMap'
 import VoteButtons from './VoteButtons'
@@ -20,65 +19,14 @@ const TagBadge = ({ text }: { text?: string }) => {
   )
 }
 
-// ---- Hotel card ----
-function HotelCard({ hotel }: { hotel: any }) {
-  return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-2xl overflow-hidden group hover:shadow-card-lg transition-shadow duration-300">
-      {/* Photo */}
-      <div className="h-36 bg-parchment-dark dark:bg-ink-light relative overflow-hidden">
-        {hotel.photo_url
-          ? <img src={hotel.photo_url} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-          : <div className="w-full h-full flex items-center justify-center text-5xl opacity-30">{hotel.emoji || '🏨'}</div>
-        }
-        {hotel.is_real && (
-          <div className="absolute top-2 left-2"><VerifiedBadge /></div>
-        )}
-        {hotel.rating && (
-          <div className="absolute top-2 right-2 bg-white/90 dark:bg-ink/90 rounded-lg px-2 py-1 text-xs font-bold text-ink dark:text-parchment">
-            {hotel.rating} <span className="text-gold">★</span>
-          </div>
-        )}
-      </div>
-      {/* Body */}
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <h4 className="font-semibold text-ink dark:text-parchment text-sm leading-tight">{hotel.name}</h4>
-          <Stars count={hotel.stars} />
-        </div>
-        <p className="text-xs text-muted mt-1 flex items-center gap-1">
-          <span>📍</span>{hotel.location}
-        </p>
-        {hotel.highlights && (
-          <p className="text-xs text-muted mt-2 line-clamp-2 leading-relaxed">{hotel.highlights}</p>
-        )}
-        {hotel.review_count > 0 && (
-          <p className="text-xs text-muted/70 mt-1">{hotel.review_count} avis · {hotel.rating_label}</p>
-        )}
-      </div>
-      {/* Footer */}
-      <div className="px-4 pb-4 flex items-center justify-between">
-        <div>
-          <p className="text-xs text-muted">par nuit</p>
-          <p className="font-bold text-gold text-lg">{hotel.price_per_night}</p>
-        </div>
-        <a href={hotel.booking_url || `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(hotel.name)}`}
-           target="_blank" rel="noopener"
-           className="btn-primary text-sm px-4 py-2">
-          Réserver
-        </a>
-      </div>
-    </motion.div>
-  )
-}
-
 // ---- Flight card ----
 function FlightCard({ flight, packId, destination }: { flight: any; packId: string; destination: string }) {
   const isReturn  = flight.type === 'return'
-  // Google Flights = comparateur fiable (jamais de 404). Pré-rempli (villes+dates+pax)
-  // pour les nouveaux packs ; repli recherche par villes pour les anciens packs en base.
-  const bookingUrl = flight.links?.google
-    || `https://www.google.com/travel/flights?q=${encodeURIComponent(`Vols ${flight.from_city || 'Paris'} ${flight.to_city || destination}`)}`
+  // Skyscanner pré-rempli (route IATA + dates + voyageurs) = le lien qui ouvre le
+  // VRAI prix. Repli google (recherche fiable) pour les anciens packs en base.
+  const bookingUrl = flight.links?.skyscanner || flight.links?.google
+    || `https://www.google.com/search?q=${encodeURIComponent(`vols ${flight.from_city || 'Paris'} ${flight.to_city || destination}`)}`
+  const kayakUrl = flight.links?.kayak
 
   return (
     <motion.div initial={{ opacity: 0, x: isReturn ? 8 : -8 }} animate={{ opacity: 1, x: 0 }}
@@ -117,14 +65,26 @@ function FlightCard({ flight, packId, destination }: { flight: any; packId: stri
         <div className="pl-4 border-l border-white/5 flex flex-col items-end gap-1">
           <p className="text-lg font-bold text-gold leading-none">{flight.price_per_person}</p>
           <p className="text-[9px] text-muted/60 italic">estimatif</p>
-          <a
-            href={bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] font-bold text-sage hover:underline flex items-center gap-0.5"
-          >
-            Vrai prix ↗
-          </a>
+          <div className="flex items-center gap-2">
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] font-bold text-sage hover:underline flex items-center gap-0.5"
+            >
+              Vrai prix ↗
+            </a>
+            {kayakUrl && (
+              <a
+                href={kayakUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] font-bold text-muted hover:text-gold hover:underline flex items-center gap-0.5"
+              >
+                Kayak ↗
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -212,8 +172,10 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
     .filter(([k]) => k !== 'total')
     .filter(([, v]) => (parseInt(v as string) || 0) >= seuil)
   const colors  = ['#C9A84C', '#5A7A5E', '#3A6B8A', '#C0634A', '#7A6E62', '#8B6914']
+  // « divers » = budget non affecté aux postes réalistes → libellé « Marge / imprévus ».
+  const labels: Record<string, string> = { divers: 'Marge / imprévus' }
   const data    = entries.map(([k, v], i) => ({
-    name:  k.charAt(0).toUpperCase() + k.slice(1),
+    name:  labels[k] ?? k.charAt(0).toUpperCase() + k.slice(1),
     value: parseInt(v as string) || 0,
     color: colors[i % colors.length]
   }))
@@ -273,24 +235,6 @@ function EventCard({ event, destination }: { event: any; destination: string }) 
 }
 
 // ---- Activity card ----
-function ActivityCard({ activity }: { activity: any }) {
-  return (
-    <div className="glass rounded-xl p-4 flex gap-3">
-      <span className="text-2xl">{activity.emoji || '🎯'}</span>
-      <div className="flex-1">
-        <p className="font-semibold text-sm text-ink dark:text-parchment">{activity.name}</p>
-        <p className="text-xs text-muted mt-0.5">{activity.category}</p>
-        <p className="text-xs text-muted mt-1 leading-relaxed line-clamp-2">{activity.description}</p>
-        <div className="flex gap-3 mt-2">
-          <span className="text-xs text-sage font-medium">{activity.price}</span>
-          <span className="text-xs text-muted">{activity.duration}</span>
-          <span className="text-xs text-muted">{activity.best_time}</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // MAIN PACK RESULTS
 const TABS = [
   { id: 'overview',    label: 'Aperçu',      icon: '🧭' },
@@ -314,19 +258,9 @@ export default function PackResults() {
 
   const donneesPack = pack
 
-  // Score TripGenie (algo déterministe) — rendu visible + détaillé par critère.
+  // Score TripGenie (algo déterministe) — rendu visible dans le bandeau.
   const valeurScore      = typeof donneesPack.score === 'number' ? donneesPack.score : (donneesPack.score?.total ?? 0)
   const scorePourcentage      = Math.round(valeurScore * 100)
-  const detailsScore  = typeof donneesPack.score === 'object' ? donneesPack.score?.details : undefined
-  const criteresScore = detailsScore
-    ? [
-        { label: 'Ambiance',  val: Math.round((detailsScore.events     ?? 0) * 100) },
-        { label: 'Prix',      val: Math.round((detailsScore.prix       ?? 0) * 100) },
-        { label: 'Hôtel',     val: Math.round((detailsScore.hotel      ?? 0) * 100) },
-        { label: 'Vol',       val: Math.round((detailsScore.vol        ?? 0) * 100) },
-        { label: 'Activités', val: Math.round((detailsScore.activities ?? 0) * 100) },
-      ]
-    : []
 
   // Bandeau Mode Survie — affiché quand toutes les IA ont échoué et que le pack
   // est un fallback statique. Important pour la transparence envers l'utilisateur.
@@ -411,7 +345,9 @@ export default function PackResults() {
         </div>
       </div>
       <div className="flex justify-between items-center pt-2 border-t border-parchment-dark dark:border-white/10">
-        <span className="text-xs font-bold text-gold">{hotel.price_per_night}</span>
+        <span className="text-xs font-bold text-gold">
+          {hotel.price_per_night}<span className="font-normal text-muted"> /nuit · estim.</span>
+        </span>
         <div className="flex items-center gap-3">
           <VoteButtons packId={packId ?? ''} itemId={hotel.name} />
           <TagBadge text={hotel.match_reason} />

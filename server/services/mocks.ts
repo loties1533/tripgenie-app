@@ -15,7 +15,6 @@ export const MOCK_ONBOARDING: ResultatOnboarding & { isMock: boolean } = {
     budget: 2000,
     duration: 7,
     mode: 'relax',
-    discoveryMode: 'classic',
   },
   isReady: false,
   isMock: true,

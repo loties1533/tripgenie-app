@@ -19,7 +19,6 @@ import { openapiSpec } from './docs/openapi.js';
 // Routes
 import authRoutes from './routes/auth.js';
 import tripsRoutes from './routes/trips.js';
-import packsRoutes from './routes/packs.js';
 import aiRoutes from './routes/ai.js';
 import votesRoutes from './routes/votes.js';
 import photosRoutes from './routes/photos.js';
@@ -84,7 +83,6 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripsRoutes);
 app.use('/api/trips', collaboratorsRoutes);
-app.use('/api/packs', packsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/votes', votesRoutes);
 app.use('/api/photos', photosRoutes);

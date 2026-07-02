@@ -20,7 +20,6 @@ import { getDestinationPhoto } from '../services/photo.js';
 import prisma from '../db/prisma.js';
 import type { Prisma } from '@prisma/client';
 import { MODES, DEFAULT_VALUES } from '../lib/constants.js';
-import { AppError } from '../lib/AppError.js';
 import type { TravelMode } from '../lib/types.js';
 import type { FlightSearchResult, EventSearchResult, HotelSearchResult } from '../services/smartSearch.js';
 import type { WeatherData } from '../services/weather.js';
@@ -69,11 +68,12 @@ const schemaAnalyse = z.object({
 
 const schemaDestinations = z.object({
   mode: modeDestinations,
+  profile: z.string().trim().max(40).optional(),
+  interests: z.array(z.string()).max(20).optional(),
   budget: z.number().int().min(0).optional(),
   travelers: z.number().int().min(1).max(20).optional(),
   duration: z.number().int().min(1).optional(),
   origin: z.string().trim().min(1).optional(),
-  preferences: z.array(z.string()).optional(),
   departure: z.string().trim().optional(),
 });
 
@@ -90,7 +90,8 @@ const schemaGeneration = z.object({
   travelers: z.preprocess((val) => typeof val === 'string' ? Number(val) : val, z.number().int().min(1).max(20)).optional(),
   budget: z.preprocess((val) => typeof val === 'string' ? Number(val) : val, z.number().int().min(1).max(50000)),
   mode: modeOptionnel,
-  preferences: z.array(z.string()).optional(),
+  profile: z.string().trim().max(40).optional(),
+  interests: z.array(z.string()).max(20).optional(),
 });
 
 const schemaChat = z.object({
@@ -125,9 +126,9 @@ router.post('/analyze', aiChatLimiter, optionalAuth, validateBody(schemaAnalyse)
 // ---- POST /api/ai/destinations ----
 router.post('/destinations', aiGenerateLimiter, optionalAuth, validateBody(schemaDestinations), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { mode, budget, travelers, duration, origin, preferences, departure } = req.body;
+    const { mode, profile, interests, budget, travelers, duration, origin, departure } = req.body;
 
-    const resultat = await suggestDestinations({ mode, budget, travelers, duration, origin, preferences, departure });
+    const resultat = await suggestDestinations({ mode, profile, interests, budget, travelers, duration, origin, departure });
     res.json(resultat);
 
   } catch (err) {
@@ -187,6 +188,8 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
       travelers   = DEFAULT_VALUES.TRAVELERS,
       budget,
       mode        = MODES.PARTY,
+      profile,
+      interests,
     } = req.body;
 
     // ---- RECHERCHE WEB (Tavily + IA) avec Timeout de sécurité ----
@@ -284,6 +287,8 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
       events,
       hotels: realHotels,
       mode: mode as TravelMode,
+      profile,
+      interests,
       travelers,
       budget,
       departure,

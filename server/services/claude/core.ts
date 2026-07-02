@@ -110,14 +110,14 @@ export async function callAI(
     try { return await callOllama(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`Ollama: ${(e as Error).message}`); }
   }
 
-  // Gemini — priorité absolue (JSON fiable, quota généreux)
-  if (process.env.GEMINI_API_KEY) {
-    try { return await callGemini(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`Gemini: ${(e as Error).message}`); }
-  }
-
-  // Claude (Anthropic) — si clé disponible
+  // Claude (Anthropic) — provider principal (payant, JSON fiable, pas de restriction géo)
   if (CLE_ANTHROPIC) {
     try { return await callClaude(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`Claude: ${(e as Error).message}`); }
+  }
+
+  // Gemini — repli si Claude indisponible
+  if (process.env.GEMINI_API_KEY) {
+    try { return await callGemini(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`Gemini: ${(e as Error).message}`); }
   }
 
   // OpenRouter (modèles gratuits) — dernier recours car JSON souvent malformé

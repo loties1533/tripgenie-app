@@ -38,7 +38,6 @@ function liensEvenement(title: string, city: string): ActivityLinks {
   return {
     viator:       `https://www.viator.com/search?q=${encoderURL(title + ' ' + city)}`,
     getyourguide: `https://www.getyourguide.fr/s/?q=${encoderURL(title + ' ' + city)}`,
-    airbnb:       `https://www.airbnb.fr/experiences/search?q=${encoderURL(city)}`,
   };
 }
 

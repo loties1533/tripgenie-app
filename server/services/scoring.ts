@@ -1,5 +1,3 @@
-
-import { MODES } from '../lib/constants.js';
 import type { TravelMode, ResultatScore, Activite, Evenement } from '../lib/types.js';
 
 interface DonneesVol {
@@ -166,6 +164,11 @@ export function scorerPack(
     originalite:     scoreOriginalite(destination),
   };
 
+  // Socle « qualité globale » = moyenne des sous-scores cœur. Sert de base au mode
+  // surprise (poids { global: 0.60, originalite: 0.40 }) : sans ça, `global` valait 0
+  // au moment du calcul et surprise plafonnait à 40/100.
+  scores.global = (scores.vol + scores.hotel + scores.events + scores.activities + scores.prix) / 5;
+
   scores.global = Object.entries(poidsMode).reduce((total, [key, weight]) => {
     return total + (scores[key as ScoreKey] ?? 0) * weight;
   }, 0);
@@ -174,23 +177,6 @@ export function scorerPack(
     total:   Math.round(scores.global * 100) / 100,
     details: scores,
   };
-}
-
-export function classerPacks<T extends PackPourScore>(
-  packs: T[],
-  mode: TravelMode,
-  travelers: number,
-  destination: string
-): Array<T & { rank: number; score: ResultatScore }> {
-  return packs
-    .map((pack, idx) => ({
-      ...pack,
-      rank:  idx + 1,
-      score: scorerPack(pack, mode, travelers, destination),
-    }))
-    .sort((a, b) => b.score.total - a.score.total)
-    .slice(0, 3)
-    .map((pack, idx) => ({ ...pack, rank: idx + 1 }));
 }
 
 export { POIDS_PAR_MODE };

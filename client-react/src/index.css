@@ -313,3 +313,15 @@
 .animate-pulse-slow {
   animation: pulseSlow 3s ease-in-out infinite;
 }
+
+/* ---- Icône calendrier des champs date ---- */
+/* L'indicateur natif <input type="date"> est sombre par défaut : invisible
+   noir-sur-noir en mode sombre. On l'inverse (dark) pour le rendre lisible ;
+   en mode clair le natif suffit, on le laisse tel quel. */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.7);
+  cursor: pointer;
+}
+.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(1) opacity(1);
+}

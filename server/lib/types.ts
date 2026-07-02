@@ -31,14 +31,12 @@ export interface FlightLinks {
 
 export interface HotelLinks {
   booking: string;
-  hotels: string;
   google: string;
 }
 
 export interface ActivityLinks {
   viator: string;
   getyourguide: string;
-  airbnb: string;
 }
 
 export interface Hotel {

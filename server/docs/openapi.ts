@@ -128,7 +128,6 @@ export const openapiSpec = {
     { name: 'Auth',          description: 'Inscription, connexion, session' },
     { name: 'IA',            description: 'Pipeline de génération + chat de modification' },
     { name: 'Voyages',       description: 'CRUD des voyages (trips)' },
-    { name: 'Packs',         description: 'Packs générés et sélection' },
     { name: 'Votes',         description: 'Consensus public sur les éléments d\'un pack' },
     { name: 'Préférences',   description: 'Préférences utilisateur (1-1)' },
     { name: 'Collaborateurs', description: 'Partage d\'un voyage (N-N)' },
@@ -409,29 +408,6 @@ export const openapiSpec = {
           { name: 'user_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
         ],
         responses: { 200: { description: 'Retiré', content: { 'application/json': { schema: { $ref: '#/components/schemas/Message' } } } }, 401: unauthorized, 404: notFound },
-      },
-    },
-
-    // ---------------- PACKS ----------------
-    '/api/packs/{trip_id}': {
-      get: {
-        tags: ['Packs'],
-        summary: 'Lister les packs d\'un voyage',
-        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
-        parameters: [{ name: 'trip_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
-        responses: { 200: { description: 'Packs', content: { 'application/json': { schema: { type: 'object', properties: { packs: { type: 'array', items: { $ref: '#/components/schemas/Pack' } } } } } } }, 401: unauthorized, 403: { description: 'Accès non autorisé', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } } },
-      },
-    },
-    '/api/packs/{trip_id}/select/{pack_id}': {
-      post: {
-        tags: ['Packs'],
-        summary: 'Sélectionner un pack (passe le voyage en "confirmed")',
-        security: [{ cookieAuth: [] }, { bearerAuth: [] }],
-        parameters: [
-          { name: 'trip_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
-          { name: 'pack_id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
-        ],
-        responses: { 200: { description: 'Pack sélectionné', content: { 'application/json': { schema: { type: 'object', properties: { pack: { $ref: '#/components/schemas/Pack' }, message: { type: 'string' } } } } } }, 401: unauthorized, 403: { description: 'Accès non autorisé', content: { 'application/json': { schema: { $ref: '#/components/schemas/Error' } } } }, 404: notFound },
       },
     },
 

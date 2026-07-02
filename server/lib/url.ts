@@ -9,10 +9,9 @@ export function lienGoogleMaps(name: string, city: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encoderURL(name + ' ' + city)}`;
 }
 
-export function liensRestaurant(name: string, city: string, lienAnnuaireLocal: string): ActivityLinks {
+export function liensRestaurant(name: string, city: string): ActivityLinks {
   return {
     viator:       `https://www.thefork.fr/recherche?q=${encoderURL(name + ' ' + city)}`,
     getyourguide: `https://www.google.com/search?q=${encoderURL(name + ' ' + city + ' réservation')}`,
-    airbnb:       lienAnnuaireLocal,
   };
 }

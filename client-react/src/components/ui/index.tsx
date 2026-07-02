@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { clsx } from 'clsx'
 import React from 'react'
 
@@ -20,29 +19,6 @@ export function SkeletonCard() {
         <Skeleton className="h-8 w-20 rounded-full" />
       </div>
     </div>
-  )
-}
-
-// Score badge
-export function ScoreBadge({ score }: { score: any }) {
-  const pourcentage   = Math.round((score?.total ?? score ?? 0) * 100)
-  const color = pourcentage >= 75 ? 'bg-sage/20 text-sage' : pourcentage >= 50 ? 'bg-gold/20 text-gold-dark' : 'bg-coral/20 text-coral'
-  return (
-    <span className={clsx('score-badge shadow-glow-gold animate-pulse-gold', color)}>
-      ★ {pourcentage}<span className="opacity-60 text-[10px]">/100</span>
-    </span>
-  )
-}
-
-// Verified badge
-export function VerifiedBadge() {
-  return (
-    <span className="verified">
-      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-        <path d="M2 5l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-      Vérifié Booking.com
-    </span>
   )
 }
 
@@ -71,30 +47,6 @@ export function SectionTitle({ children, sub }: { children: React.ReactNode, sub
       <h3 className="font-display text-xl font-semibold text-ink dark:text-parchment">{children}</h3>
       {sub && <p className="text-sm text-muted mt-0.5">{sub}</p>}
     </div>
-  )
-}
-
-// Stars
-export function Stars({ count = 3 }: { count?: number }) {
-  return (
-    <span className="text-gold text-sm tracking-tight">
-      {'★'.repeat(Math.min(count, 5))}
-      <span className="opacity-25">{'★'.repeat(5 - Math.min(count, 5))}</span>
-    </span>
-  )
-}
-
-// Animated counter
-export function AnimatedNumber({ value, suffix = '' }: { value: number, suffix?: string }) {
-  return (
-    <motion.span
-      key={value}
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="tabular-nums"
-    >
-      {value?.toLocaleString('fr-FR')}{suffix}
-    </motion.span>
   )
 }
 
