@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore, useThemeStore } from '../../store'
 import { logout } from '../../lib/api'
+import Logo from '../ui/Logo'
 
 export function Header() {
   const { user, clearAuth } = useAuthStore()
@@ -24,10 +25,7 @@ export function Header() {
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group" onClick={() => setMenuOpen(false)}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-light via-gold to-gold-dark flex items-center justify-center
-                          shadow-glow-gold transition-transform group-hover:scale-105 shine-effect">
-            <span className="text-white text-lg">✦</span>
-          </div>
+          <Logo size={40} className="text-gold transition-transform group-hover:scale-105" />
           <div className="flex flex-col">
             <span className="font-display font-bold text-ink dark:text-parchment text-xl leading-none tracking-tight">TripGenie</span>
             <span className="hidden sm:block text-[10px] text-gold-dark dark:text-gold font-bold uppercase tracking-widest mt-1">Voyages sur-mesure</span>
@@ -138,7 +136,7 @@ export function Header() {
                   </>
                 : <Link to="/login" onClick={() => setMenuOpen(false)}
                     className="px-4 py-3 rounded-xl text-sm font-bold bg-gold text-white text-center transition-all">
-                    ✦ Connexion
+                    Connexion
                   </Link>
               }
             </nav>
@@ -186,9 +184,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
-                  <span className="text-white text-sm">✦</span>
-                </div>
+                <Logo size={32} className="text-gold" />
                 <span className="font-display font-bold text-white text-lg">TripGenie</span>
               </div>
               <p className="text-white/40 text-sm leading-relaxed font-light">
