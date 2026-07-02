@@ -87,15 +87,15 @@ function Hero() {
                      bg-gold/10 backdrop-blur-md border border-gold/20 text-gold-light text-xs font-semibold
                      tracking-widest uppercase mb-8 animate-float shadow-glow-gold">
           <span className="animate-pulse-slow">✦</span>
-          Conciergerie Privée
+          Voyages sur-mesure
         </motion.div>
 
         <motion.h1
           initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
           className="font-display text-4xl sm:text-6xl lg:text-[5.5rem] font-bold text-white leading-[1.0] mb-5 drop-shadow-2xl">
-          L'Excellence,
+          Votre voyage,
           <br />
-          <span className="text-gradient-gold italic font-serif font-light">à votre service.</span>
+          <span className="text-gradient-gold italic font-serif font-light">généré sur-mesure.</span>
         </motion.h1>
 
         <motion.p
@@ -137,10 +137,10 @@ function ChatSection() {
               <span className="text-white text-base">✦</span>
             </div>
             <div>
-              <p className="text-sm font-display font-bold text-ink dark:text-parchment leading-none tracking-wide">TripGenie Concierge</p>
+              <p className="text-sm font-display font-bold text-ink dark:text-parchment leading-none tracking-wide">Assistant TripGenie</p>
               <p className="text-[10px] uppercase tracking-widest text-gold mt-1 flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-gold animate-pulse" />
-                À votre écoute
+                En ligne
               </p>
             </div>
           </div>
@@ -263,22 +263,22 @@ function ConceptsVoyage() {
 /* ─────────────── Features (accueil vide) ─────────────── */
 const FEATURES = [
   {
-    img:   'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-    label: 'Hébergements', title: 'Résidences d\'Exception',
-    desc:  'Penthouses, villas privées et suites présidentielles sélectionnées par nos experts.',
-    badge: '5★ & Boutique',
+    img:   'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80',
+    label: 'Hébergements', title: 'Des adresses triées sur le volet',
+    desc:  'Hôtels de charme, villas et appartements sélectionnés selon vos envies et votre budget.',
+    badge: 'Sélection',
   },
   {
-    img:   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80',
-    label: 'Gastronomie', title: 'Tables Étoilées',
-    desc:  'De Paris à Tokyo, nos concierges réservent les tables les plus convoitées du monde.',
-    badge: 'Michelin & Secret',
+    img:   'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80',
+    label: 'Gastronomie', title: 'Les meilleures tables',
+    desc:  'Des bonnes adresses locales aux restaurants réputés, selon la destination et l\'ambiance.',
+    badge: 'Bonnes adresses',
   },
   {
-    img:   'https://images.unsplash.com/photo-1519690889869-e705e59f72e1?auto=format&fit=crop&w=800&q=80',
-    label: 'Nightlife', title: 'Accès VIP Exclusifs',
-    desc:  'Clubs privés, soirées sur invitation et casinos fermés au grand public.',
-    badge: 'Sur Liste',
+    img:   'https://images.unsplash.com/photo-1563784462029-e9cc28281850?auto=format&fit=crop&w=800&q=80',
+    label: 'Nightlife', title: 'La destination, la nuit',
+    desc:  'Clubs, bars et soirées incontournables pour vivre la ville après le coucher du soleil.',
+    badge: 'Sorties',
   },
 ]
 
@@ -370,10 +370,10 @@ export default function Home() {
                     <motion.div key={i}
                       initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 + i * 0.12 }}
-                      className="group relative h-[260px] sm:h-[340px] rounded-2xl overflow-hidden">
+                      className="group relative h-[260px] sm:h-[340px] rounded-2xl overflow-hidden ring-1 ring-gold/20 shadow-2xl shadow-black/50">
                       <img src={f.img} alt={f.title}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-transparent" />
                       <div className="absolute top-4 left-4">
                         <span className="text-[9px] uppercase tracking-widest font-bold text-gold bg-ink/60 backdrop-blur-sm px-3 py-1 rounded-full border border-gold/20">
                           {f.badge}
