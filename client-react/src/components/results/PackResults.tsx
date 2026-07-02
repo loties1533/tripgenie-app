@@ -293,7 +293,7 @@ function ActivityCard({ activity }: { activity: any }) {
 
 // MAIN PACK RESULTS
 const TABS = [
-  { id: 'overview',    label: 'Aperçu',      icon: '✦' },
+  { id: 'overview',    label: 'Aperçu',      icon: '🧭' },
   { id: 'hotels',      label: 'Hôtels',      icon: '🏨' },
   { id: 'flights',     label: 'Vols',        icon: '✈' },
   { id: 'itinerary',   label: 'Temps forts',  icon: '📅' },
@@ -498,7 +498,7 @@ export default function PackResults() {
                     initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
                     className="bg-sage/10 text-sage text-[10px] px-2 py-0.5 rounded-full border border-sage/20 font-bold uppercase tracking-widest"
                   >
-                    ✦ Sauvegardé
+                    ✓ Sauvegardé
                   </motion.span>
                 )}
               </div>

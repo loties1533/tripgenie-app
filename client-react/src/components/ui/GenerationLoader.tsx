@@ -6,7 +6,7 @@ const STEPS = [
   { icon: '🏨', label: 'Sélection des hôtels',       duration: 8000  },
   { icon: '🎟️', label: 'Découverte des événements',  duration: 8000  },
   { icon: '🍽️', label: 'Meilleurs restaurants',      duration: 6000  },
-  { icon: '✦',  label: 'Assemblage de votre pack',    duration: 12000 },
+  { icon: '📦',  label: 'Assemblage de votre pack',    duration: 12000 },
   { icon: '✓',  label: 'Finalisation',                duration: 8000  },
 ]
 
@@ -144,7 +144,7 @@ export default function GenerationLoader({ destination }: { destination?: string
             <span>Progression</span>
             <span>{elapsed}s</span>
           </div>
-          <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div className="h-1.5 rounded-full bg-ink/10 dark:bg-white/10 overflow-hidden">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-gold-light to-gold"
               animate={{ width: `${progress}%` }}

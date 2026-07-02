@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useChatStore, useSearchStore } from '../../store'
 import { chatOnboarding, getDestinations } from '../../lib/api'
+import Logo from '../ui/Logo'
 
 // ---- FIX 3 : date locale — évite le décalage UTC/local pour les users UTC- ----
 // toISOString() retourne UTC ; pour UTC-5 à 23h30, ça donne "demain".
@@ -42,7 +43,7 @@ function buildRecapMessage(data: Record<string, unknown>): string {
   const duration  = data.duration
     ? `${data.duration} jour${(data.duration as number) > 1 ? 's' : ''}`
     : '—'
-  return `✦ Récap de votre voyage :\n• ${profile} — ${travelers}\n• Budget : ${budget}\n• Départ : ${departure}, durée : ${duration}`
+  return `Récap de votre voyage :\n• ${profile} — ${travelers}\n• Budget : ${budget}\n• Départ : ${departure}, durée : ${duration}`
 }
 
 // QUIZ STEPS
@@ -125,7 +126,7 @@ function Message({ msg, onChipClick }: { msg: any; onChipClick?: (label: string)
     >
       {isBot && (
         <div className="w-7 h-7 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-1">
-          <span className="text-[13px]">✦</span>
+          <Logo size={15} className="text-gold" />
         </div>
       )}
       <div className={`max-w-[78%] flex flex-col gap-2 ${isBot ? 'items-start' : 'items-end'}`}>
@@ -198,7 +199,7 @@ function InlineInput({
               min={today}
               value={dateRange.departure}
               onChange={e => setDateRange({ ...dateRange, departure: e.target.value })}
-              className="bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-parchment outline-none transition-colors w-44"
+              className="bg-ink/5 dark:bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-ink dark:text-parchment outline-none transition-colors w-44"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -210,7 +211,7 @@ function InlineInput({
               min={dateRange.departure || today}
               value={dateRange.return_date}
               onChange={e => setDateRange({ ...dateRange, return_date: e.target.value })}
-              className="bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-parchment outline-none transition-colors w-44"
+              className="bg-ink/5 dark:bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-ink dark:text-parchment outline-none transition-colors w-44"
             />
           </div>
         </>
@@ -226,7 +227,7 @@ function InlineInput({
             onChange={e => setTravelersCount(
               e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1)
             )}
-            className="bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-parchment outline-none transition-colors w-32"
+            className="bg-ink/5 dark:bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-ink dark:text-parchment outline-none transition-colors w-32"
           />
         </div>
       ) : (
@@ -243,7 +244,7 @@ function InlineInput({
               onChange={e => setBudgetAmount(
                 e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1)
               )}
-              className="bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-parchment outline-none transition-colors w-32"
+              className="bg-ink/5 dark:bg-white/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-ink dark:text-parchment outline-none transition-colors w-32"
             />
             <span className="text-gold text-sm font-semibold">€</span>
           </div>
@@ -649,7 +650,7 @@ export default function ChatWidget() {
                 </button>
                 <button onClick={handleConfirm} disabled={isTyping}
                   className="chip text-sm hover:border-gold/60 hover:bg-gold/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-                  ✦ C'est parfait →
+                  C'est parfait →
                 </button>
               </motion.div>
             ) : (
@@ -663,7 +664,7 @@ export default function ChatWidget() {
             <motion.div className="flex gap-2 justify-start"
               initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
               <div className="w-7 h-7 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-[13px]">✦</span>
+                <Logo size={15} className="text-gold" />
               </div>
               <div className="bubble-bot"><TypingDots /></div>
             </motion.div>

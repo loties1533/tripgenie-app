@@ -14,7 +14,6 @@ const MODES = [
   { value: 'relax',    label: '🌿 Détente' },
   { value: 'surprise', label: '🎁 Surprise' },
 ]
-const CURRENCIES = ['EUR', 'USD', 'GBP', 'CHF', 'CAD']
 const INTERESTS  = ['gastronomie', 'culture', 'nightlife', 'nature', 'shopping', 'sport', 'plage', 'histoire']
 
 export default function PreferencesPage() {
@@ -25,7 +24,6 @@ export default function PreferencesPage() {
 
   const [homeCity, setHomeCity]   = useState('')
   const [mode, setMode]           = useState('party')
-  const [currency, setCurrency]   = useState('EUR')
   const [interests, setInterests] = useState<string[]>([])
 
   // Pas connecté → login
@@ -41,7 +39,6 @@ export default function PreferencesPage() {
         if (preferences) {
           setHomeCity(preferences.home_city ?? '')
           setMode(preferences.default_mode ?? 'party')
-          setCurrency(preferences.currency ?? 'EUR')
           setInterests(preferences.preferred_prefs ?? [])
         }
       })
@@ -58,7 +55,6 @@ export default function PreferencesPage() {
       await savePreferences({
         home_city:       homeCity,
         default_mode:    mode,
-        currency,
         preferred_prefs: interests,
       })
       toast.success('Préférences enregistrées')
@@ -105,19 +101,11 @@ export default function PreferencesPage() {
                         className={`py-2.5 rounded-xl text-sm font-medium border transition-all
                           ${mode === m.value
                             ? 'bg-gold text-white border-gold shadow-glow-gold'
-                            : 'bg-white/5 border-white/10 text-muted hover:border-gold/40'}`}>
+                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40 dark:bg-white/5 dark:border-white/10'}`}>
                         {m.label}
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Devise */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Devise</label>
-                  <select value={currency} onChange={e => setCurrency(e.target.value)} className={classeInput}>
-                    {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
                 </div>
 
                 {/* Centres d'intérêt */}
@@ -129,7 +117,7 @@ export default function PreferencesPage() {
                         className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all capitalize
                           ${interests.includes(i)
                             ? 'bg-sage/30 border-sage text-sage'
-                            : 'bg-white/5 border-white/10 text-muted hover:border-gold/40'}`}>
+                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40 dark:bg-white/5 dark:border-white/10'}`}>
                         {i}
                       </button>
                     ))}

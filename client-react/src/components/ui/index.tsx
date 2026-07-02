@@ -98,14 +98,14 @@ export function AnimatedNumber({ value, suffix = '' }: { value: number, suffix?:
   )
 }
 
-// Mode badge
+// Mode badge — palette unique (couleur distincte par mode, lisible en clair ET sombre)
 const MODE_LABELS = {
-  party:   { label: 'Fête',      emoji: '🎉', cls: 'bg-coral/10 text-coral' },
-  student: { label: 'Étudiant',  emoji: '🎒', cls: 'bg-sky/10 text-sky' },
-  luxury:  { label: 'Luxe',      emoji: '💎', cls: 'bg-gold/10 text-gold-dark' },
-  group:   { label: 'Groupe',    emoji: '👥', cls: 'bg-sage/10 text-sage' },
-  relax:   { label: 'Détente',   emoji: '🌊', cls: 'bg-sky/10 text-sky' },
-  surprise:{ label: 'Surprise',  emoji: '✨', cls: 'bg-gold/10 text-gold-dark' },
+  party:   { label: 'Fête',      emoji: '🥂', cls: 'bg-rose-500/15 text-rose-600 dark:text-rose-400' },
+  student: { label: 'Étudiant',  emoji: '🎒', cls: 'bg-sky-500/15 text-sky-600 dark:text-sky-400' },
+  luxury:  { label: 'Luxe',      emoji: '💎', cls: 'bg-amber-500/15 text-amber-600 dark:text-amber-400' },
+  group:   { label: 'Groupe',    emoji: '👥', cls: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
+  relax:   { label: 'Détente',   emoji: '🌿', cls: 'bg-teal-500/15 text-teal-600 dark:text-teal-400' },
+  surprise:{ label: 'Surprise',  emoji: '🎁', cls: 'bg-violet-500/15 text-violet-600 dark:text-violet-400' },
 }
 
 export function ModeBadge({ mode }: { mode: string }) {

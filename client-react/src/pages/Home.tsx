@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { PageLayout } from '../components/layout'
 import ChatWidget from '../components/chat/ChatWidget'
 import PackResults from '../components/results/PackResults'
+import Logo from '../components/ui/Logo'
 import { GenerationLoader } from '../components/ui'
 import { useSearchStore, useChatStore, useAuthStore } from '../store'
 import { getCityPhoto, getPreferences, generatePack } from '../lib/api'
@@ -86,7 +87,7 @@ function Hero() {
           className="inline-flex items-center gap-2 px-5 py-2 rounded-full
                      bg-gold/10 backdrop-blur-md border border-gold/20 text-gold-light text-xs font-semibold
                      tracking-widest uppercase mb-8 animate-float shadow-glow-gold">
-          <span className="animate-pulse-slow">✦</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-gold-light animate-pulse-slow" />
           Voyages sur-mesure
         </motion.div>
 
@@ -128,13 +129,30 @@ function ChatSection() {
 
       <div className="absolute inset-0 bg-gold/10 blur-[80px] rounded-[3rem] pointer-events-none" />
 
+      {/* Pitch d'intro — explique le concept 2 valeurs sûres + 1 pépite */}
+      <div className="relative mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {[
+          { n: '1', t: 'Décrivez votre voyage', d: 'En une phrase, ou laissez-vous guider par le chat.' },
+          { n: '2', t: 'Recevez 3 destinations', d: '2 valeurs sûres + 1 pépite plus confidentielle, selon votre budget.' },
+          { n: '3', t: 'On génère tout', d: 'Vols, hôtels, activités, budget : votre pack complet sur-mesure.' },
+        ].map(e => (
+          <div key={e.n} className="glass rounded-xl p-4 border border-gold/10">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-6 h-6 rounded-full bg-gold/15 text-gold text-xs font-bold flex items-center justify-center flex-shrink-0">{e.n}</span>
+              <p className="text-sm font-semibold text-ink dark:text-parchment leading-tight">{e.t}</p>
+            </div>
+            <p className="text-xs text-muted leading-relaxed">{e.d}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="relative glass-premium rounded-[2rem] overflow-hidden shadow-2xl border-t border-gold/30"
            style={{ minHeight: 460 }}>
         <div className="flex items-center justify-between px-5 sm:px-8 py-4 border-b border-gold/10
                         bg-gradient-to-b from-white/40 to-transparent dark:from-ink-light/40">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-glow-gold">
-              <span className="text-white text-base">✦</span>
+              <Logo size={20} className="text-white" />
             </div>
             <div>
               <p className="text-sm font-display font-bold text-ink dark:text-parchment leading-none tracking-wide">Assistant TripGenie</p>
@@ -276,7 +294,7 @@ const FEATURES = [
   },
   {
     img:   'https://images.unsplash.com/photo-1563784462029-e9cc28281850?auto=format&fit=crop&w=800&q=80',
-    label: 'Nightlife', title: 'La destination, la nuit',
+    label: 'Vie nocturne', title: 'Les meilleures soirées',
     desc:  'Clubs, bars et soirées incontournables pour vivre la ville après le coucher du soleil.',
     badge: 'Sorties',
   },
