@@ -42,14 +42,14 @@ function buildRecapMessage(data: Record<string, unknown>): string {
   const duration  = data.duration
     ? `${data.duration} jour${(data.duration as number) > 1 ? 's' : ''}`
     : '—'
-  return `✦ Récap de votre escapade :\n• ${profile} — ${travelers}\n• Budget : ${budget}\n• Départ : ${departure}, durée : ${duration}`
+  return `✦ Récap de votre voyage :\n• ${profile} — ${travelers}\n• Budget : ${budget}\n• Départ : ${departure}, durée : ${duration}`
 }
 
 // QUIZ STEPS
 const QUIZ_STEPS = [
   {
     key:      'occasion',
-    question: "Quelle est l'inspiration de cette escapade ?",
+    question: "Quelle est l'occasion de ce voyage ?",
     chips: [
       { label: 'Duo Romantique 💑',    data: { mode: 'relax',   profile: 'couple'  } },
       { label: 'Entre Amis 🥂',       data: { mode: 'party',   profile: 'amis'    } },
@@ -70,7 +70,7 @@ const QUIZ_STEPS = [
   },
   {
     key:      'budget',
-    question: 'Quel budget souhaitez-vous allouer à cette escapade ?',
+    question: 'Quel budget pour ce voyage ?',
     chips: [
       { label: 'Dès 1 500€',         data: { budget: 1500  } },
       { label: 'Environ 5 000€',     data: { budget: 5000  } },
@@ -367,7 +367,7 @@ export default function ChatWidget() {
       setTimeout(() => {
         addMessage({
           role: 'bot',
-          text: 'Bienvenue chez TripGenie. ✦ Je suis votre Concierge Privé. Comment souhaitez-vous orchestrer votre prochaine escapade ?',
+          text: 'Bienvenue sur TripGenie. Décrivez votre voyage en une phrase, je m\'occupe du reste.',
           chips: [],
         })
       }, 500)
@@ -614,11 +614,11 @@ export default function ChatWidget() {
             className="flex flex-col gap-2 pl-9">
             <button onClick={() => handleModeSelect('quiz')}
               className="chip text-sm text-left hover:border-gold/60 hover:bg-gold/10 transition-all">
-              🧭 Définir mes préférences signature (Guidé)
+              Définir mes préférences (guidé)
             </button>
             <button onClick={() => handleModeSelect('freeform')}
               className="chip text-sm text-left hover:border-gold/60 hover:bg-gold/10 transition-all">
-              ✍️ Confier mon projet d'escapade (Libre)
+              Décrire mon voyage (libre)
             </button>
           </motion.div>
         )}
@@ -681,7 +681,7 @@ export default function ChatWidget() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={onKey}
-              placeholder="Confiez-moi vos envies de voyage..."
+              placeholder="Décrivez votre voyage en une phrase..."
               rows={1}
               className="flex-1 resize-none bg-transparent border-none
                          px-4 py-3 text-[15px] text-ink dark:text-parchment placeholder:text-muted/60
@@ -704,7 +704,6 @@ export default function ChatWidget() {
                 : <SendIcon />}
             </motion.button>
           </div>
-          <p className="text-[11px] text-muted/60 mt-1.5 text-center">Entrée pour envoyer · Shift+Entrée pour saut de ligne</p>
         </div>
       )}
     </div>

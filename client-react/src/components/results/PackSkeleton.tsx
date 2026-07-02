@@ -90,7 +90,7 @@ export default function PackSkeleton() {
 
         {/* Badge */}
         <p className="text-[10px] uppercase tracking-[0.4em] text-gold font-semibold mb-6">
-          TripGenie Concierge — En cours d'orchestration
+          TripGenie — Génération en cours
         </p>
 
         {/* Texte principal qui change */}
