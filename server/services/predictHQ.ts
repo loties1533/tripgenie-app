@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import type { TravelMode, ActivityLinks } from '../lib/types.js';
+import type { TravelMode } from '../lib/types.js';
 import type { EventSearchResult } from './smartSearch.js';
 import { encoderURL } from '../lib/url.js';
 
@@ -33,13 +33,6 @@ interface EvenementPredictHQ {
   rank?: number;
 }
 
-
-function liensEvenement(title: string, city: string): ActivityLinks {
-  return {
-    viator:       `https://www.viator.com/search?q=${encoderURL(title + ' ' + city)}`,
-    getyourguide: `https://www.getyourguide.fr/s/?q=${encoderURL(title + ' ' + city)}`,
-  };
-}
 
 /** Étape 1 : récupère l'identifiant de lieu PredictHQ pour une ville */
 async function obtenirIdLieu(city: string): Promise<string | null> {
@@ -119,8 +112,6 @@ export async function predictHQEventsSearch(
       start:       e.start.slice(0, 10),
       venue:       e.entities?.find(en => en.type === 'venue')?.name ?? city,
       description: e.description ?? `${e.category} à ${city}`,
-      booking_url: null,
-      links:       liensEvenement(e.title, city),
     }));
 
   } catch (err) {

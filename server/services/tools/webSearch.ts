@@ -12,7 +12,7 @@ interface ReponseTavily {
   results: ResultatTavily[];
 }
 
-export async function searchWeb(query: string): Promise<string> {
+export async function searchWeb(query: string, maxResults = 3): Promise<string> {
   if (!CLE_TAVILY) {
     console.warn('⚠️ Recherche Web ignorée (Pas de clé Tavily).');
     return '';
@@ -33,7 +33,7 @@ export async function searchWeb(query: string): Promise<string> {
         include_answer: false,
         include_images: false,
         include_raw_content: false,
-        max_results: 3,
+        max_results: maxResults,
         include_domains: [],
         exclude_domains: [],
       }),

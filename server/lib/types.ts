@@ -34,10 +34,6 @@ export interface HotelLinks {
   google: string;
 }
 
-export interface ActivityLinks {
-  viator: string;
-  getyourguide: string;
-}
 
 export interface Hotel {
   name: string;
@@ -83,8 +79,9 @@ export interface Activite {
   price_range?: string;
   best_time?: string;
   booking_url?: string;  // lien carte (Google Maps) — localisation du lieu
-  reserve_url?: string;  // lien de réservation réel (plateforme de booking)
-  links?: ActivityLinks;
+  // Vraie URL de réservation (billetterie / site officiel) posée par le
+  // résolveur unique (services/liens.ts) — null si aucune URL vérifiée.
+  reservation_url?: string | null;
 }
 
 export interface Evenement {
@@ -93,8 +90,8 @@ export interface Evenement {
   start: string;
   venue: string;
   description: string;
-  booking_url?: string | null;
-  links?: ActivityLinks;
+  // Vraie URL de réservation — même résolveur unique que les activités.
+  reservation_url?: string | null;
 }
 
 export interface RepartitionBudget {

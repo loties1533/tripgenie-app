@@ -30,6 +30,67 @@ interface ResultatDestinations {
   isMock?: boolean;
 }
 
+// Description courte de la « vibe » de chaque mode → injectée dans la requête
+// web ET le prompt pour cadrer l'ambiance recherchée.
+const VIBE_PAR_MODE: Record<string, string> = {
+  party:    'Destinations reconnues pour la fête : beach clubs, clubs, festivals, vie nocturne intense.',
+  luxury:   'Destinations ultra-luxe : palaces, plages privées, gastronomie étoilée, exclusivité.',
+  relax:    'Destinations calmes et ressourçantes : nature, plages tranquilles, bien-être.',
+  student:  'Destinations abordables et animées : bon rapport qualité-prix, ambiance jeune.',
+  group:    'Destinations conviviales pour un groupe : accessibles, variées, faciles à organiser.',
+  surprise: 'Destinations originales et méconnues qui sortent des sentiers battus.',
+};
+
+// Vivier LARGE par mode = EXEMPLES de NIVEAU (pas une liste figée de 3). On en
+// tire 8 au sort à chaque génération → le LLM voit un sous-ensemble différent
+// à chaque fois → variété réelle, tout en garantissant que le canon du mode
+// (ex : Monaco/Marbella en luxe) puisse remonter. Le prompt lui demande
+// explicitement de S'EN INSPIRER pour le niveau, sans les recopier, et d'en sortir.
+const VIVIER_PAR_MODE: Record<string, string[]> = {
+  party: [
+    'Ibiza', 'Mykonos', 'Ayia Napa', 'Bodrum', 'Novalja (Zrće)', 'Hvar',
+    'Tel-Aviv', 'Berlin', 'Amsterdam', 'Bangkok', 'Koh Phangan', 'Cancún',
+    'Tulum', 'Miami', 'Rio de Janeiro', 'Barcelone', 'Malte', 'Split',
+  ],
+  luxury: [
+    'Monaco', 'Marbella', 'Saint-Tropez', 'Courchevel', 'Portofino',
+    'Lac de Côme', 'Capri', 'Positano', 'Dubaï', 'Abu Dhabi', 'Maldives',
+    'Bora-Bora', 'Saint-Barthélemy', 'Aspen', 'Gstaad', 'Costa Smeralda',
+    'Seychelles', 'Santorin',
+  ],
+  relax: [
+    'Bali (Ubud)', 'Maldives', 'Seychelles', 'Algarve', 'Crète', 'Madère',
+    'Açores', 'Zanzibar', 'Toscane', 'Provence', 'Kerala', 'Sri Lanka',
+    'Île Maurice', 'Corfou', 'Formentera', 'Costa Rica', 'Amalfi', 'Bali',
+  ],
+  student: [
+    'Lisbonne', 'Budapest', 'Prague', 'Cracovie', 'Valence', 'Split',
+    'Tbilissi', 'Sofia', 'Bucarest', 'Naples', 'Porto', 'Thessalonique',
+    'Belgrade', 'Kotor', 'Tirana', 'Athènes', 'Marrakech', 'Barcelone',
+  ],
+  group: [
+    'Barcelone', 'Lisbonne', 'Amsterdam', 'Berlin', 'Split', 'Crète',
+    'Malte', 'Palma de Majorque', 'Ténérife', 'Athènes', 'Budapest',
+    'Naples', 'Valence', 'Porto', 'Dubrovnik', 'Nice', 'Séville', 'Prague',
+  ],
+  surprise: [
+    'Tbilissi', 'Erevan', 'Tirana', 'Kotor', 'Ohrid', 'Matera',
+    'Gjirokastër', 'Sarajevo', 'Plovdiv', 'Oaxaca', 'Luang Prabang',
+    'Kochi', 'Salvador de Bahia', 'Zanzibar', 'Tromsø', 'Îles Féroé',
+    'Batoumi', 'León (Nicaragua)',
+  ],
+};
+
+/** Mélange (Fisher-Yates) — variété réelle d'une génération à l'autre. */
+function melanger<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export async function suggestDestinations({
   mode, profile, interests, budget, travelers, duration, origin, departure,
 }: ParamsSuggestionDestinations): Promise<ResultatDestinations> {
@@ -40,35 +101,40 @@ export async function suggestDestinations({
       ? new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(dateDepart)
       : 'actuellement';
 
+    // Le MODE oriente en premier. On tire au sort 8 exemples du vivier du mode
+    // → un sous-ensemble différent à chaque génération (variété) que le LLM
+    // utilise comme REPÈRE DE NIVEAU sans les recopier (cf. prompt).
+    const cleMode = mode ?? '';
+    const exemplesMode = melanger(VIVIER_PAR_MODE[cleMode] ?? []).slice(0, 8);
     let query = `Meilleures destinations ${mode} pour ${profile} en ${moisDepart}. `;
-    if (mode === 'party') {
-      query += `Destinations reconnues mondialement pour la fête : beach clubs, clubs de nuit, festivals, vie nocturne intense. Exemples : Ibiza, Mykonos, Tulum, Miami, Bangkok, Phuket, Bali, Barcelone, Monaco, Hvar, Zrce, Marbella, Rimini, Chypre, Dubaï. `;
-    } else if (mode === 'luxury') {
-      query += `Destinations ultra-luxe : Saint-Tropez, Monaco, Maldives, Dubaï, Bora Bora, Santorini, Amalfi, Positano, Capri. `;
-    } else if (mode === 'relax') {
-      query += `Destinations calmes et ressourçantes : Bali, Thaïlande, Îles grecques, Canaries, Madère, Açores, Corse, Sardaigne. `;
-    } else if (mode === 'student') {
-      query += `Destinations pas chères et animées : Prague, Budapest, Lisbonne, Porto, Bangkok, Hanoï, Cracovie, Bucarest. `;
-    }
+    query += (VIBE_PAR_MODE[cleMode] ?? '') + ' ';
     query += `Budget total ${budget}€ pour ${travelers} personnes. Intérêts: ${interetsStr}.`;
 
     const contexteWeb = await searchWeb(query);
     const budgetParPersonne = budget && travelers ? Math.round(budget / travelers) : 0;
 
     const trancheBudget = budgetParPersonne >= 3000
-      ? `BUDGET PREMIUM (${budgetParPersonne}€/pers) : le budget permet des vols long-courrier + hôtels haut de gamme. Propose des destinations qui correspondent à CE NIVEAU DE BUDGET — raisonne par rapport au coût réel de la vie, du vol et de l'hébergement dans chaque destination. Varie les continents. La 3ème destination doit être une pépite originale que peu de gens connaissent.`
+      ? `BUDGET PREMIUM (${budgetParPersonne}€/pers) : le budget permet des vols long-courrier + hôtels haut de gamme. Propose des destinations qui correspondent à CE NIVEAU DE BUDGET — raisonne par rapport au coût réel de la vie, du vol et de l'hébergement dans chaque destination. Varie les continents.`
       : budgetParPersonne >= 1500
-      ? `BUDGET CONFORTABLE (${budgetParPersonne}€/pers) : le budget couvre un vol moyen-courrier + bon hébergement, ou un long-courrier accessible. Adapte tes suggestions au coût réel de chaque destination. La 3ème destination doit surprendre.`
-      : `BUDGET SERRÉ (${budgetParPersonne}€/pers) : privilégie des destinations où ce budget est suffisant pour bien vivre — raisonne par rapport au coût de la vie local et au prix des vols depuis ${origin ?? 'France'}. La 3ème destination doit être une vraie pépite peu chère et méconnue.`;
+      ? `BUDGET CONFORTABLE (${budgetParPersonne}€/pers) : le budget couvre un vol moyen-courrier + bon hébergement, ou un long-courrier accessible. Adapte tes suggestions au coût réel de chaque destination.`
+      : `BUDGET SERRÉ (${budgetParPersonne}€/pers) : privilégie des destinations où ce budget est suffisant pour bien vivre — raisonne par rapport au coût de la vie local et au prix des vols depuis ${origin ?? 'France'}.`;
 
     const reponseIABrute = await callAI(
       `CONTEXTE WEB RÉCENT : ${contexteWeb}
       MISSION : Suggère 3 destinations parfaites pour un voyage en ${moisDepart}.
       PROFIL : ${profile ?? 'voyageur'}, MODE : ${mode}.
+      INTÉRÊTS DU VOYAGEUR : ${interetsStr} — chaque destination doit permettre de les vivre RÉELLEMENT (ex. « plage » cochée → destination balnéaire, pas une ville sans littoral).
       BUDGET TOTAL : ${budget}€ pour ${travelers ?? 2} personne(s) = ${budgetParPersonne}€/personne.
 
       ${trancheBudget}
-      STRATÉGIE : propose des destinations RECONNUES pour ce mode de voyage. Pour party = vraies destinations fête (beach clubs, clubs, festivals). Varie les continents mais reste cohérent avec le mode.
+      NIVEAU / VIBE DE RÉFÉRENCE pour le mode ${mode} (exemples NON exhaustifs, juste pour caler le bon standing — tu PEUX et DOIS proposer d'autres lieux équivalents, ne recopie pas cette liste bêtement) : ${exemplesMode.join(', ')}.
+      STRATÉGIE : propose des destinations RECONNUES pour ce mode, au niveau des exemples ci-dessus, cohérentes avec le budget et les intérêts. Varie d'une génération à l'autre : ne retombe pas toujours sur les 2 mêmes évidences.
+
+      RÈGLE DE DIVERSITÉ (obligatoire) : les 3 destinations doivent être dans 3 PAYS DIFFÉRENTS. INTERDIT de proposer 3 villes du même pays (ex : Bangkok + Phuket + Koh Samui = REFUSÉ).
+
+      STRUCTURE DES 3 DESTINATIONS (à respecter dans TOUS les budgets et TOUS les modes) :
+      - Destinations 1 et 2 = des valeurs sûres, évidentes et reconnues, au niveau des exemples de référence, cohérentes avec le mode ${mode} et le budget.
+      - Destination 3 = une PÉPITE : une destination que la plupart des voyageurs ne citeraient PAS spontanément, et qui NE figure PAS dans les exemples de référence ci-dessus. INTERDIT pour cette 3ème : capitales mondiales et lieux iconiques archi-célèbres (Paris, Rome, Bali, Mykonos, Saint-Tropez, lac de Côme… = REFUSÉS ici, ils sont trop évidents). Cherche la scène qui MONTE : le spot émergent dont parlent les initiés, encore abordable ou préservé — cohérent avec le mode ${mode}, les intérêts et le budget. Donne-lui un match_score légèrement plus bas que les 2 premières.
 
       FORMAT JSON STRICT :
       {"destinations": [{"city": "Nom", "country": "Pays", "tagline": "Accroche courte", "reason": "Raison MAX 8 mots", "budget_estimate": "~${budgetParPersonne}€/pers", "match_score": 95}]}

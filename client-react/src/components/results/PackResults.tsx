@@ -19,6 +19,16 @@ const TagBadge = ({ text }: { text?: string }) => {
   )
 }
 
+// ---- Lien de réservation UNIQUE (events + activités) ----
+// Source unique de vérité côté front : la vraie URL posée par le résolveur
+// serveur (services/liens.ts), sinon repli recherche Google. Un seul endroit,
+// un seul fallback — remplace les 2 anciennes cascades booking_url/reserve_url/links.
+function lienReservation(item: any, destination: string): string {
+  if (item?.reservation_url) return item.reservation_url
+  const q = encodeURIComponent(`${item?.name || item?.title || ''} ${destination || ''} réservation`)
+  return `https://www.google.com/search?q=${q}`
+}
+
 // ---- Flight card ----
 function FlightCard({ flight, packId, destination }: { flight: any; packId: string; destination: string }) {
   const isReturn  = flight.type === 'return'
@@ -174,11 +184,15 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
   const colors  = ['#C9A84C', '#5A7A5E', '#3A6B8A', '#C0634A', '#7A6E62', '#8B6914']
   // « divers » = budget non affecté aux postes réalistes → libellé « Marge / imprévus ».
   const labels: Record<string, string> = { divers: 'Marge / imprévus' }
-  const data    = entries.map(([k, v], i) => ({
-    name:  labels[k] ?? k.charAt(0).toUpperCase() + k.slice(1),
-    value: parseInt(v as string) || 0,
-    color: colors[i % colors.length]
-  }))
+  // Tri décroissant : le donut se lit du plus gros au plus petit poste,
+  // et la légende (avec %) correspond visuellement aux arcs.
+  const data    = entries
+    .map(([k, v], i) => ({
+      name:  labels[k] ?? k.charAt(0).toUpperCase() + k.slice(1),
+      value: parseInt(v as string) || 0,
+      color: colors[i % colors.length]
+    }))
+    .sort((a, b) => b.value - a.value)
   const total = breakdown.total || '—'
 
   return (
@@ -203,7 +217,10 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
                 <span className="text-sm text-muted capitalize">{d.name}</span>
               </div>
-              <span className="text-sm font-medium text-ink dark:text-parchment">{d.value}€</span>
+              <span className="text-sm font-medium text-ink dark:text-parchment">
+                {d.value.toLocaleString('fr-FR')}€
+                {totalNum > 0 && <span className="text-muted font-normal"> · {Math.round((d.value / totalNum) * 100)}%</span>}
+              </span>
             </div>
           ))}
         </div>
@@ -214,9 +231,7 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
 
 // ---- Event card ----
 function EventCard({ event, destination }: { event: any; destination: string }) {
-  const query = encodeURIComponent(`${event.name || event.title || ''} ${destination || ''}`)
-  const bookingUrl = event.booking_url || event.links?.viator || event.links?.getyourguide
-    || `https://www.getyourguide.fr/s/?q=${query}`
+  const bookingUrl = lienReservation(event, destination)
 
   return (
     <div className="flex gap-3 p-3 glass rounded-xl">
@@ -388,7 +403,7 @@ export default function PackResults() {
             📍 Carte
           </a>
           <a
-            href={activity.reserve_url || activity.links?.getyourguide || activity.links?.viator || `https://www.getyourguide.fr/s/?q=${encodeURIComponent((activity.name || activity.title) + ' ' + donneesPack.destination)}`}
+            href={lienReservation(activity, donneesPack.destination)}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[11px] font-semibold text-white bg-gold hover:bg-gold-dark px-4 py-1.5 rounded-lg transition-colors shadow-glow-gold hover:shadow-none flex items-center gap-1.5"

@@ -246,13 +246,9 @@ export function construireUrlHotel(
   return `https://www.booking.com/searchresults.html?${params.toString()}`;
 }
 
-// lien de booking réel, pas une carte Google Maps
-export function construireUrlActivite(name: string, city: string): string {
-  // N'ajoute la ville que si le nom ne la contient pas déjà (évite "Nobu Maldives Maldives").
-  const requete = name.toLowerCase().includes(city.toLowerCase()) ? name : `${name} ${city}`;
-  // Google Search : plus fiable que GYG pour trouver le vrai site d'un lieu nommé.
-  return `https://www.google.com/search?q=${encodeURIComponent(requete + ' réservation')}`;
-}
+// NB : plus de constructeur d'URL de réservation ici. Les vraies URLs sont
+// posées par le résolveur unique (services/liens.ts) ; le repli Google est
+// géré à UN seul endroit, côté front (lienReservation).
 
 // 4. transformerVols — mapping vols réels → Pack['flights']
 
@@ -391,8 +387,7 @@ export function transformerActivites(
       duration:    '2-3h',
       price:       'Variable',
       best_time:   category === 'Nightlife' ? 'Soir' : 'Journée',
-      booking_url,                                  // bouton « Carte » → localisation Google Maps
-      reserve_url: construireUrlActivite(name, dest), // bouton « Réserver » → plateforme de booking
+      booking_url,   // bouton « Carte » (Google Maps) — « Réserver » posé plus tard par le résolveur
     };
   });
 }
@@ -485,6 +480,7 @@ export async function assemblerPack({
   const hebergementBrut = (budgetBreakdown as Pack['budget_breakdown'] & { _hebergRaw: number })._hebergRaw;
 
   // ── 5. Mapping événements ─────────────────────────────────────────────────
+  // Pas de lien ici : reservation_url est posé ensuite par le résolveur unique.
   const donneesEvenements = events?.length
     ? events.slice(0, 3).map(e => ({
         title:       e.title,
@@ -492,8 +488,6 @@ export async function assemblerPack({
         start:       e.start || 'Pendant votre séjour',
         venue:       e.venue || 'Centre ville',
         description: e.description || '',
-        booking_url: e.booking_url ?? null,
-        links:       e.links ?? undefined,
       }))
     : [{ title: `Soirée à ${dest}`, category: 'Nightlife', start: 'Pendant votre séjour', venue: 'Centre ville', description: 'Animation locale garantie' }];
 
