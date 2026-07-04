@@ -1,12 +1,11 @@
 import { searchWeb } from './tools/webSearch.js';
 import { callAI, parseJSON } from './claude/index.js';
 import { predictHQEventsSearch } from './predictHQ.js';
-import type { TravelMode, HotelLinks, ActivityLinks } from '../lib/types.js';
+import type { TravelMode, HotelLinks } from '../lib/types.js';
 import { encoderURL } from '../lib/url.js';
 
-// NB : les liens de VOL ne sont plus fabriqués ici. transformerVols (pack.ts)
-// les reconstruit systématiquement via construireLiensVol (IATA + dates + pax) ;
-// l'ancien liensVol posait un volIA.links jamais lu = code mort → supprimé.
+// NB : les liens de VOL ne sont plus fabriqués ici — transformerVols (pack.ts)
+// les reconstruit via construireLiensVol (IATA + dates + pax).
 
 function liensHotel(hotelName: string, city: string): HotelLinks {
   // N'ajoute pas la ville si elle est déjà dans le nom (LLM inclut souvent "Mandarin Oriental, Miami")
@@ -16,14 +15,6 @@ function liensHotel(hotelName: string, city: string): HotelLinks {
   return {
     booking: `https://www.booking.com/searchresults.html?ss=${encoderURL(termeRecherche)}`,
     google:  `https://www.google.com/travel/hotels/${encoderURL(city)}?q=${encoderURL(hotelName)}`,
-  };
-}
-
-function liensActivite(activityName: string, city: string): ActivityLinks {
-  return {
-    // Google Search : fiable pour n'importe quel événement, jamais de 404
-    viator:       `https://www.google.com/search?q=${encoderURL(activityName + ' ' + city + ' tickets')}`,
-    getyourguide: `https://www.getyourguide.fr/s/?q=${encoderURL(activityName + ' ' + city)}`,
   };
 }
 
@@ -47,8 +38,7 @@ export interface EventSearchResult {
   start: string;
   venue: string;
   description: string;
-  booking_url: string | null;
-  links: ActivityLinks;
+  // reservation_url renseigné en aval par le résolveur du pack (services/liens.ts).
 }
 
 export interface HotelSearchResult {
@@ -136,6 +126,7 @@ export async function smartEventsSearch({
   }
 
   // ── 2. Fallback Tavily + LLM si PredictHQ ne retourne rien ──
+  // Recherche PURE : on extrait des événements, pas des liens (résolus en aval).
   try {
     const query = (mode === 'luxury' || mode === 'party')
       ? `exclusive VIP parties private clubs best nightlife ${location} ${dateFrom ?? ''}`
@@ -155,16 +146,13 @@ Extrais les 3 meilleurs événements. "category" et "description" rédigés EN F
     "category": "Nightlife",
     "start": "${dateFrom ?? 'Pendant le séjour'}",
     "venue": "Lieu",
-    "description": "Description courte.",
-    "booking_url": null
+    "description": "Description courte."
   }
 ]`;
 
     const reponseIABrute = await callAI(prompt, undefined, 'destinations');
     const donneesParsees = parseJSON(reponseIABrute);
-    const events: Omit<EventSearchResult, 'links'>[] = Array.isArray(donneesParsees) ? donneesParsees : [];
-
-    return events.map(e => ({ ...e, links: liensActivite(e.title, location) }));
+    return Array.isArray(donneesParsees) ? (donneesParsees as EventSearchResult[]) : [];
   } catch (err) {
     console.error('SmartEventsSearch error:', (err as Error).message);
     return [];

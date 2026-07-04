@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import type { Activite, TravelMode } from '../lib/types.js';
-import { liensRestaurant, lienGoogleMaps } from '../lib/url.js';
+import { lienGoogleMaps } from '../lib/url.js';
 
 const CLE_YELP = process.env.YELP_API_KEY;
 const URL_BASE_YELP = 'https://api.yelp.com/v3';
@@ -84,8 +84,7 @@ export async function yelpRestaurantSearch(
       duration:    '1h30',
       price:       prixDepuisSymbole(b.price),
       price_range: b.price ?? '$$',
-      booking_url: lienGoogleMaps(b.name, city),
-      links:       liensRestaurant(b.name, city),
+      booking_url: lienGoogleMaps(b.name, city),   // bouton « Carte » (Google Maps)
     }));
 
   } catch (err) {

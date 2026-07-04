@@ -13,6 +13,7 @@ import { aiGenerateLimiter, aiChatLimiter } from '../middleware/limiter.js';
 import { analyzeRequest, suggestDestinations, assemblerPack, chatModify, chatIntake } from '../services/claude/index.js';
 import { scorerPack } from '../services/scoring.js';
 import { smartFlightSearch, smartEventsSearch, smartHotelSearch } from '../services/smartSearch.js';
+import { appliquerLiensReservation } from '../services/liens.js';
 import { yelpRestaurantSearch } from '../services/yelp.js';
 import { foursquareRestaurantSearch } from '../services/foursquare.js';
 import { getRealWeather } from '../services/weather.js';
@@ -296,6 +297,11 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
       realWeather: meteoDestination,
       realPhoto:   photoDestination,
     });
+
+    // Résolveur de liens AVANT la fusion des restaurants : un resto Foursquare
+    // local n'a quasi jamais de billetterie en ligne (« Carte » Google Maps suffit),
+    // le chercher diluait la recherche et faisait chuter le taux de vraies URLs.
+    await appliquerLiensReservation(pack, destination);
 
     // Merge restaurants Yelp dans les activités (si Yelp a retourné des résultats)
     if (restaurants.length > 0) {

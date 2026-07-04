@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import type { Activite, TravelMode } from '../lib/types.js';
-import { liensRestaurant, lienGoogleMaps } from '../lib/url.js';
+import { lienGoogleMaps } from '../lib/url.js';
 
 const CLE_FOURSQUARE = process.env.FOURSQUARE_API_KEY;
 // Nouvelle API Places (FSQ OS Places) — l'ancienne (api.foursquare.com/v3) est
@@ -86,8 +86,7 @@ export async function foursquareRestaurantSearch(
       duration:    '1h30',
       price:       prixNumerique(p.price),
       price_range: etiquettePrix(p.price),
-      booking_url: lienGoogleMaps(p.name, city),
-      links:       liensRestaurant(p.name, city),
+      booking_url: lienGoogleMaps(p.name, city),   // bouton « Carte » (Google Maps)
     }));
 
   } catch (err) {
