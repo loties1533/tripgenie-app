@@ -464,8 +464,15 @@ tripgenie/
 │   │   ├── limiter.ts          # Rate limiters (generate 10/h, chat 30/15min, auth 10/15min)
 │   │   └── validation.ts       # Middleware de validation Zod centralisé
 │   ├── services/
-│   │   ├── claude/             # Pipeline IA : core · analyze · pack · chat
-│   │   ├── providers.ts        # Adaptateurs multi-LLM (Gemini / Claude / OpenRouter / Ollama)
+│   │   ├── claude/             # Pipeline IA principal
+│   │   │   ├── core.ts         # Orchestrateur — appel LLM cascade
+│   │   │   ├── analyze.ts      # Analyse intention utilisateur
+│   │   │   ├── pack.ts         # Assemblage du pack voyage
+│   │   │   ├── chat.ts         # Chat de modification agentique
+│   │   │   └── index.ts        # Exports
+│   │   ├── tools/
+│   │   │   └── webSearch.ts    # Outil recherche web (Tavily, usage agentique)
+│   │   ├── providers.ts        # Adaptateurs multi-LLM (Gemini / Claude / OpenRouter)
 │   │   ├── scoring.ts          # Algorithme scoring déterministe 0–1
 │   │   ├── smartSearch.ts      # Recherche vols / hôtels / événements (Tavily)
 │   │   ├── foursquare.ts       # Restaurants réels Foursquare
@@ -473,24 +480,34 @@ tripgenie/
 │   │   ├── predictHQ.ts        # Événements structurés PredictHQ
 │   │   ├── weather.ts          # Météo Open-Meteo (sans clé)
 │   │   ├── photo.ts            # Photo destination Unsplash
+│   │   ├── liens.ts            # Génération de liens enrichis
 │   │   └── mocks.ts            # Fallback données statiques
 │   ├── lib/
 │   │   ├── AppError.ts         # Classe erreur custom + middleware global
 │   │   ├── constants.ts        # MODES, BUDGET_RATIOS, DEFAULT_VALUES
-│   │   └── types.ts            # Types TypeScript partagés
+│   │   ├── types.ts            # Types TypeScript partagés
+│   │   ├── keys.ts             # Helpers clés API
+│   │   └── url.ts              # Utilitaires URL
 │   ├── db/
 │   │   └── prisma.ts           # Client Prisma singleton
 │   └── docs/
-│       └── openapi.ts          # Spec OpenAPI 3.0.3 — 21 routes documentées
+│       └── openapi.ts          # Spec OpenAPI 3.0.3 — toutes routes documentées
 │
 ├── client-react/               # Frontend React / Vite / TypeScript
 │   └── src/
 │       ├── pages/              # Home · Trips · TripDetail · Login · Preferences
-│       ├── components/         # PackResults · Chat · Map · VoteButtons · UI
-│       ├── store/index.ts      # Zustand : useAuthStore · useTripStore
+│       ├── components/
+│       │   ├── chat/           # ChatWidget · ModifyChat
+│       │   ├── results/        # PackResults · PackSkeleton · TripMap · VoteButtons
+│       │   ├── layout/         # Header + PageLayout
+│       │   └── ui/             # Atomes réutilisables · GenerationLoader · Logo
+│       ├── store/index.ts      # Zustand : useSearchStore · useChatStore · useAuthStore · useThemeStore
 │       └── lib/api.ts          # Toutes les requêtes HTTP vers l'API
 │
-├── tests/                      # 282 tests Vitest + Supertest
+├── prisma/
+│   ├── schema.prisma           # Schéma DB — 6 modèles, snake_case, migrations versionnées
+│   └── seed.ts                 # Données de test initiales
+├── tests/                      # Vitest + Supertest — tous services mockés
 ├── .github/workflows/          # GitHub Actions CI (tests + tsc à chaque push)
 └── render.yaml                 # Configuration déploiement Render (PaaS)
 ```
