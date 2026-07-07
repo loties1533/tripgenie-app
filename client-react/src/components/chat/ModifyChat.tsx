@@ -23,7 +23,7 @@ const SUGGESTIONS = [
 export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
   const { pack, setPack } = useSearchStore()
   const [messages, setMessages] = useState<MessageChat[]>([
-    { role: 'assistant', text: 'Bonjour ! Que souhaitez-vous modifier dans ce pack ?' }
+    { role: 'assistant', text: 'Envie de changer quelque chose ? Dites-moi tout.' }
   ])
   const [input, setInput] = useState('')
   const [chargement, setChargement] = useState(false)
@@ -53,17 +53,27 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
         }),
       })
       const donneesReponse = await reponse.json()
-      if (donneesReponse.modifications && pack) {
-        setPack({ ...pack, ...donneesReponse.modifications }, tripId ?? null)
+      // On ne fusionne QUE si l'IA a réellement renvoyé des changements.
+      // Chaque clé présente (activities/hotels/itinerary) remplace la liste
+      // correspondante → l'IA doit renvoyer la liste complète et à jour
+      // (cf. prompt chatModify côté serveur), sinon les anciens éléments sont perdus.
+      const mods = donneesReponse.modifications
+      const aDesModifs = mods && typeof mods === 'object' && Object.keys(mods).length > 0
+      if (aDesModifs && pack) {
+        setPack({ ...pack, ...mods }, tripId ?? null)
       }
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', text: donneesReponse.reply || 'Modification effectuée ✓' },
+        {
+          role: 'assistant',
+          text: donneesReponse.response
+            || (aDesModifs ? 'Modification effectuée ✓' : "Je n'ai pas réussi à appliquer ce changement — tu peux reformuler ?"),
+        },
       ])
     } catch {
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', text: 'Erreur de connexion, réessaie.' },
+        { role: 'assistant', text: 'Connexion perdue — on réessaie ?' },
       ])
     } finally {
       setChargement(false)
