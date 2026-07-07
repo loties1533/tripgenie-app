@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout } from '../components/layout'
+import Seo from '../components/Seo'
 import ChatWidget from '../components/chat/ChatWidget'
 import PackResults from '../components/results/PackResults'
 import Logo from '../components/ui/Logo'
@@ -334,6 +335,7 @@ export default function Home() {
 
   return (
     <PageLayout>
+      <Seo path="/" />
 
       {/* Hero : visible uniquement sur l'accueil vide */}
       {!pack && !concepts && !isLoading && <Hero />}
@@ -410,6 +412,58 @@ export default function Home() {
                   ))}
                 </div>
               </motion.div>
+            )}
+
+            {/* Contenu éditorial — accueil vide (présentation + SEO) */}
+            {!concepts && !isLoading && (
+              <motion.section
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                className="max-w-5xl mx-auto pb-28">
+
+                <div className="text-center max-w-2xl mx-auto mb-12">
+                  <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-2">Comment ça marche</p>
+                  <h2 className="font-display text-3xl text-ink dark:text-parchment font-bold mb-5">
+                    Vous décrivez l'envie, on trouve la destination
+                  </h2>
+                  <p className="text-muted leading-relaxed">
+                    Pas besoin de savoir où partir : c'est tout l'intérêt. Vous dites ce que vous cherchez — une
+                    ambiance, un budget, des dates, avec qui vous voyagez — et TripGenie vous propose trois
+                    destinations qui collent à la demande : deux valeurs sûres et une pépite plus confidentielle.
+                    Vous choisissez, et le pack complet se construit autour : vols, hébergement, bonnes tables,
+                    activités et budget détaillé.
+                  </p>
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-4">
+                  {[
+                    {
+                      t: 'Des destinations choisies sur des données réelles',
+                      d: "Lieux et restaurants réellement fréquentés, météo de la période, événements prévus sur place et prix cohérents avec votre budget : chaque proposition est comparée et notée sur plusieurs critères, pas tirée d'une liste toute faite.",
+                    },
+                    {
+                      t: 'Adapté à votre façon de voyager',
+                      d: "Week-end entre amis, vacances en famille, voyage étudiant ou escapade à deux : vous ajustez le ton, le niveau de confort et vos centres d'intérêt, et les propositions suivent.",
+                    },
+                    {
+                      t: 'Rien à installer, rien à payer pour essayer',
+                      d: "Décrivez votre voyage et comparez les propositions librement. Vous créez un compte seulement si vous voulez sauvegarder vos packs et les retrouver plus tard.",
+                    },
+                  ].map((c, i) => (
+                    <motion.div key={i}
+                      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 + i * 0.12 }}
+                      className="glass rounded-2xl p-6 border border-gold/10 flex flex-col">
+                      <span className="w-8 h-8 rounded-full bg-gold/15 text-gold text-sm font-bold flex items-center justify-center mb-4">
+                        {i + 1}
+                      </span>
+                      <h3 className="font-display text-lg text-ink dark:text-parchment font-bold mb-2 leading-snug">
+                        {c.t}
+                      </h3>
+                      <p className="text-muted text-sm leading-relaxed">{c.d}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
             )}
           </motion.div>
         )}

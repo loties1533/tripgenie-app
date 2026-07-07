@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { PageLayout } from '../components/layout'
+import Seo from '../components/Seo'
 import { useAuthStore } from '../store'
 import { getPreferences, savePreferences } from '../lib/api'
 
@@ -73,6 +74,7 @@ export default function PreferencesPage() {
 
   return (
     <PageLayout>
+      <Seo title="Préférences" path="/preferences" noindex />
       <div className="max-w-lg mx-auto py-12">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           className="glass rounded-3xl p-8 border border-gold/20 shadow-card-lg">

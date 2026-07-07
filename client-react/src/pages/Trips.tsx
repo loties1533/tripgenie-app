@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import React from 'react'
 import { PageLayout } from '../components/layout'
+import Seo from '../components/Seo'
 import { SkeletonCard, ModeBadge } from '../components/ui'
 import { getTrips, deleteTrip } from '../lib/api'
 import { useAuthStore } from '../store'
@@ -61,6 +62,7 @@ export default function Trips() {
   if (!user) {
     return (
       <PageLayout>
+      <Seo title="Mes voyages" path="/trips" noindex />
         <div className="text-center py-24">
           <p className="text-5xl mb-4">🔒</p>
           <h2 className="font-display text-2xl font-bold text-ink dark:text-parchment mb-2">Connexion requise</h2>
@@ -78,6 +80,7 @@ export default function Trips() {
 
   return (
     <PageLayout>
+      <Seo title="Mes voyages" path="/trips" noindex />
       <div className="py-2">
 
         {/* ── Header ── */}

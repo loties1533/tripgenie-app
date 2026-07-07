@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { PageLayout } from '../components/layout'
+import Seo from '../components/Seo'
 import PackResults from '../components/results/PackResults'
 import ModifyChat from '../components/chat/ModifyChat'
 import Logo from '../components/ui/Logo'
@@ -55,6 +56,7 @@ export default function TripDetail() {
   if (isLoading) {
     return (
       <PageLayout>
+      <Seo title="Votre voyage" noindex />
         <div className="space-y-4 mt-6">
           <SkeletonCard />
           <div className="grid grid-cols-2 gap-4">
@@ -69,6 +71,7 @@ export default function TripDetail() {
   if (error) {
     return (
       <PageLayout>
+      <Seo title="Votre voyage" noindex />
         <div className="text-center py-24">
           <p className="text-5xl mb-4">🔍</p>
           <h2 className="font-display text-2xl font-bold text-ink dark:text-parchment mb-2">
@@ -84,6 +87,7 @@ export default function TripDetail() {
   /* ---- Content ---- */
   return (
     <PageLayout>
+      <Seo title="Votre voyage" noindex />
       {data?.trip && (
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-5 items-start">
