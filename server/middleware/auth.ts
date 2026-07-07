@@ -44,7 +44,7 @@ export function optionalAuth(req: Request, _res: Response, next: NextFunction): 
   if (token) {
     try {
       req.user = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
-    } catch (_) {}
+    } catch { /* token invalide → on continue sans user (auth optionnelle) */ }
   }
   next();
 }
