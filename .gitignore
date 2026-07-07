@@ -29,6 +29,7 @@ docs/*
 !docs/architecture/**
 !docs/SPRINTS.md
 scripts/
+scripts1/
 
 # OS
 Thumbs.db

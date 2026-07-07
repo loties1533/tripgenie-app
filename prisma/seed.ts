@@ -28,7 +28,8 @@ async function main() {
       name:     'Compte Démo',
       preferences: {
         create: {
-          default_mode:    'luxury',
+          default_mode:    'relax',
+          default_premium: true,
           preferred_prefs: ['gastronomie', 'culture', 'nightlife'],
           home_city:       'Paris',
           currency:        'EUR',

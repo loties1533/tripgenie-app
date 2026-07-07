@@ -7,7 +7,7 @@ import type { ElementDestination } from '../../lib/types.js';
 export async function analyzeRequest(userInput: string): Promise<unknown> {
   const reponseIABrute = await callAI(
     `Analyse cette demande: "${sanitizeInput(userInput)}"
-JSON: {"destination":"ville ou null","origin":"Paris","mode":"party|student|luxury|group|relax|surprise","travelers":2,"duration_days":3,"budget_total":null,"preferences":[],"confidence":0.9}`,
+JSON: {"destination":"ville ou null","origin":"Paris","mode":"party|student|group|relax|surprise","premium":false,"travelers":2,"duration_days":3,"budget_total":null,"preferences":[],"confidence":0.9}`,
     undefined,
     'onboarding'
   );
@@ -16,6 +16,7 @@ JSON: {"destination":"ville ou null","origin":"Paris","mode":"party|student|luxu
 
 interface ParamsSuggestionDestinations {
   mode?: string;
+  premium?: boolean;
   profile?: string;
   interests?: string[];
   budget?: number;
@@ -34,7 +35,6 @@ interface ResultatDestinations {
 // web ET le prompt pour cadrer l'ambiance recherchée.
 const VIBE_PAR_MODE: Record<string, string> = {
   party:    'Destinations reconnues pour la fête : beach clubs, clubs, festivals, vie nocturne intense.',
-  luxury:   'Destinations ultra-luxe : palaces, plages privées, gastronomie étoilée, exclusivité.',
   relax:    'Destinations calmes et ressourçantes : nature, plages tranquilles, bien-être.',
   student:  'Destinations abordables et animées : bon rapport qualité-prix, ambiance jeune.',
   group:    'Destinations conviviales pour un groupe : accessibles, variées, faciles à organiser.',
@@ -51,12 +51,6 @@ const VIVIER_PAR_MODE: Record<string, string[]> = {
     'Ibiza', 'Mykonos', 'Ayia Napa', 'Bodrum', 'Novalja (Zrće)', 'Hvar',
     'Tel-Aviv', 'Berlin', 'Amsterdam', 'Bangkok', 'Koh Phangan', 'Cancún',
     'Tulum', 'Miami', 'Rio de Janeiro', 'Barcelone', 'Malte', 'Split',
-  ],
-  luxury: [
-    'Monaco', 'Marbella', 'Saint-Tropez', 'Courchevel', 'Portofino',
-    'Lac de Côme', 'Capri', 'Positano', 'Dubaï', 'Abu Dhabi', 'Maldives',
-    'Bora-Bora', 'Saint-Barthélemy', 'Aspen', 'Gstaad', 'Costa Smeralda',
-    'Seychelles', 'Santorin',
   ],
   relax: [
     'Bali (Ubud)', 'Maldives', 'Seychelles', 'Algarve', 'Crète', 'Madère',
@@ -81,6 +75,17 @@ const VIVIER_PAR_MODE: Record<string, string[]> = {
   ],
 };
 
+// Booster PREMIUM (axe prix, orthogonal au mode). Quand `premium` est actif, on
+// injecte quelques-unes de ces destinations haut de gamme dans les exemples de
+// référence — quelle que soit la vibe — pour tirer le standing vers le haut.
+// (Ancien vivier « luxury », désormais découplé du mode.)
+const VIVIER_PREMIUM: string[] = [
+  'Monaco', 'Marbella', 'Saint-Tropez', 'Courchevel', 'Portofino',
+  'Lac de Côme', 'Capri', 'Positano', 'Dubaï', 'Abu Dhabi', 'Maldives',
+  'Bora-Bora', 'Saint-Barthélemy', 'Aspen', 'Gstaad', 'Costa Smeralda',
+  'Seychelles', 'Santorin',
+];
+
 /** Mélange (Fisher-Yates) — variété réelle d'une génération à l'autre. */
 function melanger<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -92,7 +97,7 @@ function melanger<T>(arr: T[]): T[] {
 }
 
 export async function suggestDestinations({
-  mode, profile, interests, budget, travelers, duration, origin, departure,
+  mode, premium = false, profile, interests, budget, travelers, origin, departure,
 }: ParamsSuggestionDestinations): Promise<ResultatDestinations> {
   try {
     const interetsStr = interests?.join(', ') ?? 'voyage';
@@ -105,8 +110,12 @@ export async function suggestDestinations({
     // → un sous-ensemble différent à chaque génération (variété) que le LLM
     // utilise comme REPÈRE DE NIVEAU sans les recopier (cf. prompt).
     const cleMode = mode ?? '';
-    const exemplesMode = melanger(VIVIER_PAR_MODE[cleMode] ?? []).slice(0, 8);
-    let query = `Meilleures destinations ${mode} pour ${profile} en ${moisDepart}. `;
+    // En premium, on remplace 3 des 8 exemples par des destinations haut de gamme
+    // → le standing monte quelle que soit la vibe, sans écraser le mode.
+    const exemplesMode = premium
+      ? [...melanger(VIVIER_PREMIUM).slice(0, 3), ...melanger(VIVIER_PAR_MODE[cleMode] ?? []).slice(0, 5)]
+      : melanger(VIVIER_PAR_MODE[cleMode] ?? []).slice(0, 8);
+    let query = `Meilleures destinations ${mode}${premium ? ' haut de gamme' : ''} pour ${profile} en ${moisDepart}. `;
     query += (VIBE_PAR_MODE[cleMode] ?? '') + ' ';
     query += `Budget total ${budget}€ pour ${travelers} personnes. Intérêts: ${interetsStr}.`;
 
@@ -127,6 +136,7 @@ export async function suggestDestinations({
       BUDGET TOTAL : ${budget}€ pour ${travelers ?? 2} personne(s) = ${budgetParPersonne}€/personne.
 
       ${trancheBudget}
+      ${premium ? '⚠️ GAMME PREMIUM demandée : oriente vers des destinations au standing élevé (adresses réputées, exclusivité), en cohérence avec la vibe et le budget.' : ''}
       NIVEAU / VIBE DE RÉFÉRENCE pour le mode ${mode} (exemples NON exhaustifs, juste pour caler le bon standing — tu PEUX et DOIS proposer d'autres lieux équivalents, ne recopie pas cette liste bêtement) : ${exemplesMode.join(', ')}.
       STRATÉGIE : propose des destinations RECONNUES pour ce mode, au niveau des exemples ci-dessus, cohérentes avec le budget et les intérêts. Varie d'une génération à l'autre : ne retombe pas toujours sur les 2 mêmes évidences.
 

@@ -27,6 +27,7 @@ erDiagram
         int travelers
         text budget
         text mode
+        boolean premium
         text status
         float score
         jsonb pack_data
@@ -53,6 +54,7 @@ erDiagram
     user_preferences {
         uuid user_id PK
         text default_mode
+        boolean default_premium
         text preferred_prefs
         text home_city
         text currency

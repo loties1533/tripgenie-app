@@ -8,6 +8,7 @@
     "start": "node dist-server/index.js",
     "dev": "nodemon --exec tsx server/index.ts",
     "dev:all": "concurrently -n server,client -c cyan,magenta \"npm run dev\" \"npm run client:dev\"",
+    "lint": "eslint server client-react/src",
     "build:server": "prisma generate && npx tsc",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
@@ -45,6 +46,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/bcryptjs": "^2.4.6",
@@ -58,12 +60,17 @@
     "@types/supertest": "^7.2.0",
     "@types/swagger-ui-express": "^4.1.8",
     "concurrently": "^10.0.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.7.0",
     "jsdom": "^29.0.2",
     "nodemon": "^3.0.2",
     "prisma": "^6.19.3",
+    "puppeteer-core": "^25.3.0",
     "supertest": "^7.2.2",
     "tsx": "^4.22.1",
     "typescript": "^6.0.3",
+    "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.5"
   },
   "engines": {

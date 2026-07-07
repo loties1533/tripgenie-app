@@ -11,6 +11,7 @@ import type { TravelMode } from '../lib/types.js';
 const schemaCreationVoyage = z.object({
   destination:  z.string().min(1, 'destination requise').max(100),
   mode:         z.enum(MODES_LIST as [TravelMode, ...TravelMode[]], { error: 'mode invalide' }),
+  premium:      z.boolean().optional(),
   title:        z.string().max(200).optional(),
   country:      z.string().max(100).optional(),
   origin:       z.string().max(100).optional(),
@@ -46,7 +47,7 @@ router.get('/share/:id', async (req: Request, res: Response, next: NextFunction)
       where:  { id: String(req.params.id) },
       select: {
         id: true, title: true, destination: true, country: true,
-        pack_data: true, score: true, mode: true,
+        pack_data: true, score: true, mode: true, premium: true,
         departure: true, return_date: true, travelers: true, budget: true,
         packs: { select: { id: true, rank: true, selected: true } },
       },
@@ -112,7 +113,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
       res.status(400).json({ error: donneesValidees.error.issues[0].message });
       return;
     }
-    const { title, destination, country, origin, departure, return_date, travelers, budget, mode, pack_data, score } = donneesValidees.data;
+    const { title, destination, country, origin, departure, return_date, travelers, budget, mode, premium, pack_data, score } = donneesValidees.data;
 
     if (!req.user) {
       res.status(401).json({ error: 'Non authentifié' });
@@ -132,6 +133,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
         travelers:   travelers || 1,
         budget:      budget != null ? String(budget) : null,
         mode,
+        premium:     premium ?? false,
         status:      'draft',
         pack_data:   pack_data ?? undefined,
         score:       score ?? null,

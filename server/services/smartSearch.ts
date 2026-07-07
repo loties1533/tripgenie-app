@@ -72,7 +72,7 @@ interface SmartHotelParams {
 
 
 export async function smartFlightSearch({
-  origin, destination, departure, return_date,
+  origin, destination, departure,
 }: SmartFlightParams): Promise<FlightSearchResult | null> {
   try {
     const query = `vols ${origin} ${destination} ${departure} prix compagnies aériennes`;
@@ -128,7 +128,7 @@ export async function smartEventsSearch({
   // ── 2. Fallback Tavily + LLM si PredictHQ ne retourne rien ──
   // Recherche PURE : on extrait des événements, pas des liens (résolus en aval).
   try {
-    const query = (mode === 'luxury' || mode === 'party')
+    const query = mode === 'party'
       ? `exclusive VIP parties private clubs best nightlife ${location} ${dateFrom ?? ''}`
       : `événements spectacles concerts incontournables ${location} ${dateFrom ?? ''}`;
 

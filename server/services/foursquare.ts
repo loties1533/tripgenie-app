@@ -10,12 +10,15 @@ const VERSION_API_PLACES = '2025-06-17';
 
 const REQUETES_PAR_MODE: Record<TravelMode, string> = {
   party:    'bar,nightclub,lounge',
-  luxury:   'fine dining,restaurant,wine bar',
   student:  'restaurant,cafe,street food',
   group:    'restaurant,brasserie,buffet',
   relax:    'cafe,restaurant,tea room',
   surprise: 'restaurant,bistro,fusion',
 };
+
+// Niveau de prix premium (axe orthogonal au mode) → catégories haut de gamme,
+// quelle que soit la vibe. (Ancienne requête du mode « luxury ».)
+const REQUETE_PREMIUM = 'fine dining,restaurant,wine bar';
 
 interface LieuFoursquare {
   fsq_place_id: string;     // renommé (était fsq_id en v3)
@@ -42,7 +45,8 @@ function prixNumerique(price?: number): number {
 
 export async function foursquareRestaurantSearch(
   city: string,
-  mode: TravelMode
+  mode: TravelMode,
+  premium = false,
 ): Promise<Activite[]> {
   if (!CLE_FOURSQUARE) {
     console.warn('⚠️ Foursquare ignoré (FOURSQUARE_API_KEY manquante).');
@@ -54,7 +58,7 @@ export async function foursquareRestaurantSearch(
     // → HTTP 429). On garde les champs gratuits (nom, catégories, localisation).
     const parametresRequete = new URLSearchParams({
       near:  city,
-      query: REQUETES_PAR_MODE[mode] ?? 'restaurant',
+      query: premium ? REQUETE_PREMIUM : (REQUETES_PAR_MODE[mode] ?? 'restaurant'),
       limit: '3',
     });
 

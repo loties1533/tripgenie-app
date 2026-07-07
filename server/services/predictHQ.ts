@@ -9,7 +9,6 @@ const URL_BASE_PREDICTHQ = 'https://api.predicthq.com/v1';
 // Catégories PredictHQ selon le mode de voyage
 const CATEGORIES_PAR_MODE: Record<TravelMode, string> = {
   party:    'concerts,festivals',
-  luxury:   'concerts,performing-arts,festivals',
   student:  'concerts,festivals,community,sports',
   group:    'concerts,festivals,sports,community',
   relax:    'performing-arts,community',

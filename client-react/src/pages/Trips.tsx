@@ -186,7 +186,7 @@ export default function Trips() {
 
                 {/* Mode + Statut badges */}
                 <div className="mb-4 relative z-10 flex items-center gap-2 flex-wrap">
-                  <ModeBadge mode={trip.mode} />
+                  <ModeBadge mode={trip.mode} premium={trip.premium} />
                   {trip.status === 'confirmed' && (
                     <span className="text-[11px] font-bold px-3 py-1 rounded-full border bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
                       🟢 Confirmé

@@ -374,7 +374,8 @@ describe('🤖 AI — Validation des inputs', () => {
       .post('/api/ai/destinations')
       .send({ budget: 2000, travelers: 2 });
     expect(noMode.status).toBe(200);
-    // Mode en français → normalisé (luxe → luxury), accepté
+    // Mode en français → normalisé (luxe → relax, « luxe » n'étant plus un mode
+    // mais le niveau de prix premium), toujours accepté sans 400.
     const frMode = await request(app)
       .post('/api/ai/destinations')
       .send({ mode: 'luxe', budget: 2000, travelers: 2 });

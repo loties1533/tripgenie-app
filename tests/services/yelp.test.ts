@@ -44,7 +44,7 @@ describe('yelpRestaurantSearch — cas nominal', () => {
 
   it('retourne des activités avec les propriétés requises', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_YELP_RESPONSE });
-    const results = await yelpRestaurantSearch('Ibiza', 'luxury');
+    const results = await yelpRestaurantSearch('Ibiza', 'relax');
     expect(results.length).toBeGreaterThan(0);
     results.forEach(r => {
       expect(r).toHaveProperty('name');
@@ -56,22 +56,29 @@ describe('yelpRestaurantSearch — cas nominal', () => {
 
   it('emoji est 🍽️', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_YELP_RESPONSE });
-    const results = await yelpRestaurantSearch('Ibiza', 'luxury');
+    const results = await yelpRestaurantSearch('Ibiza', 'relax');
     results.forEach(r => expect(r.emoji).toBe('🍽️'));
   });
 
   it('Bearer token dans le header Authorization', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_YELP_RESPONSE });
-    await yelpRestaurantSearch('Ibiza', 'luxury');
+    await yelpRestaurantSearch('Ibiza', 'relax');
     const headers = mockFetch.mock.calls[0][1]?.headers;
     expect(headers?.Authorization).toBe('Bearer test-yelp-key-vitest');
   });
 
   it('booking_url pointe vers Google Maps (universel, bonne ville partout)', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_YELP_RESPONSE });
-    const [first] = await yelpRestaurantSearch('Ibiza', 'luxury');
+    const [first] = await yelpRestaurantSearch('Ibiza', 'relax');
     // Lien universel Google Maps plutôt que TheFork (qui ne couvre que la France/Europe)
     expect(first.booking_url).toContain('google.com/maps');
+  });
+
+  it('premium=true : catégories haut de gamme quel que soit le mode', async () => {
+    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_YELP_RESPONSE });
+    await yelpRestaurantSearch('Ibiza', 'relax', true);
+    const url = decodeURIComponent(mockFetch.mock.calls[0][0] as string);
+    expect(url).toMatch(/frenchrestaurants|wine_bars/);
   });
 });
 

@@ -97,9 +97,30 @@ describe('construirePromptPack — construction du prompt LLM', () => {
     expect(prompt.toLowerCase()).toContain('nightlife');
   });
 
-  it('contient instructions luxury pour mode luxury', () => {
-    const prompt = construirePromptPack({ ...base, mode: 'luxury' as const });
-    expect(prompt.toLowerCase()).toContain('michelin');
+  it('premium=true : injecte le modifier haut de gamme (axe indépendant du mode)', () => {
+    const prompt = construirePromptPack({ ...base, premium: true });
+    expect(prompt.toLowerCase()).toContain('haut de gamme');
+  });
+
+  it('premium=false : aucun modifier premium dans le prompt', () => {
+    const prompt = construirePromptPack({ ...base, premium: false });
+    expect(prompt.toLowerCase()).not.toContain('haut de gamme');
+  });
+
+  it('profil couple : injecte le modifier tête-à-tête (axe indépendant du mode)', () => {
+    const prompt = construirePromptPack({ ...base, profile: 'couple' });
+    expect(prompt.toLowerCase()).toContain('tête-à-tête');
+  });
+
+  it('profil famille : injecte le modifier enfants', () => {
+    const prompt = construirePromptPack({ ...base, profile: 'famille' });
+    expect(prompt.toLowerCase()).toContain('enfants');
+  });
+
+  it('profil inconnu ou absent : aucun modifier profil', () => {
+    const prompt = construirePromptPack({ ...base, profile: undefined });
+    expect(prompt).not.toContain('PROFIL COUPLE');
+    expect(prompt).not.toContain('PROFIL FAMILLE');
   });
 
   it('contient instructions student pour mode student', () => {
@@ -376,9 +397,9 @@ describe('calculerRepartitionBudget — répartition BUDGET_RATIOS', () => {
     expect(bd.vols).toBe('500€'); // 2000 * 0.25
   });
 
-  it('mode luxury : 20% vols (ratio.vols = 0.20)', () => {
-    const bd = calculerRepartitionBudget(2000, 'luxury', 5, 2);
-    expect(bd.vols).toBe('400€'); // 2000 * 0.20
+  it('mode relax : 22% vols (ratio.vols = 0.22)', () => {
+    const bd = calculerRepartitionBudget(2000, 'relax', 5, 2);
+    expect(bd.vols).toBe('440€'); // 2000 * 0.22
   });
 
   it('mode student : 35% vols (ratio.vols = 0.35)', () => {
@@ -386,10 +407,10 @@ describe('calculerRepartitionBudget — répartition BUDGET_RATIOS', () => {
     expect(bd.vols).toBe('700€'); // 2000 * 0.35
   });
 
-  it('plafond hébergement luxury : max 800€/nuit/pers', () => {
-    // budget 100000, luxury, 5 nuits, 2 pers
-    // heberg = 100000 * 0.45 = 45000 → ppn = 45000/5/2 = 4500 > 800 → capé à 800*5*2 = 8000
-    const bd = calculerRepartitionBudget(100000, 'luxury', 5, 2);
+  it('plafond hébergement premium : max 800€/nuit/pers', () => {
+    // budget 100000, relax + premium=true, 5 nuits, 2 pers
+    // heberg nominal très élevé → ppn > 800 → capé à 800*5*2 = 8000
+    const bd = calculerRepartitionBudget(100000, 'relax', 5, 2, undefined, true);
     const heberg = parseInt(bd.hebergement.replace('€', ''));
     expect(heberg).toBe(8000);
   });

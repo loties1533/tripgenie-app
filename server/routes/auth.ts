@@ -128,7 +128,7 @@ router.post('/logout', (req: Request, res: Response) => {
 });
 
 // ---- GET /api/auth/me ----
-router.get('/me', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/me', async (req: Request, res: Response): Promise<void> => {
   try {
     const token = req.cookies?.[NOM_COOKIE_AUTH] || req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -149,7 +149,7 @@ router.get('/me', async (req: Request, res: Response, next: NextFunction): Promi
     }
 
     res.json({ user });
-  } catch (err) {
+  } catch {
     res.status(401).json({ error: 'Token invalide' });
   }
 });

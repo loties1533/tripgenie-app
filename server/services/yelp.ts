@@ -8,12 +8,15 @@ const URL_BASE_YELP = 'https://api.yelp.com/v3';
 // Catégories Yelp selon le mode
 const CATEGORIES_YELP_PAR_MODE: Record<TravelMode, string> = {
   party:    'bars,nightlife,cocktailbars',
-  luxury:   'restaurants,frenchrestaurants,wine_bars',
   student:  'restaurants,streetfood,cafes',
   group:    'restaurants,brasseries,buffets',
   relax:    'restaurants,cafes,tea',
   surprise: 'restaurants,newamerican,fusion',
 };
+
+// Niveau de prix premium (axe orthogonal au mode) → catégories haut de gamme,
+// quelle que soit la vibe. (Ancienne catégorie du mode « luxury ».)
+const CATEGORIES_YELP_PREMIUM = 'restaurants,frenchrestaurants,wine_bars';
 
 interface EtablissementYelp {
   id: string;
@@ -40,7 +43,8 @@ function prixDepuisSymbole(price?: string): number {
 
 export async function yelpRestaurantSearch(
   city: string,
-  mode: TravelMode
+  mode: TravelMode,
+  premium = false,
 ): Promise<Activite[]> {
   if (!CLE_YELP) {
     console.warn('⚠️ Yelp ignoré (YELP_API_KEY manquante).');
@@ -48,7 +52,7 @@ export async function yelpRestaurantSearch(
   }
 
   try {
-    const categories = CATEGORIES_YELP_PAR_MODE[mode] ?? 'restaurants';
+    const categories = premium ? CATEGORIES_YELP_PREMIUM : (CATEGORIES_YELP_PAR_MODE[mode] ?? 'restaurants');
 
     const parametresRequete = new URLSearchParams({
       location:   city,

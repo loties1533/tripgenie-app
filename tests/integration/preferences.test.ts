@@ -57,11 +57,12 @@ describe('GET /api/preferences', () => {
   });
 
   it('retourne les préférences existantes', async () => {
-    const prefs = { user_id: USER.id, default_mode: 'luxury', currency: 'EUR', home_city: 'Lyon', preferred_prefs: ['culture'] };
+    const prefs = { user_id: USER.id, default_mode: 'relax', default_premium: true, currency: 'EUR', home_city: 'Lyon', preferred_prefs: ['culture'] };
     prismaMock.userPreference.findUnique.mockResolvedValueOnce(prefs as any);
     const res = await auth(request(app).get('/api/preferences'));
     expect(res.status).toBe(200);
-    expect(res.body.preferences.default_mode).toBe('luxury');
+    expect(res.body.preferences.default_mode).toBe('relax');
+    expect(res.body.preferences.default_premium).toBe(true);
     expect(res.body.preferences.home_city).toBe('Lyon');
   });
 
@@ -79,7 +80,7 @@ describe('GET /api/preferences', () => {
 describe('PUT /api/preferences', () => {
 
   it('401 sans token', async () => {
-    const res = await request(app).put('/api/preferences').send({ default_mode: 'luxury' });
+    const res = await request(app).put('/api/preferences').send({ default_mode: 'relax' });
     expect(res.status).toBe(401);
   });
 

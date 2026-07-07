@@ -6,28 +6,28 @@ import Logo from '../ui/Logo'
 const LOADING_SLIDES = [
   {
     img: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1920&q=80",
-    text: "Sélection des meilleurs établissements...",
-    sub: "Nos algorithmes analysent 10 000 avis d'experts"
+    text: "On cherche les plus belles adresses…",
+    sub: "En croisant les avis voyageurs et les coups de cœur locaux"
   },
   {
     img: "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1920&q=80",
-    text: "Coordination avec nos partenaires VIP...",
-    sub: "Accès à des expériences non répertoriées au grand public"
+    text: "On compose votre séjour…",
+    sub: "Des incontournables et quelques adresses plus confidentielles"
   },
   {
     img: "https://images.unsplash.com/photo-1549294413-26f195200c16?auto=format&fit=crop&w=1920&q=80",
-    text: "Optimisation de votre itinéraire...",
-    sub: "Chaque heure de votre séjour est pensée"
+    text: "On cale votre itinéraire…",
+    sub: "Un rythme pensé pour profiter sans courir"
   },
   {
     img: "https://images.unsplash.com/photo-1519659528534-7fd733a832a0?auto=format&fit=crop&w=1920&q=80",
-    text: "Recherche des soirées et événements exclusifs...",
-    sub: "Notre IA parcourt le web pour trouver les meilleures tables"
+    text: "On repère ce qui se passe sur place…",
+    sub: "Concerts, soirées et bonnes tables du moment"
   },
   {
     img: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1920&q=80",
-    text: "Finalisation de votre Pack Signature...",
-    sub: "Dernière vérification par votre concierge dédié"
+    text: "On finalise votre pack…",
+    sub: "Un dernier coup d'œil avant de vous le montrer"
   }
 ]
 
@@ -146,7 +146,7 @@ export default function PackSkeleton() {
       {/* Quote en bas */}
       <div className="absolute bottom-10 left-0 right-0 text-center z-10">
         <p className="text-white/20 text-xs font-serif italic tracking-wider">
-          "Le luxe, c'est quand l'argent n'est plus une question."
+          "Les plus beaux voyages commencent par une envie."
         </p>
       </div>
     </div>

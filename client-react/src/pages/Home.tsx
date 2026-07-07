@@ -197,7 +197,7 @@ function ConceptsVoyage() {
     setField('concepts', null)
     setField('destination', dest.city)   // le loader affiche la ville en cours, pas une valeur persistée
     setLoading(true)
-    addMessage({ role: 'assistant', text: `Excellent choix ! 🚀 Je génère ton pack VIP pour **${dest.city}**...` })
+    addMessage({ role: 'assistant', text: `C'est parti — je prépare votre pack pour **${dest.city}**…` })
 
     const dateDepart = normaliserDate(chatData.departure as string) || new Date(Date.now() + 86400000 * 30).toISOString().slice(0, 10)
     const dateRetour = normaliserDate(chatData.return_date as string) || new Date(new Date(dateDepart).getTime() + 86400000 * ((chatData.duration as number) || 7)).toISOString().slice(0, 10)
@@ -213,6 +213,7 @@ function ConceptsVoyage() {
         budget:      chatData.budget    || 5000,
         travelers:   chatData.travelers || 2,
         mode:        chatData.mode      || 'party',
+        premium:     chatData.premium   || false,
         profile:     chatData.profile,
         interests:   chatData.interests,
       })
@@ -324,6 +325,7 @@ export default function Home() {
         const seed: Record<string, any> = {}
         if (preferences.home_city)               seed.origin    = preferences.home_city
         if (preferences.default_mode)            seed.mode      = preferences.default_mode
+        if (typeof preferences.default_premium === 'boolean') seed.premium = preferences.default_premium
         if (preferences.preferred_prefs?.length) seed.interests = preferences.preferred_prefs
         if (Object.keys(seed).length) seedChatData(seed)
       })

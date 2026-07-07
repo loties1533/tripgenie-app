@@ -36,7 +36,6 @@ interface ScoreValues extends Record<ScoreKey, number> {}
 const POIDS_PAR_MODE: Record<TravelMode, PoidsMode> = {
   party:    { activities: 0.35, hotel: 0.25, prix: 0.20, vol: 0.10, events: 0.10 },
   student:  { prix: 0.45, activities_free: 0.25, hotel: 0.20, events: 0.10 },
-  luxury:   { hotel: 0.40, activities: 0.30, vol: 0.20, prix: 0.10 },
   group:    { hotel: 0.35, activities: 0.30, prix: 0.20, vol: 0.15 },
   relax:    { calme: 0.35, hotel: 0.30, activities: 0.25, prix: 0.10 },
   surprise: { global: 0.60, originalite: 0.40 },
@@ -48,19 +47,18 @@ function normaliser(value: number, min: number, max: number): number {
   return Math.max(0, Math.min(1, (value - min) / (max - min)));
 }
 
-// luxury favorise le vol direct et la durée courte, student ne regarde que le prix
+// student ne regarde que le prix ; les autres pondèrent prix/direct/durée
 function scoreVol(vol: DonneesVol | null | undefined, mode: TravelMode): number {
   if (!vol) return 0.5;
   const prixScore       = 1 - normaliser(vol.price ?? 0, 50, 2000);
   const dureeScore      = 1 - normaliser(vol.duration_min ?? 0, 60, 720);
   const scoreVolDirect  = vol.stops === 0 ? 1 : vol.stops === 1 ? 0.6 : 0.3;
 
-  if (mode === 'luxury')  return scoreVolDirect * 0.5 + prixScore * 0.1 + dureeScore * 0.4;
   if (mode === 'student') return prixScore * 0.85 + scoreVolDirect * 0.15;
   return prixScore * 0.5 + scoreVolDirect * 0.3 + dureeScore * 0.2;
 }
 
-// group : la capacité pèse 50% ; luxury : étoiles + rating priment sur le prix
+// group : la capacité pèse 50% ; student : le prix prime ; défaut : rating + étoiles
 function scoreHotel(hotel: DonneesHotel | null | undefined, mode: TravelMode, travelers: number): number {
   if (!hotel) return 0.5;
   const scoreEtoiles   = normaliser(hotel.stars ?? 3, 1, 5);
@@ -71,7 +69,6 @@ function scoreHotel(hotel: DonneesHotel | null | undefined, mode: TravelMode, tr
   const capacityScore  = (hotel.max_guests ?? travelers) >= travelers ? 1 : 0.3;
   const ratingScore    = normaliser(hotel.rating ?? 7, 5, 10);
 
-  if (mode === 'luxury')  return scoreEtoiles * 0.5 + ratingScore * 0.35 + prixScore * 0.15;
   if (mode === 'student') return prixScore * 0.6 + ratingScore * 0.3 + scoreEtoiles * 0.1;
   if (mode === 'group')   return capacityScore * 0.5 + prixScore * 0.3 + ratingScore * 0.2;
   return scoreEtoiles * 0.35 + ratingScore * 0.4 + prixScore * 0.25;
@@ -108,13 +105,12 @@ function scoreEvents(events: Evenement[] | undefined, mode: TravelMode, activiti
   return countScore;
 }
 
-// student : gratuites, luxury : > 100€, relax : spa/nature/randonnée
+// student : gratuites, relax : spa/nature/randonnée, défaut : quantité/variété
 function scoreActivities(activities: Activite[] | undefined, mode: TravelMode): number {
   if (!activities || activities.length === 0) return 0;
 
   const total              = activities.length;
   const activitesGratuites = activities.filter(a => a.price === 0 || a.price_range === 'free').length;
-  const activitesLuxe      = activities.filter(a => typeof a.price === 'number' && a.price > 100).length;
   const activitesCalmes    = activities.filter(a =>
     ['spa', 'yoga', 'hiking', 'beach', 'nature'].some(k =>
       a.category?.toLowerCase().includes(k)
@@ -122,7 +118,6 @@ function scoreActivities(activities: Activite[] | undefined, mode: TravelMode): 
   ).length;
 
   if (mode === 'student') return normaliser(activitesGratuites, 0, total);
-  if (mode === 'luxury')  return normaliser(activitesLuxe, 0, total) * 0.6 + normaliser(total, 0, 8) * 0.4;
   if (mode === 'relax')   return normaliser(activitesCalmes, 0, total) * 0.7 + normaliser(total, 0, 8) * 0.3;
   return Math.max(0.5, normaliser(total, 0, 8));
 }
@@ -139,7 +134,7 @@ function scoreOriginalite(destination: string): number {
 }
 
 // Algo déterministe (zéro IA) : moyenne pondérée dont les poids varient selon le mode
-// ex. luxury → hotel 40% + activities 30% + vol 20% + prix 10%
+// ex. relax → calme 35% + hotel 30% + activities 25% + prix 10%
 export function scorerPack(
   pack: PackPourScore,
   mode: TravelMode,

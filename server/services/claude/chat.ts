@@ -49,7 +49,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
   "response": "Ta réponse élégante et concise (max 2 phrases).",
   "chips": ["Option 1", "Option 2", "Option 3"],
   "extractedData": {
-    "travelers": null, "profile": null, "mode": "luxury", "budget": null, "duration": null, "departure": null, "origin": "Paris"
+    "travelers": null, "profile": null, "mode": "relax", "premium": false, "budget": null, "duration": null, "departure": null, "origin": "Paris"
   },
   "isReady": false
 }`;
@@ -94,7 +94,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
   }
 }
 
-export async function chatModify({ currentPack, userMessage, mode }: ParamsChatModify): Promise<ResultatChatModify> {
+export async function chatModify({ currentPack, userMessage }: ParamsChatModify): Promise<ResultatChatModify> {
   const systemPrompt = `Tu es l'expert voyage TripGenie. L'utilisateur veut modifier son voyage à ${currentPack?.destination ?? 'destination'}.
 
   CONTEXTE ACTUEL :
@@ -107,6 +107,15 @@ export async function chatModify({ currentPack, userMessage, mode }: ParamsChatM
   2. Si l'utilisateur demande une modification majeure, mets "needs_full_regen" à true.
   3. Pour des modifications précises, suggère les changements dans "modifications".
   4. LANGUE : rédige "response" et les "chips" exclusivement EN FRANÇAIS.
+
+  RÈGLE CRITIQUE SUR "modifications" (chaque liste REMPLACE l'existante) :
+  - N'inclus une clé (activities / hotels / itinerary) QUE si tu la modifies vraiment.
+  - Quand tu renvoies une de ces clés, renvoie la LISTE COMPLÈTE ET À JOUR :
+    les éléments existants à CONSERVER + tes ajouts/remplacements. Ne renvoie
+    JAMAIS une liste partielle, sinon les anciens éléments seront perdus.
+  - Le pack contient actuellement ${currentPack?.activities?.length ?? 0} activité(s)
+    et ${currentPack?.hotels?.length ?? 0} hôtel(s). Ex : pour "plus d'activités",
+    renvoie les activités existantes + les nouvelles dans le même tableau.
 
   FORMAT RÉPONSE (JSON UNIQUEMENT) :
   {

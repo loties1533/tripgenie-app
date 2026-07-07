@@ -58,6 +58,7 @@ model Trip {
   travelers   Int       @default(1)
   budget      String?
   mode        String?
+  premium     Boolean   @default(false)
   status      String    @default("draft")
   score       Float?
   pack_data   Json?
@@ -109,6 +110,7 @@ model TripVote {
 model UserPreference {
   user_id         String   @id @db.Uuid
   default_mode    String   @default("party")
+  default_premium Boolean  @default(false)
   preferred_prefs String[]
   home_city       String?
   currency        String   @default("EUR")

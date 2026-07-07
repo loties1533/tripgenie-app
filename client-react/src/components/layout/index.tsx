@@ -12,7 +12,7 @@ export function Header() {
   const queryClient = useQueryClient()
 
   const gererDeconnexion = async () => {
-    try { await logout() } catch (_) {}
+    try { await logout() } catch { /* on déconnecte en local même si l'appel serveur échoue */ }
     clearAuth()
     queryClient.clear() // Vide le cache React Query : le compte suivant ne voit jamais les données du précédent
     setMenuOpen(false)
@@ -208,7 +208,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
             <div>
               <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-5">Styles de voyage</p>
               <ul className="space-y-2.5">
-                {['Fête', 'Luxe', 'Détente', 'En groupe', 'Étudiant'].map(e => (
+                {['Fête', 'Détente', 'En groupe', 'Étudiant', 'Surprise'].map(e => (
                   <li key={e}>
                     <span className="text-white/40 text-sm">{e}</span>
                   </li>
