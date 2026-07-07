@@ -22,6 +22,7 @@ import prisma from '../db/prisma.js';
 import type { Prisma } from '@prisma/client';
 import { MODES, DEFAULT_VALUES } from '../lib/constants.js';
 import type { TravelMode } from '../lib/types.js';
+import { peutEditerVoyage } from '../lib/tripAccess.js';
 import type { FlightSearchResult, EventSearchResult, HotelSearchResult } from '../services/smartSearch.js';
 import type { WeatherData } from '../services/weather.js';
 
@@ -418,11 +419,11 @@ router.post('/chat', aiChatLimiter, optionalAuth, validateBody(schemaChat), asyn
       mode: mode as TravelMode
     });
 
-    // MAJ DB si user connecté et trip existant — updateMany scopé par user_id
-    // garantit qu'on ne modifie jamais le voyage d'un autre (isolation).
-    if (req.user && trip_id && resultat.modifications) {
-      await prisma.trip.updateMany({
-        where: { id: trip_id, user_id: req.user.id },
+    // MAJ DB si l'utilisateur a le droit de modifier ce voyage : propriétaire
+    // ou collaborateur « editor ». Un « viewer » (ou un tiers) est ignoré ici.
+    if (req.user && trip_id && resultat.modifications && await peutEditerVoyage(req.user.id, trip_id)) {
+      await prisma.trip.update({
+        where: { id: trip_id },
         data:  { pack_data: { ...current_pack, ...resultat.modifications } as Prisma.InputJsonValue },
       });
     }

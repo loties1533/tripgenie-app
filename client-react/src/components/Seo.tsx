@@ -26,7 +26,9 @@ export default function Seo({ title, description, path, noindex }: SeoProps) {
       {description && <meta name="description" content={description} />}
       {path && <link rel="canonical" href={`${SITE_URL}${path}`} />}
       {noindex && <meta name="robots" content="noindex, nofollow" />}
-      <meta property="og:title" content={fullTitle} />
+      {/* og:title n'est surchargé que pour une page ayant son propre titre ;
+          l'accueil garde l'og:title défini une seule fois dans index.html. */}
+      {title && <meta property="og:title" content={fullTitle} />}
       {description && <meta property="og:description" content={description} />}
     </Helmet>
   )
