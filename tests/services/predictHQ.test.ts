@@ -175,7 +175,7 @@ describe('predictHQEventsSearch — erreurs API', () => {
 // ============================================================
 describe('predictHQEventsSearch — catégories par mode', () => {
 
-  const MODES = ['party', 'luxury', 'student', 'group', 'relax', 'surprise'] as const;
+  const MODES = ['party', 'student', 'group', 'relax', 'surprise'] as const;
 
   MODES.forEach(mode => {
     it(`mode ${mode} : fetch appelé avec des catégories`, async () => {

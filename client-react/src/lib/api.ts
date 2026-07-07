@@ -75,6 +75,7 @@ export const getCityPhoto = (city: string) => request<{ url: string }>(`/photos/
 // ---- Préférences utilisateur (relation 1-1) ----
 export interface PreferencesUtilisateur {
   default_mode?: string;
+  default_premium?: boolean;
   preferred_prefs?: string[];
   home_city?: string;
   currency?: string;

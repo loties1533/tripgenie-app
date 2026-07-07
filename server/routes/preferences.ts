@@ -8,7 +8,8 @@ import type { Request, Response, NextFunction } from 'express';
 const router = express.Router();
 
 const schemaPreferences = z.object({
-  default_mode:    z.enum(['party', 'student', 'luxury', 'group', 'relax', 'surprise']).optional(),
+  default_mode:    z.enum(['party', 'student', 'group', 'relax', 'surprise']).optional(),
+  default_premium: z.boolean().optional(),
   preferred_prefs: z.array(z.string().max(50)).max(10).optional(),
   home_city:       z.string().max(100).optional(),
   currency:        z.string().length(3).optional()
@@ -42,6 +43,7 @@ router.put('/', requireAuth, async (req: Request, res: Response, next: NextFunct
     // Allowlist : on n'écrit QUE les colonnes fournies.
     const champsModifies: Record<string, unknown> = {};
     if (donneesValidees.data.default_mode    !== undefined) champsModifies.default_mode    = donneesValidees.data.default_mode;
+    if (donneesValidees.data.default_premium !== undefined) champsModifies.default_premium = donneesValidees.data.default_premium;
     if (donneesValidees.data.preferred_prefs !== undefined) champsModifies.preferred_prefs = donneesValidees.data.preferred_prefs;
     if (donneesValidees.data.home_city       !== undefined) champsModifies.home_city       = donneesValidees.data.home_city;
     if (donneesValidees.data.currency        !== undefined) champsModifies.currency        = donneesValidees.data.currency;

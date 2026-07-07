@@ -177,6 +177,7 @@ export interface EnregistrementVoyage {
   travelers: number;
   budget: string;
   mode: TravelMode;
+  premium: boolean;
   pack_data: Pack;
   score: number;
   status: TripStatus;
@@ -184,7 +185,7 @@ export interface EnregistrementVoyage {
   updated_at: string;
 }
 
-export type TravelMode = 'party' | 'luxury' | 'student' | 'group' | 'relax' | 'surprise';
+export type TravelMode = 'party' | 'student' | 'group' | 'relax' | 'surprise';
 export type TripStatus = 'draft' | 'confirmed' | 'archived';
 
 export interface User {

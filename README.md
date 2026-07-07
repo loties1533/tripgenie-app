@@ -47,8 +47,10 @@ L'IA pose des questions naturelles pour extraire destination, budget, style, dat
 ### Données temps réel
 Vols, hôtels et événements sont récupérés via **Tavily** (recherche web) et **PredictHQ** (événements structurés) pour éviter les hallucinations LLM sur les prix et disponibilités.
 
-### 6 modes de voyage
-`party` · `luxury` · `student` · `group` · `relax` · `surprise` — chaque mode adapte le prompt IA, le scoring et la répartition budgétaire.
+### 5 modes de voyage + niveau de prix
+`party` · `student` · `group` · `relax` · `surprise` — chaque mode (la **vibe**) adapte le prompt IA, le scoring et la répartition budgétaire.
+
+Le **niveau de prix** est un **axe indépendant** (`premium: boolean`), pas un mode : n'importe quelle vibe peut être **Classique** ou **Premium**. Premium relève les plafonds de dépenses (hôtels, restauration, activités), oriente le prompt vers le haut de gamme et privilégie les catégories fine-dining. Ce découplage remplace l'ancien mode `luxury` qui mélangeait à tort ambiance et budget.
 
 ### Chat de modification post-génération
 Après génération, l'utilisateur modifie le pack en langage naturel : *"Change l'hôtel pour quelque chose de moins cher"* → le pack se met à jour sans tout régénérer. C'est la seule partie **agentique** du projet.
@@ -268,13 +270,15 @@ const trips = await prisma.trip.findMany({
 
 | Mode | Hôtel | Activités | Vols | Prix | Événements | Calme |
 |------|-------|-----------|------|------|------------|-------|
-| luxury | 40% | 30% | 20% | 10% | — | — |
 | party | 25% | 35% | 10% | 20% | 10% | — |
 | student | 20% | 25%* | — | 45% | 10% | — |
 | group | 35% | 30% | 15% | 20% | — | — |
 | relax | 30% | 25% | — | 10% | — | 35% |
+| surprise | — | — | — | — | — | — (global 60% + originalité 40%) |
 
 *activités gratuites uniquement en mode student
+
+Le scoring mesure l'adéquation à la **vibe** demandée ; le niveau de prix `premium` n'entre pas dans le scoring (c'est un axe budgétaire, pas de vibe).
 Le mode `surprise` utilise une pondération à part (score global 60% + originalité 40%).
 
 ---

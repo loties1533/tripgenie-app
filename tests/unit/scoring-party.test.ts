@@ -96,7 +96,7 @@ describe('scorerPack — prix par personne (fix 28/05)', () => {
 // ============================================================
 describe('scorerPack — régression modes non-party', () => {
 
-  it('mode luxury : les activités nightlife ne boostent pas le score', () => {
+  it('mode group (non-party) : les activités nightlife ne boostent pas le score', () => {
     const packLuxe = {
       vol:        { price: 1500, duration_min: 90, stops: 0 },
       hotel:      { stars: 5, price_per_night: 600, rating: 9.5 },
@@ -115,9 +115,9 @@ describe('scorerPack — régression modes non-party', () => {
       ],
       totalPrice: 10000
     };
-    // Les deux scores doivent être proches (nightlife ne biaise pas luxury)
-    const scoreNight = scorerPack(packLuxe,     'luxury', 2, 'Monaco');
-    const scoreLuxe  = scorerPack(packLuxeVrai, 'luxury', 2, 'Monaco');
+    // Les deux scores doivent être proches (nightlife ne biaise pas un mode non-party)
+    const scoreNight = scorerPack(packLuxe,     'group', 2, 'Monaco');
+    const scoreLuxe  = scorerPack(packLuxeVrai, 'group', 2, 'Monaco');
     expect(Math.abs(scoreNight.total - scoreLuxe.total)).toBeLessThan(0.2);
   });
 

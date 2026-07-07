@@ -1,7 +1,7 @@
 flowchart TB
     USER["<b>USER</b><br/>id (PK)<br/>email · password<br/>name · avatar_url"]
-    PREF["<b>PREFERENCES</b><br/>default_mode · currency<br/>home_city<br/>preferred_prefs"]
-    TRIP["<b>TRIP</b><br/>id (PK)<br/>destination · origin<br/>departure · return_date<br/>travelers · mode · status"]
+    PREF["<b>PREFERENCES</b><br/>default_mode · default_premium<br/>currency · home_city<br/>preferred_prefs"]
+    TRIP["<b>TRIP</b><br/>id (PK)<br/>destination · origin<br/>departure · return_date<br/>travelers · mode · premium · status"]
     PACK["<b>PACK</b><br/>id (PK)<br/>rank · score<br/>selected · pack_data"]
     VOTE["<b>VOTE</b><br/>id (PK)<br/>item_id<br/>voter_name · vote_type"]
 

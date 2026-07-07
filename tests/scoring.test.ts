@@ -24,11 +24,11 @@ describe('scorerPack — algorithme de scoring multi-critères', () => {
     expect(result).toHaveProperty('details');
   });
 
-  it('mode luxury favorise les hôtels étoilés', () => {
+  it('mode relax favorise les hôtels de meilleure qualité (étoiles + rating)', () => {
     const packLuxe  = { ...packBase, hotel: { stars: 5, price_per_night: 500, rating: 9.5 } };
     const packBasic = { ...packBase, hotel: { stars: 2, price_per_night: 50,  rating: 6.0 } };
-    const scoreLuxe  = scorerPack(packLuxe,  MODES.LUXURY, 2, 'Monaco');
-    const scoreBasic = scorerPack(packBasic, MODES.LUXURY, 2, 'Monaco');
+    const scoreLuxe  = scorerPack(packLuxe,  MODES.RELAX, 2, 'Monaco');
+    const scoreBasic = scorerPack(packBasic, MODES.RELAX, 2, 'Monaco');
     expect(scoreLuxe.total).toBeGreaterThan(scoreBasic.total);
   });
 
@@ -86,7 +86,7 @@ describe('scorerPack — algorithme de scoring multi-critères', () => {
   });
 
   it('le détail contient bien toutes les clés de score', () => {
-    const result = scorerPack(packBase, MODES.LUXURY, 2, 'Monaco');
+    const result = scorerPack(packBase, MODES.RELAX, 2, 'Monaco');
     const keys = ['vol', 'hotel', 'events', 'activities', 'prix'];
     keys.forEach(k => expect(result.details).toHaveProperty(k));
   });

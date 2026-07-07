@@ -63,7 +63,7 @@ Login : `prisma.user.findUnique({ where: { email } })`, vérification `bcrypt.co
 
 ![Algorithme de scoring déterministe](scoring.png)
 
-Algorithme **100 % déterministe** (aucune IA) : normalisation des critères puis **pondération selon le mode de voyage** (luxury, party, student, group, relax). Même entrée → même score, entre 0 et 1.
+Algorithme **100 % déterministe** (aucune IA) : normalisation des critères puis **pondération selon le mode de voyage** (party, student, group, relax, surprise). Même entrée → même score, entre 0 et 1. Le niveau de prix `premium` est un axe budgétaire indépendant du mode et n'entre pas dans le scoring.
 
 ## 8. Scalabilité horizontale
 

@@ -11,11 +11,11 @@ const STEPS = [
 ]
 
 const TIPS = [
-  'Analyse de milliers d\'options en cours…',
-  'Sélection des meilleures adresses pour vous',
-  'Chaque détail compte pour un voyage réussi',
-  'Comparaison des vols et des hébergements',
-  'Nous cherchons les pépites méconnues',
+  'On passe les options au crible…',
+  'On garde les meilleures adresses',
+  'On compare les vols et les hébergements',
+  'On cherche les pépites moins connues',
+  'Presque prêt…',
 ]
 
 export default function GenerationLoader({ destination }: { destination?: string }) {

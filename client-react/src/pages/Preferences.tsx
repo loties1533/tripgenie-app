@@ -9,7 +9,6 @@ import { getPreferences, savePreferences } from '../lib/api'
 const MODES = [
   { value: 'party',    label: '🎉 Fête' },
   { value: 'student',  label: '🎓 Étudiant' },
-  { value: 'luxury',   label: '💎 Luxe' },
   { value: 'group',    label: '👥 Groupe' },
   { value: 'relax',    label: '🌿 Détente' },
   { value: 'surprise', label: '🎁 Surprise' },
@@ -24,6 +23,7 @@ export default function PreferencesPage() {
 
   const [homeCity, setHomeCity]   = useState('')
   const [mode, setMode]           = useState('party')
+  const [premium, setPremium]     = useState(false)
   const [interests, setInterests] = useState<string[]>([])
 
   // Pas connecté → login
@@ -39,6 +39,7 @@ export default function PreferencesPage() {
         if (preferences) {
           setHomeCity(preferences.home_city ?? '')
           setMode(preferences.default_mode ?? 'party')
+          setPremium(preferences.default_premium ?? false)
           setInterests(preferences.preferred_prefs ?? [])
         }
       })
@@ -55,6 +56,7 @@ export default function PreferencesPage() {
       await savePreferences({
         home_city:       homeCity,
         default_mode:    mode,
+        default_premium: premium,
         preferred_prefs: interests,
       })
       toast.success('Préférences enregistrées')
@@ -103,6 +105,25 @@ export default function PreferencesPage() {
                             ? 'bg-gold text-white border-gold shadow-glow-gold'
                             : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40 dark:bg-white/5 dark:border-white/10'}`}>
                         {m.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Niveau de prix (axe indépendant du mode) */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Gamme par défaut</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: false, label: '✨ Classique' },
+                      { value: true,  label: '💎 Premium' },
+                    ].map(n => (
+                      <button key={String(n.value)} onClick={() => setPremium(n.value)}
+                        className={`py-2.5 rounded-xl text-sm font-medium border transition-all
+                          ${premium === n.value
+                            ? 'bg-gold text-white border-gold shadow-glow-gold'
+                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40 dark:bg-white/5 dark:border-white/10'}`}>
+                        {n.label}
                       </button>
                     ))}
                   </div>

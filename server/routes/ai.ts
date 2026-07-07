@@ -27,12 +27,14 @@ import type { WeatherData } from '../services/weather.js';
 
 const router = express.Router();
 
-const schemaMode = z.enum(['party', 'student', 'luxury', 'group', 'relax', 'surprise']);
+const schemaMode = z.enum(['party', 'student', 'group', 'relax', 'surprise']);
 
-// Normalisation des modes : accepte les synonymes FR (luxe→luxury, fête→party…) et la casse,
+// Normalisation des modes : accepte les synonymes FR (fête→party, détente→relax…) et la casse,
 // pour ne pas planter quand le LLM renvoie le mot français saisi par l'utilisateur.
+// NB : « luxe » n'est plus un mode (c'est le niveau de prix `premium`, axe distinct) →
+// on le rabat sur 'relax' (vibe la plus proche) pour ne pas perdre la saisie.
 const MODE_ALIASES: Record<string, string> = {
-  luxe: 'luxury', luxueux: 'luxury', luxury: 'luxury',
+  luxe: 'relax', luxueux: 'relax',
   fete: 'party', 'fête': 'party', party: 'party', 'soirée': 'party', soiree: 'party', amis: 'party',
   detente: 'relax', 'détente': 'relax', relax: 'relax', calme: 'relax', repos: 'relax', couple: 'relax', romantique: 'relax',
   etudiant: 'student', 'étudiant': 'student', student: 'student', budget: 'student',
@@ -42,7 +44,7 @@ const MODE_ALIASES: Record<string, string> = {
 function canonicalMode(v: unknown): string | undefined {
   if (typeof v !== 'string') return undefined;
   const k = v.trim().toLowerCase();
-  return MODE_ALIASES[k] ?? (['party', 'student', 'luxury', 'group', 'relax', 'surprise'].includes(k) ? k : undefined);
+  return MODE_ALIASES[k] ?? (['party', 'student', 'group', 'relax', 'surprise'].includes(k) ? k : undefined);
 }
 // /destinations : garantit toujours un mode valide (défaut 'surprise' = l'app choisit) → jamais de 400 sur le mode.
 const modeDestinations = z.preprocess((v) => canonicalMode(v) ?? 'surprise', schemaMode);
@@ -69,6 +71,7 @@ const schemaAnalyse = z.object({
 
 const schemaDestinations = z.object({
   mode: modeDestinations,
+  premium: z.preprocess((v) => v === 'true' ? true : v === 'false' ? false : v, z.boolean()).optional(),
   profile: z.string().trim().max(40).optional(),
   interests: z.array(z.string()).max(20).optional(),
   budget: z.number().int().min(0).optional(),
@@ -91,6 +94,7 @@ const schemaGeneration = z.object({
   travelers: z.preprocess((val) => typeof val === 'string' ? Number(val) : val, z.number().int().min(1).max(20)).optional(),
   budget: z.preprocess((val) => typeof val === 'string' ? Number(val) : val, z.number().int().min(1).max(50000)),
   mode: modeOptionnel,
+  premium: z.preprocess((v) => v === 'true' ? true : v === 'false' ? false : v, z.boolean()).optional(),
   profile: z.string().trim().max(40).optional(),
   interests: z.array(z.string()).max(20).optional(),
 });
@@ -127,9 +131,9 @@ router.post('/analyze', aiChatLimiter, optionalAuth, validateBody(schemaAnalyse)
 // ---- POST /api/ai/destinations ----
 router.post('/destinations', aiGenerateLimiter, optionalAuth, validateBody(schemaDestinations), async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { mode, profile, interests, budget, travelers, duration, origin, departure } = req.body;
+    const { mode, premium, profile, interests, budget, travelers, duration, origin, departure } = req.body;
 
-    const resultat = await suggestDestinations({ mode, profile, interests, budget, travelers, duration, origin, departure });
+    const resultat = await suggestDestinations({ mode, premium, profile, interests, budget, travelers, duration, origin, departure });
     res.json(resultat);
 
   } catch (err) {
@@ -189,6 +193,7 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
       travelers   = DEFAULT_VALUES.TRAVELERS,
       budget,
       mode        = MODES.PARTY,
+      premium     = false,
       profile,
       interests,
     } = req.body;
@@ -217,14 +222,14 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
     const promessePhoto   = getDestinationPhoto(destination).catch(() => null);
     const promesseMeteo = getRealWeather(destination, departure).catch(() => null);
     // Foursquare en premier (1000/jour), Yelp en fallback (500/jour) — les deux gardés
-    const promesseRestaurants = foursquareRestaurantSearch(destination, mode as TravelMode)
+    const promesseRestaurants = foursquareRestaurantSearch(destination, mode as TravelMode, premium)
       .then(r => {
         if (r.length > 0) {
           console.log(`✅ Foursquare: ${r.length} restaurant(s) trouvé(s) pour ${destination}`);
           return r;
         }
         console.log(`⚠️  Foursquare: 0 résultat → Fallback Yelp...`);
-        return yelpRestaurantSearch(destination, mode as TravelMode)
+        return yelpRestaurantSearch(destination, mode as TravelMode, premium)
           .then(yelpResults => {
             if (yelpResults.length > 0) {
               console.log(`✅ Yelp: ${yelpResults.length} restaurant(s) trouvé(s) pour ${destination}`);
@@ -288,6 +293,7 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
       events,
       hotels: realHotels,
       mode: mode as TravelMode,
+      premium,
       profile,
       interests,
       travelers,
@@ -354,6 +360,7 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
             travelers,
             budget:      String(budget),
             mode,
+            premium,
             status:      'draft',
             // cast structurel : le pack est JSON-sérialisable (champs optionnels → InputJsonValue)
             pack_data:   packNote as unknown as Prisma.InputJsonValue,

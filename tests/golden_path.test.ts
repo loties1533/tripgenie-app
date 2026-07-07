@@ -145,7 +145,8 @@ describe('🏆 GOLDEN PATH — POST /api/ai/generate', () => {
     return_date: '2025-06-05',
     travelers:   2,
     budget:      2000,
-    mode:        'luxury'
+    mode:        'relax',
+    premium:     true
   };
 
   it('renvoie 200 avec la structure de pack complète (flux nominal)', async () => {

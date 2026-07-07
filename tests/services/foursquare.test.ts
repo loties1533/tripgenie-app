@@ -131,7 +131,7 @@ describe('foursquareRestaurantSearch — mapping des prix', () => {
   it('price=4 ($$$$) correspond à ~120€', async () => {
     const r = { results: [{ ...MOCK_FSQ_RESPONSE.results[0], price: 4, name: 'Luxe' }] };
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => r });
-    const [result] = await foursquareRestaurantSearch('Paris', 'luxury');
+    const [result] = await foursquareRestaurantSearch('Paris', 'relax');
     expect(result.price).toBe(120);
     expect(result.price_range).toBe('$$$$');
   });
@@ -157,9 +157,10 @@ describe('foursquareRestaurantSearch — queries par mode', () => {
     expect(url).toMatch(/bar|nightclub|lounge/i);
   });
 
-  it('mode luxury : requête contient "fine dining"', async () => {
+  it('premium=true : requête contient "fine dining" quel que soit le mode', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_FSQ_RESPONSE });
-    await foursquareRestaurantSearch('Monaco', 'luxury');
+    // premium est un axe indépendant du mode (ici relax) → catégories haut de gamme.
+    await foursquareRestaurantSearch('Monaco', 'relax', true);
     // URLSearchParams encode les espaces avec +, decodeURIComponent ne les décode pas → replace
     const url = decodeURIComponent(mockFetch.mock.calls[0][0] as string).replace(/\+/g, ' ');
     expect(url).toMatch(/fine dining|wine bar/i);

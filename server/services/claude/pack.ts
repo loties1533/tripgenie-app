@@ -1,5 +1,5 @@
 import { callAI, parseJSON, sanitizeInput } from './core.js';
-import { MODES, BUDGET_RATIOS, DEFAULT_VALUES } from '../../lib/constants.js';
+import { MODES, BUDGET_RATIOS, PLAFONDS, DEFAULT_VALUES } from '../../lib/constants.js';
 import type { Pack, TravelMode } from '../../lib/types.js';
 import type { FlightSearchResult, EventSearchResult, HotelSearchResult } from '../smartSearch.js';
 import type { WeatherData } from '../weather.js';
@@ -13,6 +13,7 @@ export interface ParamsAssemblagePack {
   events?: EventSearchResult[];
   hotels?: HotelSearchResult[];
   mode: TravelMode;
+  premium?: boolean;
   profile?: string;
   interests?: string[];
   travelers: number;
@@ -61,7 +62,7 @@ export function calculerNuits(
 // 2. construirePromptPack — construction du prompt LLM
 
 export function construirePromptPack({
-  dest, originCity, travelers, profile, interests, mode, budgetPerPers, nights, events,
+  dest, originCity, travelers, profile, interests, mode, premium, budgetPerPers, nights, events,
 }: {
   dest: string;
   originCity: string;
@@ -69,6 +70,7 @@ export function construirePromptPack({
   profile: string | undefined;
   interests?: string[];
   mode: TravelMode;
+  premium?: boolean;
   budgetPerPers: number;
   nights: number;
   events?: EventSearchResult[];
@@ -81,9 +83,7 @@ export function construirePromptPack({
     ? 'Budget moyen : bon rapport qualité/prix, quelques coups de cœur premium.'
     : 'Petit budget : adresses locales authentiques, astuces insider.';
 
-  const modePersona = mode === MODES.LUXURY
-    ? "Ton ADN est l'excellence absolue. Chaque proposition doit être digne d'un guide Condé Nast."
-    : mode === MODES.PARTY
+  const modePersona = mode === MODES.PARTY
     ? "Tu es l'expert nightlife. Chaque journée monte en puissance vers une soirée mémorable."
     : mode === MODES.RELAX
     ? 'Tu es un maître du slow travel. Rythme doux, expériences intimes, pas de rush.'
@@ -93,10 +93,25 @@ export function construirePromptPack({
     ? 'Tu connais tous les bons plans : max de saveurs pour min de budget.'
     : 'Tu combines intelligemment les envies du groupe avec la richesse locale.';
 
+  // Niveau de prix (axe orthogonal au mode) : monte en gamme SANS écraser la vibe.
+  const premiumModifier = premium
+    ? "⚠️ GAMME PREMIUM : privilégie systématiquement le haut de gamme — hôtels 5★ ou boutique-hôtels de caractère, tables réputées, expériences exclusives et privatisées — tout en respectant la vibe ci-dessus."
+    : '';
+
+  // Profil = « avec qui » (axe distinct du mode et du prix) : oriente le TON et le
+  // type d'expériences, sans imposer une ambiance (celle-ci vient du mode).
+  const PROFIL_MODIFIERS: Record<string, string> = {
+    couple:  'expériences intimes à deux — tables romantiques, moments en tête-à-tête, hébergement pour 2.',
+    famille: 'activités adaptées aux enfants, hôtels familiaux, rythme accessible à tous les âges.',
+    amis:    'expériences conviviales et partagées, propices à la bonne humeur du groupe.',
+    solo:    'expériences favorisant les rencontres et la liberté de mouvement, en toute sécurité.',
+  };
+  const profilModifier = profile && PROFIL_MODIFIERS[profile]
+    ? `⚠️ PROFIL ${profile.toUpperCase()} : privilégie des ${PROFIL_MODIFIERS[profile]}`
+    : '';
+
   const activityTypes = mode === MODES.PARTY
     ? 'club|bar|discothèque|beach-club|festival|restaurant-lounge'
-    : mode === MODES.LUXURY
-    ? 'restaurant-étoilé|spa-5étoiles|yacht-privé|club-vip|expérience-exclusive|gastronomie'
     : mode === MODES.STUDENT
     ? 'bar-incontournable|street-food|marché-local|concert|activité-outdoor|visite-gratuite'
     : mode === MODES.RELAX
@@ -105,8 +120,6 @@ export function construirePromptPack({
 
   const activityInstruction = mode === MODES.PARTY
     ? '⚠️ MODE PARTY — OBLIGATOIRE : 6 vrais lieux nightlife (boîtes, beach clubs, bars, festivals, restos lounge). AUCUN musée ni site culturel. Exemples réels : Pacha, Ushuaïa, Hi Ibiza, Amnesia, Destino.'
-    : mode === MODES.LUXURY
-    ? '⚠️ MODE LUXURY — OBLIGATOIRE : 6 adresses ultra-premium (restos Michelin, spas palace, yachts, clubs privés). Exemples : Nobu, Cipriani, Nikki Beach. Noms réels uniquement.'
     : mode === MODES.STUDENT
     ? '⚠️ MODE STUDENT — OBLIGATOIRE : 6 adresses connues et accessibles (bars étudiants, marchés, street food, activités outdoor gratuites ou pas chères). Noms réels uniquement.'
     : mode === MODES.RELAX
@@ -126,6 +139,8 @@ export function construirePromptPack({
     VOYAGEURS : ${travelers} personne(s). PROFIL : ${profile ?? mode}. VIBE : ${mode}. BUDGET : ${budgetPerPers}€/pers. DURÉE : ${nights} nuits.
 
     ${modePersona}
+    ${premiumModifier}
+    ${profilModifier}
     ${budgetTone}
     ${activityInstruction}${interetsContext}
     ${realVenuesContext}
@@ -400,9 +415,11 @@ export function calculerRepartitionBudget(
   nights: number,
   travelers: number,
   realFlightTotal?: number,
+  premium = false,
 ): Pack['budget_breakdown'] {
   const ratio  = BUDGET_RATIOS[mode] ?? BUDGET_RATIOS.party;
-  const maxPpn = mode === MODES.LUXURY ? 800 : 250;
+  const cap    = premium ? PLAFONDS.premium : PLAFONDS.classique;
+  const maxPpn = cap.maxPpn;
 
   // ── Poste VOLS : vrai coût (plafonné à 60 % du budget) sinon estimation ratio.
   const vols = realFlightTotal && realFlightTotal > 0
@@ -425,12 +442,11 @@ export function calculerRepartitionBudget(
   // honnêtement dans « Divers » (Marge / imprévus) au lieu de gonfler resto ou
   // activités (ex. 1218€ de resto pour un week-end à 2). Le total reste = budget.
   // Valeurs ajustables ; on ne redistribue plus le surplus d'hébergement.
-  const isLux   = mode === MODES.LUXURY;
   const jours    = Math.max(1, nights);
   const capJour  = (parPersJour: number) => parPersJour * travelers * jours;
-  const plafActivites = capJour(isLux ? 250 : 80);
-  const plafResto     = capJour(isLux ? 150 : 60);
-  const plafTransp    = capJour(isLux ? 60  : 25);
+  const plafActivites = capJour(cap.activites);
+  const plafResto     = capJour(cap.resto);
+  const plafTransp    = capJour(cap.transp);
 
   const activites    = Math.min(Math.round(part(ratio.activites)),    plafActivites);
   const restauration = Math.min(Math.round(part(ratio.restauration)), plafResto);
@@ -453,7 +469,7 @@ export function calculerRepartitionBudget(
 // 7. assemblerPack — orchestrateur principal
 
 export async function assemblerPack({
-  destination, origin, flights, events, hotels: realHotels, mode, profile, interests, travelers, budget,
+  destination, origin, flights, events, hotels: realHotels, mode, premium = false, profile, interests, travelers, budget,
   departure, return_date, duration, realWeather, realPhoto,
 }: ParamsAssemblagePack): Promise<Pack> {
   const dest       = sanitizeInput(destination);
@@ -462,7 +478,7 @@ export async function assemblerPack({
   const budgetPerPers = Math.round(budget / travelers);
 
   // ── 1. Appel LLM ──────────────────────────────────────────────────────────
-  const prompt = construirePromptPack({ dest, originCity, travelers, profile, interests, mode, budgetPerPers, nights, events });
+  const prompt = construirePromptPack({ dest, originCity, travelers, profile, interests, mode, premium, budgetPerPers, nights, events });
   const texteBrutIA = await callAI(prompt, undefined, 'pack');
 
   // ── 2. Parsing JSON (5 stratégies de récupération) ────────────────────────
@@ -476,7 +492,7 @@ export async function assemblerPack({
   // Vrai coût des vols = prix/pers résolu × 2 trajets (A/R) × voyageurs.
   const flightPricePerPerson = resolveFlightPricePerPerson(flights, budget, travelers);
   const realFlightTotal      = flightPricePerPerson * 2 * travelers;
-  const budgetBreakdown = calculerRepartitionBudget(budget, mode, nights, travelers, realFlightTotal);
+  const budgetBreakdown = calculerRepartitionBudget(budget, mode, nights, travelers, realFlightTotal, premium);
   const hebergementBrut = (budgetBreakdown as Pack['budget_breakdown'] & { _hebergRaw: number })._hebergRaw;
 
   // ── 5. Mapping événements ─────────────────────────────────────────────────
@@ -506,7 +522,7 @@ export async function assemblerPack({
     hotels: (realHotels?.length ? realHotels : texteIA.hotels ?? []).map((h, i) => ({
       name:            h.name ?? `Hôtel ${i + 1}`,
       location:        (h as { loc?: string }).loc ?? (h as { location?: string }).location ?? 'Centre',
-      stars:           h.stars ?? (i === 0 && mode === 'luxury' ? 5 : 4),
+      stars:           h.stars ?? (i === 0 && premium ? 5 : 4),
       // Prix par CHAMBRE/nuit (2 pers/chambre), pas le budget total du groupe :
       // sinon à 10 pers on affichait « 2500€/nuit » comme si c'était une chambre.
       // C'est une ESTIMATION indicative (on n'interroge aucun prix hôtel réel) —
@@ -522,7 +538,7 @@ export async function assemblerPack({
     itinerary: (texteIA.itinerary ?? []).map(d => ({
       day:      d.day,
       title:    d.title ?? 'Journée découverte',
-      subtitle: mode === MODES.PARTY ? 'Ambiance & Vie nocturne' : mode === MODES.LUXURY ? 'Prestige & Exclusivité' : 'Exploration',
+      subtitle: mode === MODES.PARTY ? 'Ambiance & Vie nocturne' : premium ? 'Prestige & Exclusivité' : 'Exploration',
       items: [
         // Heures indicatives (matin/soir). On n'affiche PLUS de prix/durée inventés :
         // l'IA ne fournit que l'activité (am/pm), donc tout chiffre serait du faux.
