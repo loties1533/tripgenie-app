@@ -1,4 +1,4 @@
-# TripGenie — Frontend React
+cli# TripGenie — Frontend React
 
 Interface React pour TripGenie. Stack : **Vite + React 18 + TypeScript + Tailwind CSS + Zustand + Framer Motion**.
 
