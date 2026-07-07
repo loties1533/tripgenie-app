@@ -188,38 +188,58 @@ erDiagram
         text email UK
         text password
         text name
+        text avatar_url
         timestamptz created_at
+        timestamptz updated_at
     }
     trips {
         uuid id PK
         uuid user_id FK
+        text title
         text destination
+        text country
+        text origin
+        date departure
+        date return_date
+        int travelers
+        text budget
         text mode
+        text status
         float score
         jsonb pack_data
+        timestamptz created_at
+        timestamptz updated_at
     }
     packs {
         uuid id PK
         uuid trip_id FK
         int rank
-        boolean selected
+        float score
         jsonb pack_data
+        boolean selected
+        timestamptz created_at
     }
     trip_votes {
         uuid id PK
         uuid pack_id FK
         text item_id
+        text voter_name
         boolean vote_type
+        timestamptz created_at
     }
     user_preferences {
         uuid user_id PK
         text default_mode
+        text preferred_prefs
+        text home_city
         text currency
+        timestamptz updated_at
     }
     trip_collaborators {
         uuid trip_id PK
         uuid user_id PK
         text role
+        timestamptz invited_at
     }
 ```
 
@@ -345,22 +365,30 @@ npm run test:all  # 18 fichiers complets
 
 ```
 tests/
+├── api.test.ts                        — routes API (CRUD trips, auth, packs)
+├── golden_path.test.ts                — scénario complet end-to-end
+├── middleware.test.ts                 — auth, rate-limit, validation middleware
+├── scoring.test.ts                    — algorithme scoring tous modes
 ├── unit/
-│   ├── scoring-party.test.ts           8 tests — scoring mode party
-│   └── smartSearch-hotel.test.ts      12 tests — recherche hôtels
+│   ├── scoring-party.test.ts          — scoring mode party
+│   ├── smartSearch-hotel.test.ts      — recherche hôtels
+│   ├── pack-functions.test.ts         — fonctions d'assemblage de pack
+│   └── liens.test.ts                  — service liens/URLs
 ├── services/
-│   ├── predictHQ.test.ts              15 tests — événements PredictHQ
-│   ├── foursquare.test.ts             17 tests — restaurants Foursquare
-│   └── yelp.test.ts                   10 tests — fallback Yelp
+│   ├── predictHQ.test.ts              — événements PredictHQ
+│   ├── foursquare.test.ts             — restaurants Foursquare
+│   └── yelp.test.ts                   — fallback Yelp
 ├── security/
-│   ├── auth-signup.test.ts            12 tests — inscription, bcrypt, cookie
-│   ├── auth-login.test.ts             12 tests — connexion, JWT, logout
-│   ├── auth-tokens.test.ts            13 tests — expiration, alg:none, IDOR
-│   └── input-validation.test.ts       20 tests — Zod toutes routes
+│   ├── auth-signup.test.ts            — inscription, bcrypt, cookie
+│   ├── auth-login.test.ts             — connexion, JWT, logout
+│   ├── auth-tokens.test.ts            — expiration, alg:none, IDOR
+│   └── input-validation.test.ts       — Zod toutes routes
 └── integration/
-    └── generate-restaurants.test.ts    8 tests — pipeline FSQ→Yelp
+    ├── generate-restaurants.test.ts   — pipeline FSQ→Yelp
+    ├── collaborators.test.ts          — gestion collaborateurs
+    └── preferences.test.ts            — préférences utilisateur
 ─────────────────────────────────────────────────────────────────
-  282 tests — tous les services externes mockés (zéro clé API requise)
+  tous les services externes mockés (zéro clé API requise)
 ```
 
 ---
