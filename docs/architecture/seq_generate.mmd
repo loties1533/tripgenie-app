@@ -13,7 +13,7 @@ sequenceDiagram
     AI->>S: foursquareSearch() → yelpSearch() (fallback)
     S-->>AI: données réelles (best-effort, timeout 30s)
     AI->>PK: assemblePack(données)
-    Note over PK: callAI Gemini→Claude→OpenRouter→Mocks
+    Note over PK: callAI Claude→Gemini→OpenRouter→Mocks
     Note over PK: parsePackResponse + mapFlights + mapActivities
     PK-->>AI: pack JSON structuré
     AI->>SC: scorepack(pack, mode)

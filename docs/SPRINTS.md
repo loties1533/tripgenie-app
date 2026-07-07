@@ -61,7 +61,7 @@ Réflexion sur le process à la fin de chaque sprint.
 ### Sprint 2
 - ✅ **Réussite** : `Promise.allSettled` — un service en panne n'interrompt plus la génération.
 - ⚠️ **Difficulté** : quotas des fournisseurs LLM.
-- 🔧 **Amélioration** : cascade de repli Gemini → Claude → OpenRouter → mocks.
+- 🔧 **Amélioration** : cascade de repli Claude → Gemini → OpenRouter → mocks.
 
 ### Sprint 3
 - ✅ **Réussite** : filet de sécurité de tests solide.

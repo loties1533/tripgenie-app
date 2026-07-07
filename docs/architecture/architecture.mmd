@@ -7,12 +7,12 @@ flowchart TB
     subgraph Server["Couche Logique Métier — Node.js + Express 4"]
         Idx["index.ts — Helmet · CORS · cookieParser · morgan"]
         MW["middleware — requireAuth + rateLimit"]
-        Routes["routes/*.ts — auth · trips · ai · packs · votes"]
+        Routes["routes/*.ts — auth · trips · ai · votes · photos · preferences · collaborators"]
         Svc["services/*.ts — pipeline IA · scoring · smartSearch"]
-        Prisma["lib/prisma.ts — client singleton"]
+        Prisma["db/prisma.ts — client singleton"]
     end
     DB[("PostgreSQL 16 — 6 tables")]
-    Ext["APIs externes — Gemini · Claude · OpenRouter · Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash"]
+    Ext["APIs externes — Claude · Gemini · OpenRouter · Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash"]
 
     UI --> Store --> Api
     Api -->|"HTTPS · cookie httpOnly JWT"| Idx

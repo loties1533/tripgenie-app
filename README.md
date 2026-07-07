@@ -12,7 +12,7 @@
 [![Express](https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![Vitest](https://img.shields.io/badge/Vitest-282_tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
+[![Vitest](https://img.shields.io/badge/Vitest-290_tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
 
 [🚀 Demo Live](https://tripgenie.onrender.com) · [📖 API Docs](http://localhost:3000/api/docs) · [🐛 Issues](https://github.com/loties1533/tripgenie-app/issues)
 
@@ -79,7 +79,7 @@ Interface Swagger disponible sur `/api/docs` — toutes les routes sont testable
 flowchart TB
     subgraph PRES["🎨 COUCHE PRÉSENTATION"]
         UI["Frontend React<br/>pages · composants · Zustand"]
-        REST["API REST Express<br/>auth · trips · ai · packs · votes · preferences · collaborators"]
+        REST["API REST Express<br/>auth · trips · ai · votes · preferences · collaborators · photos"]
     end
     subgraph LOGIC["⚙️ COUCHE LOGIQUE MÉTIER"]
         Sec["Auth JWT · bcrypt · Validation Zod · Rate-limit"]
@@ -94,7 +94,7 @@ flowchart TB
     REST --> Sec --> Pipe --> Svc
     Svc -->|"requêtes typées"| ORM
     ORM --- DB
-    Pipe -.->|"APIs externes"| EXT["🌐 Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash · Gemini/Claude/OpenRouter"]
+    Pipe -.->|"APIs externes"| EXT["🌐 Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash · Claude/Gemini/OpenRouter"]
 ```
 
 ### Le pipeline de génération
@@ -114,7 +114,7 @@ POST /api/ai/generate
         │   + foursquareSearch() → yelpSearch() (fallback)
         │
         ├─ 3. assemblePack()               ← LLM + données réelles injectées
-        │      Gemini → Claude (optionnel) → OpenRouter (cascade fallback)
+        │      Claude → Gemini → OpenRouter (cascade fallback)
         │
         ├─ 4. Merge restaurants            ← Foursquare/Yelp dans activities
         │
@@ -127,10 +127,10 @@ POST /api/ai/generate
 ### Cascade LLM (fallback automatique)
 
 ```
-Gemini 2.0 Flash  →  Claude Haiku (optionnel)  →  OpenRouter (7 modèles gratuits)  →  Mocks statiques
+Claude Haiku  →  Gemini 2.0 Flash  →  OpenRouter (7 modèles gratuits)  →  Mocks statiques
 ```
 
-Si un provider échoue (quota, timeout 45s), le suivant prend le relais automatiquement. `Promise.allSettled` garantit que la génération continue même si un service externe est en panne.
+Claude est le provider principal (JSON fiable) ; si sa clé est absente ou s'il échoue (quota, timeout 45s), le suivant prend le relais automatiquement. `Promise.allSettled` garantit que la génération continue même si un service externe est en panne.
 
 ### Séquence — génération d'un pack
 
@@ -269,12 +269,13 @@ const trips = await prisma.trip.findMany({
 | Mode | Hôtel | Activités | Vols | Prix | Événements | Calme |
 |------|-------|-----------|------|------|------------|-------|
 | luxury | 40% | 30% | 20% | 10% | — | — |
-| party | 20% | — | 10% | 30% | 40% | — |
-| student | 15% | 25%* | — | 50% | 10% | — |
+| party | 25% | 35% | 10% | 20% | 10% | — |
+| student | 20% | 25%* | — | 45% | 10% | — |
 | group | 35% | 30% | 15% | 20% | — | — |
 | relax | 30% | 25% | — | 10% | — | 35% |
 
 *activités gratuites uniquement en mode student
+Le mode `surprise` utilise une pondération à part (score global 60% + originalité 40%).
 
 ---
 
@@ -310,8 +311,8 @@ const trips = await prisma.trip.findMany({
 ### IA & Services externes
 | Service | Rôle | Fallback |
 |---------|------|---------|
-| Google Gemini 2.0 Flash | LLM principal | Claude |
-| Anthropic Claude Haiku *(optionnel — si clé API configurée)* | LLM secondaire | OpenRouter |
+| Anthropic Claude Haiku | LLM principal (JSON fiable, appelé en premier si clé configurée) | Gemini |
+| Google Gemini 2.0 Flash | LLM secondaire (repli, quota gratuit) | OpenRouter |
 | OpenRouter | LLM tertiaire — 7 modèles gratuits | Mocks statiques |
 | Tavily | Recherche web temps réel (vols, hôtels) | Données IA |
 | PredictHQ | Événements structurés (concerts, festivals) | Tavily |
@@ -457,7 +458,7 @@ PREDICTHQ_API_KEY=...
 tripgenie/
 ├── server/                     # Backend Node.js / Express / TypeScript
 │   ├── index.ts                # Point d'entrée — middleware, routes, démarrage
-│   ├── routes/                 # auth · trips · ai · votes · photos · packs
+│   ├── routes/                 # auth · trips · ai · votes · photos
 │   │                           # preferences · collaborators
 │   ├── middleware/
 │   │   ├── auth.ts             # requireAuth · optionalAuth (cookie + Bearer)
@@ -472,7 +473,7 @@ tripgenie/
 │   │   │   └── index.ts        # Exports
 │   │   ├── tools/
 │   │   │   └── webSearch.ts    # Outil recherche web (Tavily, usage agentique)
-│   │   ├── providers.ts        # Adaptateurs multi-LLM (Gemini / Claude / OpenRouter)
+│   │   ├── providers.ts        # Adaptateurs multi-LLM (Claude / Gemini / OpenRouter)
 │   │   ├── scoring.ts          # Algorithme scoring déterministe 0–1
 │   │   ├── smartSearch.ts      # Recherche vols / hôtels / événements (Tavily)
 │   │   ├── foursquare.ts       # Restaurants réels Foursquare
@@ -531,8 +532,9 @@ Documentation interactive complète → **`/api/docs`** (Swagger UI)
 |---------|-------|------|--------|
 | POST | `/api/ai/generate` | optionnel | 10/h/IP |
 | POST | `/api/ai/chat` | optionnel | 30/15min/IP |
-| POST | `/api/ai/onboarding` | — | 30/15min/IP |
-| POST | `/api/ai/destinations` | — | 30/15min/IP |
+| POST | `/api/ai/analyze` | optionnel | 30/15min/IP |
+| POST | `/api/ai/onboarding` | optionnel | 30/15min/IP |
+| POST | `/api/ai/destinations` | optionnel | 10/h/IP |
 
 ### Voyages (CRUD complet)
 | Méthode | Route | Auth | Description |
@@ -550,8 +552,6 @@ Documentation interactive complète → **`/api/docs`** (Swagger UI)
 | GET/PUT | `/api/preferences` | ✅ | Préférences utilisateur |
 | GET/POST | `/api/trips/:id/collaborators` | ✅ | Collaborateurs |
 | DELETE | `/api/trips/:id/collaborators/:uid` | ✅ | Retirer un collaborateur |
-| GET | `/api/packs/:trip_id` | ✅ | Packs d'un voyage |
-| POST | `/api/packs/:trip_id/select/:pack_id` | ✅ | Sélectionner un pack |
 | POST | `/api/votes` | 🌐 public | Voter sur un élément |
 | GET | `/api/votes/:pack_id` | 🌐 public | Récupérer les votes |
 | GET | `/api/photos/:city` | 🌐 public | Photo destination (proxy Unsplash) |

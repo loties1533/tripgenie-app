@@ -22,7 +22,7 @@ Diagrammes de référence du projet. Chaque schéma est écrit en **Mermaid** (s
 Architecture **3-tiers** classique :
 
 - **Présentation** — React 18 + Vite, état global Zustand, appels HTTP centralisés dans `lib/api.ts` (`credentials: include`).
-- **Logique métier** — Express 4 : `index.ts` (Helmet, CORS, cookie-parser, morgan), middleware (`requireAuth`, rate-limit), routes, services (pipeline IA, scoring, smartSearch) et le client Prisma singleton (`lib/prisma.ts`).
+- **Logique métier** — Express 4 : `index.ts` (Helmet, CORS, cookie-parser, morgan), middleware (`requireAuth`, rate-limit), routes, services (pipeline IA, scoring, smartSearch) et le client Prisma singleton (`db/prisma.ts`).
 - **Persistance** — PostgreSQL 16 (6 tables), accédé exclusivement via des **requêtes typées Prisma**.
 
 Le JWT transite dans un **cookie httpOnly** ; les APIs externes sont toujours consommées côté serveur, jamais depuis le navigateur.
@@ -49,9 +49,9 @@ Séquence de `POST /api/ai/generate` : validation Zod, puis **`Promise.allSettle
 
 ## 5. Cascade LLM (fallback automatique)
 
-![Cascade LLM — Gemini → Claude → OpenRouter → Mocks](llm_fallback.png)
+![Cascade LLM — Claude → Gemini → OpenRouter → Mocks](llm_fallback.png)
 
-Repli automatique entre fournisseurs : **Gemini 2.0 Flash → Claude Haiku → OpenRouter (7 modèles gratuits) → mocks statiques**. En cas de quota ou de timeout, le fournisseur suivant prend le relais sans interrompre la requête.
+Repli automatique entre fournisseurs : **Claude Haiku → Gemini 2.0 Flash → OpenRouter (7 modèles gratuits) → mocks statiques**. En cas de quota ou de timeout, le fournisseur suivant prend le relais sans interrompre la requête.
 
 ## 6. Authentification JWT
 

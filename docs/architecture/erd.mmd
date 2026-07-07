@@ -13,19 +13,25 @@ erDiagram
         text name
         text avatar_url
         timestamptz created_at
+        timestamptz updated_at
     }
     trips {
         uuid id PK
         uuid user_id FK
+        text title
         text destination
+        text country
         text origin
         date departure
         date return_date
         int travelers
+        text budget
         text mode
         text status
         float score
         jsonb pack_data
+        timestamptz created_at
+        timestamptz updated_at
     }
     packs {
         uuid id PK
@@ -34,6 +40,7 @@ erDiagram
         float score
         jsonb pack_data
         boolean selected
+        timestamptz created_at
     }
     trip_votes {
         uuid id PK
@@ -41,6 +48,7 @@ erDiagram
         text item_id
         text voter_name
         boolean vote_type
+        timestamptz created_at
     }
     user_preferences {
         uuid user_id PK
@@ -48,6 +56,7 @@ erDiagram
         text preferred_prefs
         text home_city
         text currency
+        timestamptz updated_at
     }
     trip_collaborators {
         uuid trip_id PK
