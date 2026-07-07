@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { PageLayout } from '../components/layout'
+import Seo from '../components/Seo'
 import Logo from '../components/ui/Logo'
 import { useAuthStore } from '../store'
 import { login, signup } from '../lib/api'
@@ -39,6 +40,7 @@ export default function LoginPage() {
 
   return (
     <PageLayout>
+      <Seo title="Connexion" description="Connectez-vous ou créez un compte TripGenie pour sauvegarder et retrouver vos voyages." path="/login" />
       <div className="max-w-sm mx-auto py-16">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
           className="glass rounded-3xl p-8 border border-gold/20 shadow-card-lg">
