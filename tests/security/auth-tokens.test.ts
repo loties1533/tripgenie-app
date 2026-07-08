@@ -24,10 +24,14 @@ vi.mock('../../server/middleware/limiter.js', () => {
   return { aiGenerateLimiter: p, aiChatLimiter: p, authLimiter: p };
 });
 
-// Mock Prisma : GET /api/trips → findMany ([]), GET /api/trips/:id → findFirst (null).
-// Défauts fail-closed → liste vide / 404, ce qui suffit aux tests de tokens.
+// Mock Prisma : GET /api/trips → findMany ([]) ; GET /api/trips/:id passe par
+// le contrôle d'accès (trip.findUnique + tripCollaborator.findUnique).
+// Défauts fail-closed → liste vide / voyage inexistant → 404, ce qui suffit aux tests de tokens.
 const { prismaMock } = vi.hoisted(() => ({
-  prismaMock: { trip: { findMany: vi.fn(), findFirst: vi.fn() } } as any,
+  prismaMock: {
+    trip: { findMany: vi.fn(), findFirst: vi.fn(), findUnique: vi.fn() },
+    tripCollaborator: { findUnique: vi.fn() },
+  } as any,
 }));
 vi.mock('../../server/db/prisma.js', () => ({ default: prismaMock }));
 
@@ -42,7 +46,9 @@ function makeToken(payload: object, secret = process.env.JWT_SECRET!, options: j
 beforeEach(() => {
   vi.clearAllMocks();
   prismaMock.trip.findMany.mockResolvedValue([]);
-  prismaMock.trip.findFirst.mockResolvedValue(null); // défauts fail-closed
+  prismaMock.trip.findFirst.mockResolvedValue(null);            // défauts fail-closed
+  prismaMock.trip.findUnique.mockResolvedValue(null);           // voyage introuvable → 404
+  prismaMock.tripCollaborator.findUnique.mockResolvedValue(null); // aucun droit collaborateur
 });
 
 // ============================================================
@@ -118,12 +124,11 @@ describe('JWT — isolation des données entre utilisateurs', () => {
 
   it('User A ne peut pas accéder au voyage de User B', async () => {
     const tokenA = makeToken(USER_A);
-    // GET /:id : filtre applicatif Prisma where: { user_id }
-    // → aucune ligne renvoyee pour le voyage d'un autre utilisateur.
+    // GET /:id : contrôle d'accès → User A n'est ni propriétaire ni collaborateur
+    // du voyage de B → aucun droit → 404 (on ne révèle pas l'existence du voyage).
     const res = await request(app)
       .get(`/api/trips/${TRIP_B}`)
       .set('Authorization', `Bearer ${tokenA}`);
-    // La route renvoie 404 quand data === null
     expect([403, 404]).toContain(res.status);
   });
 

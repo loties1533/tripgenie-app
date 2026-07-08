@@ -7,7 +7,7 @@ import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { MODES_LIST, TRIP_STATUS_LIST } from '../lib/constants.js';
 import type { TravelMode } from '../lib/types.js';
-import { evaluerAccesEdition } from '../lib/tripAccess.js';
+import { evaluerAccesEdition, peutLireVoyage } from '../lib/tripAccess.js';
 
 const schemaCreationVoyage = z.object({
   destination:  z.string().min(1, 'destination requise').max(100),
@@ -157,17 +157,20 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction): Prom
       return;
     }
     const userId = req.user.id;
+    const tripId = String(req.params.id);
 
-    // findFirst scopé par id ET user_id → 404 si non possédé (isolation)
-    const trip = await prisma.trip.findFirst({
-      where:   { id: String(req.params.id), user_id: userId },
-      include: { packs: { orderBy: { rank: 'asc' } } },
-    });
-
-    if (!trip) {
+    // Lecture autorisée au propriétaire ET aux collaborateurs (editor/viewer).
+    // Tout autre cas (voyage inexistant ou sans droit) → 404 : on ne révèle
+    // pas l'existence du voyage à un utilisateur non autorisé (anti-énumération).
+    if (!(await peutLireVoyage(userId, tripId))) {
       res.status(404).json({ error: 'Voyage introuvable' });
       return;
     }
+
+    const trip = await prisma.trip.findUnique({
+      where:   { id: tripId },
+      include: { packs: { orderBy: { rank: 'asc' } } },
+    });
 
     res.json({ trip });
 

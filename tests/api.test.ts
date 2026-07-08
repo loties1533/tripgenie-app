@@ -245,6 +245,36 @@ describe('🗺️ Trips — Validation Zod', () => {
     expect(res.body.trip).toBeDefined();
   });
 
+  it('GET /:id — 200 pour un collaborateur « editor »', async () => {
+    // Voyage d'un autre propriétaire, mais TEST_USER y est editor → peut le charger.
+    prismaMock.trip.findUnique.mockResolvedValueOnce({ user_id: 'un-autre-proprietaire' } as any);
+    prismaMock.tripCollaborator.findUnique.mockResolvedValueOnce({ role: 'editor' } as any);
+    const res = await request(app)
+      .get(`/api/trips/${TEST_TRIP_ID}`)
+      .set('Authorization', `Bearer ${TEST_TOKEN}`);
+    expect(res.status).toBe(200);
+    expect(res.body.trip).toBeDefined();
+  });
+
+  it('GET /:id — 200 pour un collaborateur « viewer » (lecture seule)', async () => {
+    prismaMock.trip.findUnique.mockResolvedValueOnce({ user_id: 'un-autre-proprietaire' } as any);
+    prismaMock.tripCollaborator.findUnique.mockResolvedValueOnce({ role: 'viewer' } as any);
+    const res = await request(app)
+      .get(`/api/trips/${TEST_TRIP_ID}`)
+      .set('Authorization', `Bearer ${TEST_TOKEN}`);
+    expect(res.status).toBe(200);
+    expect(res.body.trip).toBeDefined();
+  });
+
+  it('GET /:id — 404 pour un utilisateur ni propriétaire ni collaborateur', async () => {
+    prismaMock.trip.findUnique.mockResolvedValueOnce({ user_id: 'un-autre-proprietaire' } as any);
+    prismaMock.tripCollaborator.findUnique.mockResolvedValueOnce(null as any);
+    const res = await request(app)
+      .get(`/api/trips/${TEST_TRIP_ID}`)
+      .set('Authorization', `Bearer ${TEST_TOKEN}`);
+    expect(res.status).toBe(404);
+  });
+
   it('GET /share/:id — 200 accès public', async () => {
     // /share : trip.findUnique avec select (packs inclus)
     prismaMock.trip.findUnique.mockResolvedValueOnce({ id: TEST_TRIP_ID, title: 'Tokyo', destination: 'Tokyo', country: 'Japon', pack_data: {}, score: 0.8, mode: 'party', departure: new Date('2025-06-01'), return_date: null, travelers: 2, budget: '2000', packs: [{ id: 'pack-1', rank: 1, selected: true }] } as any);
