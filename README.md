@@ -12,7 +12,7 @@
 [![Express](https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![Vitest](https://img.shields.io/badge/Vitest-290_tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
+[![Vitest](https://img.shields.io/badge/Vitest-899_tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
 
 [🚀 Demo Live](https://tripgenie.onrender.com) · [📖 API Docs](http://localhost:3000/api/docs) · [🐛 Issues](https://github.com/loties1533/tripgenie-app/issues)
 
@@ -364,8 +364,8 @@ sequenceDiagram
 ## 🧪 Tests
 
 ```bash
-npm test          # 4 fichiers core (~0.8s)
-npm run test:all  # 18 fichiers complets
+npm test          # fichiers core (~0.8s)
+npm run test:all  # 54 fichiers · 899 tests
 ```
 
 ```
@@ -393,7 +393,7 @@ tests/
     ├── collaborators.test.ts          — gestion collaborateurs
     └── preferences.test.ts            — préférences utilisateur
 ─────────────────────────────────────────────────────────────────
-  tous les services externes mockés (zéro clé API requise)
+  sélection représentative — 54 fichiers / 899 tests au total, services externes mockés (zéro clé API requise)
 ```
 
 ---
