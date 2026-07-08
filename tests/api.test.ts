@@ -414,6 +414,36 @@ describe('🗺️ Trips — DELETE et PUT succès', () => {
     expect(res.body.trip).toBeDefined();
   });
 
+  it('PUT /:id — 200 pour un collaborateur « editor »', async () => {
+    // Voyage appartenant à un autre utilisateur, mais TEST_USER y est editor.
+    prismaMock.trip.findUnique.mockResolvedValueOnce({ user_id: 'un-autre-proprietaire' } as any);
+    prismaMock.tripCollaborator.findUnique.mockResolvedValueOnce({ role: 'editor' } as any);
+    const res = await request(app)
+      .put(`/api/trips/${TEST_TRIP_ID}`)
+      .set('Authorization', `Bearer ${TEST_TOKEN}`)
+      .send({ status: 'confirmed' });
+    expect(res.status).toBe(200);
+  });
+
+  it('PUT /:id — 403 pour un collaborateur « viewer »', async () => {
+    prismaMock.trip.findUnique.mockResolvedValueOnce({ user_id: 'un-autre-proprietaire' } as any);
+    prismaMock.tripCollaborator.findUnique.mockResolvedValueOnce({ role: 'viewer' } as any);
+    const res = await request(app)
+      .put(`/api/trips/${TEST_TRIP_ID}`)
+      .set('Authorization', `Bearer ${TEST_TOKEN}`)
+      .send({ status: 'confirmed' });
+    expect(res.status).toBe(403);
+  });
+
+  it('PUT /:id — 404 si le voyage n\'existe pas', async () => {
+    prismaMock.trip.findUnique.mockResolvedValueOnce(null as any);
+    const res = await request(app)
+      .put(`/api/trips/${TEST_TRIP_ID}`)
+      .set('Authorization', `Bearer ${TEST_TOKEN}`)
+      .send({ status: 'confirmed' });
+    expect(res.status).toBe(404);
+  });
+
   it('GET / — filtre par mode', async () => {
     const res = await request(app)
       .get('/api/trips?mode=party')

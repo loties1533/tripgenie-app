@@ -7,6 +7,7 @@ import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 import { MODES_LIST, TRIP_STATUS_LIST } from '../lib/constants.js';
 import type { TravelMode } from '../lib/types.js';
+import { evaluerAccesEdition } from '../lib/tripAccess.js';
 
 const schemaCreationVoyage = z.object({
   destination:  z.string().min(1, 'destination requise').max(100),
@@ -189,6 +190,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction): Prom
       return;
     }
     const userId = req.user.id;
+    const tripId = String(req.params.id);
 
     // Allowlist : on ne construit `champsModifies` qu'avec les colonnes fournies et validées.
     const champsModifies: Record<string, unknown> = {};
@@ -200,18 +202,21 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction): Prom
     if (donneesValidees.data.budget    !== undefined) champsModifies.budget    = donneesValidees.data.budget != null ? String(donneesValidees.data.budget) : null;
     // updated_at est géré automatiquement par @updatedAt
 
-    // updateMany scopé par user_id → impossible de modifier le voyage d'un autre.
-    const voyageMisAJour = await prisma.trip.updateMany({
-      where: { id: String(req.params.id), user_id: userId },
-      data: champsModifies,
-    });
-
-    if (voyageMisAJour.count === 0) {
+    // Autorisation : le propriétaire OU un collaborateur invité en « editor »
+    // peut modifier. On distingue le voyage inexistant (404) du refus (403).
+    const acces = await evaluerAccesEdition(userId, tripId);
+    if (acces === 'not_found') {
       res.status(404).json({ error: 'Voyage introuvable' });
       return;
     }
+    if (acces === 'forbidden') {
+      res.status(403).json({ error: 'Modification non autorisée' });
+      return;
+    }
 
-    const trip = await prisma.trip.findUnique({ where: { id: String(req.params.id) } });
+    await prisma.trip.update({ where: { id: tripId }, data: champsModifies });
+
+    const trip = await prisma.trip.findUnique({ where: { id: tripId } });
     res.json({ trip });
 
   } catch (err) {
