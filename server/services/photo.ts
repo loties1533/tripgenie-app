@@ -23,14 +23,14 @@ export async function getDestinationPhoto(query: string): Promise<string> {
         const data = (await res.json()) as ReponseUnsplash;
         const photo = data.results?.[0]?.urls?.regular;
         if (photo) {
-          console.log(`📸 Unsplash OK: ${query}`);
+          console.log(`Unsplash OK: ${query}`);
           return photo;
         }
       } else {
-        console.warn(`Unsplash ${res.status} for "${query}" — fallback Wikipedia`);
+        console.warn(`Unsplash ${res.status} pour "${query}" — repli Wikipedia`);
       }
     } catch (err) {
-      console.warn(`Unsplash timeout for "${query}":`, (err as Error).message);
+      console.warn(`Unsplash timeout pour "${query}":`, (err as Error).message);
     }
   }
 
@@ -47,16 +47,16 @@ export async function getDestinationPhoto(query: string): Promise<string> {
         const data = (await res.json()) as ReponsePexels;
         const photo = data.photos?.[0]?.src?.large2x;
         if (photo) {
-          console.log(`📸 Pexels OK: ${query}`);
+          console.log(`Pexels OK: ${query}`);
           return photo;
         }
       }
     } catch (err) {
-      console.warn(`Pexels error for "${query}":`, (err as Error).message);
+      console.warn(`Erreur Pexels pour "${query}":`, (err as Error).message);
     }
   }
 
-  // 3️⃣ — Fallback générique
-  console.warn(`📸 Fallback générique pour "${query}"`);
+  // 3️⃣ — Repli générique
+  console.warn(`Repli générique pour "${query}"`);
   return PHOTO_PAR_DEFAUT;
 }

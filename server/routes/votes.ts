@@ -44,7 +44,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
     res.status(201).json({ message: 'Vote enregistré !', vote });
 
   } catch (err) {
-    console.error('Vote error:', err);
+    console.error('Erreur vote :', err);
     next(err);
   }
 });
@@ -61,7 +61,7 @@ router.get('/:pack_id', async (req: Request, res: Response, next: NextFunction):
     res.json({ votes });
 
   } catch (err) {
-    console.error('Fetch votes error:', err);
+    console.error('Erreur récupération votes :', err);
     next(err);
   }
 });

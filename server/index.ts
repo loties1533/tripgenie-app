@@ -32,7 +32,7 @@ if (!process.env.JWT_SECRET) {
   throw new Error('FATAL: JWT_SECRET manquant — définissez-le dans .env avant de démarrer');
 }
 if (!process.env.DATABASE_URL) {
-  console.warn('⚠️  DATABASE_URL absent — aucun accès base de données possible');
+  console.warn('DATABASE_URL absent — aucun accès base de données possible');
 }
 
 const app = express();
@@ -121,7 +121,7 @@ app.get('/api/docs.json', (req, res) => res.json(openapiSpec));
 
 // ---- Gestion Frontend (Mode Production) ----
 if (process.env.NODE_ENV === 'production') {
-  console.log('🌟 Serveur en mode PRODUCTION - Service des fichiers React statiques');
+  console.log('Serveur en mode PRODUCTION - Service des fichiers React statiques');
   
   // Sert les fichiers statiques construits par Vite
   app.use(express.static(path.join(__dirname, '../client-react/dist')));
@@ -146,10 +146,10 @@ export default app;
 // ---- Lancement du serveur (pas en mode test) ----
 if (process.env.NODE_ENV !== 'test') {
   const server = app.listen(PORT, () => {
-    console.log(`\n🚀 Serveur backend démarré sur http://localhost:${PORT}`);
-    console.log(`🛠️  Environnement : ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔑 PostgreSQL (Prisma ORM) : ${process.env.DATABASE_URL ? 'OUI' : 'NON'}`);
-    console.log(`🧠 AI Provider: ${process.env.AI_PROVIDER || 'NON DÉFINI'}`);
+    console.log(`\nServeur backend démarré sur http://localhost:${PORT}`);
+    console.log(`Environnement : ${process.env.NODE_ENV || 'development'}`);
+    console.log(`PostgreSQL (Prisma ORM) : ${process.env.DATABASE_URL ? 'OUI' : 'NON'}`);
+    console.log(`AI Provider: ${process.env.AI_PROVIDER || 'NON DÉFINI'}`);
   });
 
   // Arrêt propre pour éviter EADDRINUSE lors des redémarrages nodemon

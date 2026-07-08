@@ -58,7 +58,7 @@ export async function predictHQEventsSearch(
   mode: TravelMode
 ): Promise<EventSearchResult[]> {
   if (!CLE_PREDICTHQ) {
-    console.warn('⚠️ PredictHQ ignoré (PREDICTHQ_API_KEY manquante).');
+    console.warn('PredictHQ ignoré (PREDICTHQ_API_KEY manquante).');
     return [];
   }
 
@@ -90,7 +90,7 @@ export async function predictHQEventsSearch(
       // 401 = clé invalide/expirée (PredictHQ est payant, essai limité). Non bloquant :
       // on log proprement et smartEventsSearch bascule sur Tavily pour les événements.
       if (res.status === 401) {
-        console.warn('⚠️ PredictHQ ignoré (clé invalide ou expirée) — fallback événements via Tavily.');
+        console.warn('PredictHQ ignoré (clé invalide ou expirée) — repli événements via Tavily.');
         return [];
       }
       throw new Error(`PredictHQ ${res.status}: ${await res.text()}`);
@@ -99,11 +99,11 @@ export async function predictHQEventsSearch(
     const donneesPredictHQ = await res.json() as { count: number; results: EvenementPredictHQ[] };
 
     if (!donneesPredictHQ.results?.length) {
-      console.warn(`⚠️ PredictHQ: 0 événement pour ${city} (${dateFrom} → ${dateTo})`);
+      console.warn(`PredictHQ: 0 événement pour ${city} (${dateFrom} → ${dateTo})`);
       return [];
     }
 
-    console.log(`✅ PredictHQ: ${donneesPredictHQ.results.length} événements trouvés pour ${city}`);
+    console.log(`PredictHQ: ${donneesPredictHQ.results.length} événements trouvés pour ${city}`);
 
     return donneesPredictHQ.results.slice(0, 6).map(e => ({
       title:       e.title,
@@ -114,7 +114,7 @@ export async function predictHQEventsSearch(
     }));
 
   } catch (err) {
-    console.warn('⚠️ PredictHQ indisponible (fallback Tavily) :', (err as Error).message);
+    console.warn('PredictHQ indisponible (repli Tavily) :', (err as Error).message);
     return [];
   }
 }

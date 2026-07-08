@@ -71,7 +71,7 @@ router.post('/signup', authLimiter, async (req: Request, res: Response, next: Ne
     res.status(201).json({ user });
 
   } catch (err) {
-    console.error('Register Error:', err);
+    console.error('Erreur inscription :', err);
     next(err);
   }
 });
@@ -116,7 +116,7 @@ router.post('/login', authLimiter, async (req: Request, res: Response, next: Nex
     res.json({ user: userWithoutPassword });
 
   } catch (err) {
-    console.error('Login Error:', err);
+    console.error('Erreur connexion :', err);
     next(err);
   }
 });

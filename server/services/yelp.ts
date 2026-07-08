@@ -47,7 +47,7 @@ export async function yelpRestaurantSearch(
   premium = false,
 ): Promise<Activite[]> {
   if (!CLE_YELP) {
-    console.warn('⚠️ Yelp ignoré (YELP_API_KEY manquante).');
+    console.warn('Yelp ignoré (YELP_API_KEY manquante).');
     return [];
   }
 
@@ -74,11 +74,11 @@ export async function yelpRestaurantSearch(
     const donneesYelp = await res.json() as ReponseYelp;
 
     if (!donneesYelp.businesses?.length) {
-      console.warn(`⚠️ Yelp: 0 restaurant trouvé pour ${city}`);
+      console.warn(`Yelp: 0 restaurant trouvé pour ${city}`);
       return [];
     }
 
-    console.log(`✅ Yelp: ${donneesYelp.businesses.length} restaurants trouvés pour ${city}`);
+    console.log(`Yelp: ${donneesYelp.businesses.length} restaurants trouvés pour ${city}`);
 
     return donneesYelp.businesses.map(b => ({
       name:        b.name,
@@ -92,7 +92,7 @@ export async function yelpRestaurantSearch(
     }));
 
   } catch (err) {
-    console.error('❌ Yelp error:', (err as Error).message);
+    console.error('Erreur Yelp :', (err as Error).message);
     return [];
   }
 }

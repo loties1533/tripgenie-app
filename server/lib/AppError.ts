@@ -41,7 +41,7 @@ export const gestionnairreErreurGlobal = (
       });
     } else {
       // Erreur inconnue (ex: crash programmation)
-      console.error('❌ ERROR:', err);
+      console.error('Erreur :', err);
       res.status(500).json({
         status: 'error',
         message: 'Une erreur interne est survenue. Réessayez plus tard.',

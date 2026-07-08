@@ -49,7 +49,7 @@ export async function foursquareRestaurantSearch(
   premium = false,
 ): Promise<Activite[]> {
   if (!CLE_FOURSQUARE) {
-    console.warn('⚠️ Foursquare ignoré (FOURSQUARE_API_KEY manquante).');
+    console.warn('Foursquare ignoré (FOURSQUARE_API_KEY manquante).');
     return [];
   }
 
@@ -76,7 +76,7 @@ export async function foursquareRestaurantSearch(
     const donneesFoursquare = await res.json() as ReponseFoursquare;
     if (!donneesFoursquare.results?.length) return [];
 
-    console.log(`✅ Foursquare: ${donneesFoursquare.results.length} lieux trouvés pour ${city}`);
+    console.log(`Foursquare: ${donneesFoursquare.results.length} lieux trouvés pour ${city}`);
 
     return donneesFoursquare.results.map(p => ({
       name:        p.name,
@@ -94,7 +94,7 @@ export async function foursquareRestaurantSearch(
     }));
 
   } catch (err) {
-    console.error('❌ Foursquare error:', (err as Error).message);
+    console.error('Erreur Foursquare :', (err as Error).message);
     return [];
   }
 }

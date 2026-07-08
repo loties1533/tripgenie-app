@@ -7,7 +7,7 @@ export const SYSTEM_PROMPT = `Tu es TripGenie, expert voyage. Réponds UNIQUEMEN
 
 type ContexteIA = 'onboarding' | 'destinations' | 'pack';
 
-console.log(`🤖 AI Provider: ${
+console.log(`AI Provider: ${
   process.env.AI_PROVIDER === 'ollama'     ? 'Ollama'     :
   process.env.AI_PROVIDER === 'openrouter' ? 'OpenRouter' :
   process.env.AI_PROVIDER === 'gemini'     ? 'Gemini'     :
@@ -78,7 +78,7 @@ export function parseJSON(raw: string): unknown {
     fixed += ']'.repeat(Math.max(0, opens)) + '}'.repeat(Math.max(0, braces));
     return JSON.parse(fixed);
   } catch (e) {
-    console.error('parseJSON failed:', raw.slice(0, 200));
+    console.error('parseJSON en échec :', raw.slice(0, 200));
     throw new Error(`JSON malformé: ${(e as Error).message}`);
   }
 }
@@ -126,8 +126,8 @@ export async function callAI(
   }
 
   // ⚠️ MODE SURVIE — toutes les IA ont échoué → données génériques activées
-  console.error('❌ AI FAILURES LOG:', JSON.stringify(erreursProviders, null, 2));
-  console.error(`⚠️ FALLBACK GÉNÉRIQUE ACTIVÉ — contexte: ${context}. Aucun provider IA disponible.`);
+  console.error('AI FAILURES LOG:', JSON.stringify(erreursProviders, null, 2));
+  console.error(`REPLI GÉNÉRIQUE ACTIVÉ — contexte: ${context}. Aucun provider IA disponible.`);
   if (context === 'onboarding')   return JSON.stringify(Mocks.MOCK_ONBOARDING);
   if (context === 'destinations') return JSON.stringify(Mocks.MOCK_DESTINATIONS);
   if (context === 'pack')         return JSON.stringify(Mocks.MOCK_PACK);

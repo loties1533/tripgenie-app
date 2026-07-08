@@ -80,7 +80,7 @@ Retourne UNIQUEMENT un objet JSON { "nom exact du lieu": "url ou null", ... }.`;
     }
   } catch (err) {
     // Dégradation propre : liens à null → repli Google côté front.
-    console.warn('⚠️ Résolveur de liens indisponible (repli Google) :', (err as Error).message);
+    console.warn('Résolveur de liens indisponible (repli Google) :', (err as Error).message);
   }
   return liens;
 }
@@ -117,5 +117,5 @@ export async function appliquerLiensReservation(pack: Pack, destination: string)
   for (const a of pack.activities ?? []) a.reservation_url = liens.get(a.name) ?? null;
 
   const nbTrouves = [...liens.values()].filter(Boolean).length;
-  console.log(`🔗 Liens réservation : ${nbTrouves}/${noms.length} vraie(s) URL(s) trouvée(s)`);
+  console.log(`Liens réservation : ${nbTrouves}/${noms.length} vraie(s) URL(s) trouvée(s)`);
 }

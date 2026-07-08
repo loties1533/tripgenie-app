@@ -79,13 +79,13 @@ export async function callOpenRouter(systemPrompt: string, userPrompt: string): 
       });
       const data = (await res.json()) as ReponseOpenRouter;
       if (!res.ok || data.error?.code === 429) {
-        console.warn(`Model ${model} unavailable, trying next...`);
+        console.warn(`Modèle ${model} indisponible, on essaie le suivant...`);
         continue;
       }
-      console.log(`✅ Using model: ${model}`);
+      console.log(`Modèle utilisé : ${model}`);
       return data.choices[0].message.content;
     } catch (err) {
-      console.warn(`Model ${model} failed: ${(err as Error).message}`);
+      console.warn(`Modèle ${model} en échec : ${(err as Error).message}`);
       continue;
     }
   }

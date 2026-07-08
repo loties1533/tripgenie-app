@@ -115,7 +115,7 @@ export async function getRealWeather(city: string, departureDate?: string): Prom
   try {
     const donneesGeo = await geocoderVille(city);
     if (!donneesGeo) {
-      console.warn(`Weather: géocodage échoué pour "${city}"`);
+      console.warn(`Météo : géocodage échoué pour "${city}"`);
       return null;
     }
 
@@ -135,14 +135,14 @@ export async function getRealWeather(city: string, departureDate?: string): Prom
     if (joursAvantDepart <= 0) {
       return await getMeteoActuelle(lat, lon);
     } else if (joursAvantDepart <= 16) {
-      console.log(`🌤️  Météo forecast J+${joursAvantDepart} pour ${city}`);
+      console.log(`Météo prévisions J+${joursAvantDepart} pour ${city}`);
       return await getMeteoPrevision(lat, lon, departureDate.slice(0, 10));
     } else {
-      console.log(`🌡️  Météo climatique (J+${joursAvantDepart}) pour ${city}`);
+      console.log(`Météo climatique (J+${joursAvantDepart}) pour ${city}`);
       return await getMeteoClimat(lat, lon, departureDate.slice(0, 10));
     }
   } catch (err) {
-    console.error('Weather error:', (err as Error).message);
+    console.error('Erreur météo :', (err as Error).message);
     return null;
   }
 }

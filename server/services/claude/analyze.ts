@@ -169,7 +169,7 @@ export async function suggestDestinations({
 
     return destinationsSuggérees;
   } catch (err) {
-    console.error('⚠️ SuggestDestinations failed, activation du Mode Survie:', (err as Error).message);
+    console.error('SuggestDestinations échoué, activation du mode survie :', (err as Error).message);
     return Mocks.MOCK_DESTINATIONS;
   }
 }

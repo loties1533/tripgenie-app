@@ -124,7 +124,7 @@ router.post('/analyze', aiChatLimiter, optionalAuth, validateBody(schemaAnalyse)
     res.json({ analysis });
 
   } catch (err) {
-    console.error('AI analyze error:', (err as Error).message);
+    console.error('Erreur analyse IA :', (err as Error).message);
     next(err);
   }
 });
@@ -138,7 +138,7 @@ router.post('/destinations', aiGenerateLimiter, optionalAuth, validateBody(schem
     res.json(resultat);
 
   } catch (err) {
-    console.error('AI destinations error:', (err as Error).message);
+    console.error('Erreur destinations IA :', (err as Error).message);
     next(err);
   }
 });
@@ -152,7 +152,7 @@ router.post('/onboarding', aiChatLimiter, optionalAuth, validateBody(schemaOnboa
     res.json(resultat);
 
   } catch (err) {
-    console.error('AI onboarding error:', (err as Error).message);
+    console.error('Erreur onboarding IA :', (err as Error).message);
     next(err);
   }
 });
@@ -226,22 +226,22 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
     const promesseRestaurants = foursquareRestaurantSearch(destination, mode as TravelMode, premium)
       .then(r => {
         if (r.length > 0) {
-          console.log(`✅ Foursquare: ${r.length} restaurant(s) trouvé(s) pour ${destination}`);
+          console.log(`Foursquare: ${r.length} restaurant(s) trouvé(s) pour ${destination}`);
           return r;
         }
-        console.log(`⚠️  Foursquare: 0 résultat → Fallback Yelp...`);
+        console.log(`Foursquare: 0 résultat → repli Yelp...`);
         return yelpRestaurantSearch(destination, mode as TravelMode, premium)
           .then(yelpResults => {
             if (yelpResults.length > 0) {
-              console.log(`✅ Yelp: ${yelpResults.length} restaurant(s) trouvé(s) pour ${destination}`);
+              console.log(`Yelp: ${yelpResults.length} restaurant(s) trouvé(s) pour ${destination}`);
             } else {
-              console.log(`⚠️  Yelp: 0 résultat aussi`);
+              console.log(`Yelp: 0 résultat aussi`);
             }
             return yelpResults;
           });
       })
       .catch((err) => {
-        console.error(`❌ Foursquare + Yelp error:`, (err as Error).message);
+        console.error(`Erreur Foursquare + Yelp :`, (err as Error).message);
         return [];
       });
 
@@ -285,7 +285,7 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
 
     const events     = resultatsRecherche[1].status === 'fulfilled' ? resultatsRecherche[1].value : [];
     const realHotels = resultatsRecherche[2].status === 'fulfilled' ? resultatsRecherche[2].value : [];
-    if (resultatsRecherche[1].status === 'rejected') console.warn('Events API fallback:', resultatsRecherche[1].reason);
+    if (resultatsRecherche[1].status === 'rejected') console.warn('Repli API événements :', resultatsRecherche[1].reason);
 
     const pack = await assemblerPack({
       destination,
@@ -313,7 +313,7 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
     // Merge restaurants Yelp dans les activités (si Yelp a retourné des résultats)
     if (restaurants.length > 0) {
       pack.activities = [...(pack.activities ?? []), ...restaurants];
-      console.log(`🍽️  Restaurants: ${restaurants.length} lieux ajoutés aux activités`);
+      console.log(`Restaurants: ${restaurants.length} lieux ajoutés aux activités`);
     }
 
     // ---- Scoring réel via scoring.js ----
@@ -389,7 +389,7 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
     });
 
   } catch (err) {
-    console.error('AI generate error:', (err as Error).message);
+    console.error('Erreur génération IA :', (err as Error).message);
     next(err);
   }
 });
@@ -431,7 +431,7 @@ router.post('/chat', aiChatLimiter, optionalAuth, validateBody(schemaChat), asyn
     res.json(resultat);
 
   } catch (err) {
-    console.error('AI chat error:', (err as Error).message);
+    console.error('Erreur chat IA :', (err as Error).message);
     next(err);
   }
 });

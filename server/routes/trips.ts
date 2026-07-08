@@ -66,7 +66,7 @@ router.get('/share/:id', async (req: Request, res: Response, next: NextFunction)
 
     res.json({ trip: { ...tripData, pack_id: targetPack?.id ?? null } });
   } catch (err) {
-    console.error('Public share error:', err);
+    console.error('Erreur partage public :', err);
     next(err);
   }
 });
@@ -97,7 +97,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
     res.json({ trips: listeVoyages, count: listeVoyages.length, limit, offset });
 
   } catch (err) {
-    console.error('GET trips error:', err);
+    console.error('Erreur récupération voyages :', err);
     next(err);
   }
 });
@@ -136,7 +136,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
     res.status(201).json({ trip });
 
   } catch (err) {
-    console.error('POST trip error:', err);
+    console.error('Erreur création voyage :', err);
     next(err);
   }
 });
@@ -163,7 +163,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction): Prom
     res.json({ trip });
 
   } catch (err) {
-    console.error('GET trip error:', err);
+    console.error('Erreur récupération voyage :', err);
     next(err);
   }
 });
@@ -207,7 +207,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction): Prom
     res.json({ trip });
 
   } catch (err) {
-    console.error('PUT trip error:', err);
+    console.error('Erreur modification voyage :', err);
     next(err);
   }
 });
@@ -223,7 +223,7 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction): P
     res.json({ message: 'Voyage supprimé' });
 
   } catch (err) {
-    console.error('DELETE trip error:', err);
+    console.error('Erreur suppression voyage :', err);
     next(err);
   }
 });

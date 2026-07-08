@@ -85,7 +85,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
     );
     return parseJSON(reponseIABrute) as ResultatOnboarding;
   } catch (err) {
-    console.error('⚠️ ChatIntake failed, activation du Mode Survie:', (err as Error).message);
+    console.error('ChatIntake échoué, activation du mode survie :', (err as Error).message);
     return {
       ...Mocks.MOCK_ONBOARDING,
       response: "Je capte un peu mal mais je continue ! On part sur une base solide, qu'est-ce que tu en penses ?",
@@ -145,7 +145,7 @@ export async function chatModify({ currentPack, userMessage }: ParamsChatModify)
     }
     return packModifie;
   } catch (err) {
-    console.error('⚠️ ChatModify failed:', (err as Error).message);
+    console.error('ChatModify échoué :', (err as Error).message);
     return {
       response:      "Je n'ai pas pu modifier le pack, réessaie avec une autre formulation.",
       needs_full_regen: false,

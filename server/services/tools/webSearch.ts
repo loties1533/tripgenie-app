@@ -14,7 +14,7 @@ interface ReponseTavily {
 
 export async function searchWeb(query: string, maxResults = 3): Promise<string> {
   if (!CLE_TAVILY) {
-    console.warn('⚠️ Recherche Web ignorée (Pas de clé Tavily).');
+    console.warn('Recherche Web ignorée (Pas de clé Tavily).');
     return '';
   }
 
@@ -58,7 +58,7 @@ export async function searchWeb(query: string, maxResults = 3): Promise<string> 
     contexteWeb += '=============================\n';
     return contexteWeb;
   } catch (err) {
-    console.error('❌ Echec du Web Search :', (err as Error).message);
+    console.error('Échec de la recherche web :', (err as Error).message);
     return ''; // On ne crashe pas l'application si internet bug
   }
 }

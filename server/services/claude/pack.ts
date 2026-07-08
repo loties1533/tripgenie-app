@@ -158,8 +158,8 @@ export function parserReponsePack(raw: string, dest: string, nights: number): Re
   try {
     return parseJSON(raw) as ResultatTexteIA;
   } catch (err) {
-    console.error('⚠️ FALLBACK GÉNÉRIQUE ACTIVÉ — JSON malformé reçu du LLM. Raison:', (err as Error).message);
-    console.error('⚠️ Réponse brute du LLM (200 premiers chars):', raw.slice(0, 200));
+    console.error('REPLI GÉNÉRIQUE ACTIVÉ — JSON malformé reçu du LLM. Raison:', (err as Error).message);
+    console.error('Réponse brute du LLM (200 premiers chars):', raw.slice(0, 200));
     return {
       country:  'Destination',
       tagline:  `Découvrez les secrets de ${dest}`,

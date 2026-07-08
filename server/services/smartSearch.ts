@@ -103,7 +103,7 @@ Retourne UNIQUEMENT ce JSON :
     const donneesVol = parseJSON(reponseIABrute) as FlightSearchResult;
     return donneesVol;
   } catch (err) {
-    console.error('SmartFlightSearch error:', (err as Error).message);
+    console.error('Erreur recherche vol :', (err as Error).message);
     return null;
   }
 }
@@ -122,7 +122,7 @@ export async function smartEventsSearch({
     );
     if (phqEvents.length > 0) return phqEvents;
   } catch (err) {
-    console.warn('⚠️ PredictHQ fallback:', (err as Error).message);
+    console.warn('Repli PredictHQ :', (err as Error).message);
   }
 
   // ── 2. Fallback Tavily + LLM si PredictHQ ne retourne rien ──
@@ -154,7 +154,7 @@ Extrais les 3 meilleurs événements. "category" et "description" rédigés EN F
     const donneesParsees = parseJSON(reponseIABrute);
     return Array.isArray(donneesParsees) ? (donneesParsees as EventSearchResult[]) : [];
   } catch (err) {
-    console.error('SmartEventsSearch error:', (err as Error).message);
+    console.error('Erreur recherche événements :', (err as Error).message);
     return [];
   }
 }
@@ -194,12 +194,12 @@ Ne jamais inventer ou mettre un placeholder. Retourne UNIQUEMENT un tableau JSON
     const PLACEHOLDER = /données|disponible|n\/a|pas de|aucun|inconnu|unknown|placeholder/i;
     const hotels = hotelsBruts.filter(h => h.name && h.name.length > 3 && !PLACEHOLDER.test(h.name));
 
-    if (hotels.length) console.log(`✅ SmartHotelSearch: ${hotels.length} hôtels trouvés pour ${location}`);
-    else console.warn(`⚠️ SmartHotelSearch: aucun hôtel valide pour ${location} — fallback LLM`);
+    if (hotels.length) console.log(`Hôtels: ${hotels.length} trouvés pour ${location}`);
+    else console.warn(`Hôtels: aucun résultat valide pour ${location} — repli LLM`);
 
     return hotels.map(h => ({ ...h, links: liensHotel(h.name, location) }));
   } catch (err) {
-    console.error('SmartHotelSearch error:', (err as Error).message);
+    console.error('Erreur recherche hôtels :', (err as Error).message);
     return [];
   }
 }
