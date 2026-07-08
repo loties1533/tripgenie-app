@@ -1,91 +1,97 @@
-# TripGenie — Documentation Agile (Sprints, Reviews & Rétrospectives)
+# TripGenie — Suivi Agile (sprints, revues et rétrospectives)
 
-**Projet** : TripGenie — agence de voyage conversationnelle assistée par IA.
-**Méthodologie** : Scrum — 6 sprints itératifs (projet solo, multi-rôles PM/SCM/QA/Dev).
-**Board Trello (public)** : https://trello.com/b/GfQ3gMc8/tripgenie-agile-board
+Projet mené en solo selon une approche Scrum, découpé en six sprints d'environ une
+semaine. N'étant pas en équipe, j'ai tenu tour à tour les rôles de chef de projet,
+de gestion de version, de qualité et de développement. Le suivi au quotidien se
+faisait sur un board Trello, une colonne par sprint.
+
+Board Trello (public) : https://trello.com/b/GfQ3gMc8/tripgenie-agile-board
 
 ---
 
-## Sprint planning
+## Planification des sprints
 
-Découpage du développement en 6 sprints (une colonne Trello par sprint), tâches priorisées MoSCoW.
+Le développement a été découpé en six sprints, les tâches priorisées avec la méthode
+MoSCoW.
 
 | Sprint | Période | Objectif | Statut |
 |--------|---------|----------|--------|
-| **S1 — Fondations** | 27 mai – 3 juin | Serveur, BDD, auth, 1ʳᵉ génération LLM | ✅ |
-| **S2 — Auth & sécurité** | 4 – 10 juin | Pipeline IA orchestré, scoring, sécurité | ✅ |
-| **S3 — Cœur IA** | 11 – 19 juin | TypeScript, suite de tests, conteneurisation | ✅ |
-| **S4 — CRUD & fonctionnalités** | 20 – 24 juin | Diagrammes, documentation, recette & corrections | ✅ |
-| **S5 — Industrialisation** | 25 juin – 1 juil | Migration Prisma, Docker, tests, doc technique | ✅ |
-| **S6 — Finalisation & production** | à finaliser | CI, déploiement, accessibilité, performances | 🔄 |
+| S1 — Fondations | 27 mai – 3 juin | Serveur, base de données, authentification, première génération de pack | Terminé |
+| S2 — Pipeline IA et sécurité | 4 – 10 juin | Pipeline IA orchestré, scoring, validation des entrées | Terminé |
+| S3 — Cœur IA | 11 – 19 juin | Passage en TypeScript, suite de tests, conteneurisation | Terminé |
+| S4 — CRUD et fonctionnalités | 20 – 24 juin | Parcours complet, diagrammes, recette et corrections | Terminé |
+| S5 — Industrialisation | 25 juin – 1 juillet | Migration Prisma, PostgreSQL en Docker, documentation | Terminé |
+| S6 — Finalisation et mise en production | 2 – 8 juillet | Intégration continue, déploiement, accessibilité, performances | Terminé |
 
-**Priorisation MoSCoW** : MUST (auth, génération, modification, score) · SHOULD (préférences, votes, collaborateurs, données réelles) · COULD (partage public) · WON'T v1 (réservation in-app).
+Priorisation MoSCoW : indispensable (authentification, génération, modification,
+score) ; souhaitable (préférences, votes, collaborateurs, données réelles) ;
+optionnel (partage public par lien) ; écarté pour la v1 (réservation et paiement
+in-app).
 
-**Dépendances** : BDD → Auth → Pipeline IA → Scoring → CRUD → Frontend → CI/CD → Déploiement.
-
----
-
-## Sprint Reviews
-
-Démonstration du livrable à la fin de chaque sprint.
-
-### Sprint 1 — Fondations
-Inscription/connexion sécurisée (cookie httpOnly), base de données 6 tables, première génération de pack via LLM.
-
-### Sprint 2 — Auth & sécurité
-Pipeline IA complet (recherches parallèles + assemblage), scoring déterministe, validation Zod sur tous les endpoints.
-
-### Sprint 3 — Cœur IA
-Suite de tests verte (Vitest + Supertest), conteneurisation Docker, durcissement sécurité (Helmet).
-
-### Sprint 4 — CRUD & fonctionnalités
-Application bout-en-bout (onboarding → pack → carte → mes voyages), diagrammes (architecture, ERD, MCD), recette manuelle (4 bugs corrigés).
-
-### Sprint 5 — Industrialisation
-Migration 100 % Prisma, conteneurisation PostgreSQL, documentation technique.
-
-### Sprint 6 — Finalisation & production
-En cours : CI verte à chaque push ; préparation au déploiement (Render).
+Dépendances : base de données → authentification → pipeline IA → scoring → CRUD →
+front-end → intégration continue → déploiement.
 
 ---
 
-## Retrospectives
+## Revues de sprint
 
-Réflexion sur le process à la fin de chaque sprint.
+À la fin de chaque sprint, je confrontais l'incrément livré à l'objectif fixé.
 
-### Sprint 1
-- ✅ **Réussite** : socle propre dès le départ (TypeScript strict, Prisma), authentification robuste.
-- ⚠️ **Difficulté** : fiabilité variable des APIs externes (vols/hôtels).
-- 🔧 **Amélioration** : prévoir des *fallbacks* systématiques (fait en S2).
+Sprint 1 — Inscription et connexion sécurisées (cookie httpOnly), base de données à
+six tables, première génération de pack par un LLM.
 
-### Sprint 2
-- ✅ **Réussite** : `Promise.allSettled` — un service en panne n'interrompt plus la génération.
-- ⚠️ **Difficulté** : quotas des fournisseurs LLM.
-- 🔧 **Amélioration** : cascade de repli Claude → Gemini → OpenRouter → mocks.
+Sprint 2 — Pipeline complet (recherches parallèles puis assemblage), scoring
+déterministe, validation des entrées sur toutes les routes.
 
-### Sprint 3
-- ✅ **Réussite** : filet de sécurité de tests solide.
-- ⚠️ **Difficulté** : cohérence d'affichage de certaines données générées.
-- 🔧 **Amélioration** : recette manuelle dédiée (réalisée en S4).
+Sprint 3 — Suite de tests verte (Vitest et Supertest), conteneurisation Docker,
+en-têtes de sécurité (Helmet).
 
-### Sprint 4
-- ✅ **Réussite** : bugs d'affichage détectés et corrigés en direct.
-- ⚠️ **Difficulté** : bugs cosmétiques (camembert budget, formats de dates).
-- 🔧 **Amélioration** : backlog pour les anomalies mineures.
+Sprint 4 — Application de bout en bout (onboarding, pack, carte, mes voyages),
+diagrammes, recette manuelle avec correction de quatre bugs.
 
-### Sprint 5
-- ✅ **Réussite** : base de code consolidée et plus maintenable (100 % Prisma).
-- ⚠️ **Difficulté** : surface de tests à étendre.
-- 🔧 **Amélioration** : étendre la couverture de tests.
+Sprint 5 — Migration complète vers Prisma, PostgreSQL conteneurisé, rédaction de la
+documentation technique.
 
-### Sprint 6
-- 🔄 **En cours.**
-- 🔧 **Amélioration** : finaliser le déploiement Render + accessibilité/responsive + performances.
+Sprint 6 — Intégration continue verte à chaque push, déploiement sur Render,
+ajustements d'accessibilité et de performance.
+
+---
+
+## Rétrospectives
+
+Après chaque revue, un point rapide sur ce qui a fonctionné, ce qui a posé problème
+et ce que j'en ai retiré pour la suite.
+
+Sprint 1 — Le socle a été posé proprement dès le départ (TypeScript strict, Prisma)
+et l'authentification était solide. En revanche, les APIs externes (vols, hôtels) se
+sont révélées peu fiables. J'ai décidé de prévoir des solutions de repli
+systématiques, mises en place au sprint suivant.
+
+Sprint 2 — Le passage à `Promise.allSettled` a réglé le point bloquant : un service
+en panne n'interrompt plus la génération. Restaient les quotas des fournisseurs de
+LLM, d'où la mise en place d'une cascade de repli (Claude, puis Gemini, puis
+OpenRouter, puis des données de secours).
+
+Sprint 3 — La suite de tests a servi de vrai filet de sécurité. Quelques
+incohérences d'affichage sur les données générées m'ont amené à prévoir une recette
+manuelle dédiée, réalisée au sprint 4.
+
+Sprint 4 — La recette a permis de repérer et corriger des bugs d'affichage en direct
+(camembert du budget, formats de dates). Pour ne pas casser le rythme, j'ai reporté
+les anomalies mineures dans un backlog.
+
+Sprint 5 — La bascule complète vers Prisma a rendu le code plus cohérent et plus
+facile à maintenir. Il restait à étendre la couverture de tests, ce qui a été
+poursuivi ensuite.
+
+Sprint 6 — Le MVP est passé en production tout en restant couvert par les tests. Le
+parcours collaborateur était d'abord incomplet (l'accès en lecture manquait), ce qui
+m'a conduit à unifier le contrôle d'accès en lecture et en écriture.
 
 ---
 
 ## Outils de suivi
 
-- **Board Trello** (sprint planning + statuts des cartes) : https://trello.com/b/GfQ3gMc8/tripgenie-agile-board
-- **GitHub Issues** (bug & task tracking, 12 issues fermées) : https://github.com/loties1533/tripgenie-app/issues
-- **GitHub Actions** (CI — tests + typecheck à chaque push) : https://github.com/loties1533/tripgenie-app/actions
+- Board Trello (planification et statut des cartes) : https://trello.com/b/GfQ3gMc8/tripgenie-agile-board
+- GitHub Issues (suivi des bugs et des tâches, douze issues fermées)
+- GitHub Actions (intégration continue : tests et typecheck à chaque push)
