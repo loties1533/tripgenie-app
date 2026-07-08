@@ -251,12 +251,12 @@ En amont du schéma relationnel ci-dessus, le **MCD** décrit les entités méti
 
 ![MCD Merise — 5 entités, 5 associations et cardinalités](docs/architecture/mcd.png)
 
-### Isolation des données
+### Isolation des données & autorisation
 
-Chaque route protégée filtre **systématiquement** par utilisateur — `where: { user_id }`, l'`id` provenant du JWT signé. Un utilisateur ne peut donc jamais accéder aux données d'un autre (vérifié dans la suite de tests sécurité).
+Les routes de **liste** filtrent systématiquement par utilisateur — `where: { user_id }`, l'`id` provenant du JWT signé. Les routes ciblant **une ressource précise** (`/trips/:id`) passent par un **helper d'autorisation partagé** (`tripAccess.ts`) : accès accordé au propriétaire et aux collaborateurs selon leur rôle (`editor` = lecture + écriture, `viewer` = lecture), tout accès non autorisé renvoyant 404. Un utilisateur ne peut donc jamais accéder aux données d'un autre sans y avoir été invité (vérifié dans la suite de tests sécurité).
 
 ```typescript
-// Un utilisateur ne lit que SES voyages — filtre appliqué à chaque requête protégée
+// Route de liste : un utilisateur ne voit que SES voyages
 const trips = await prisma.trip.findMany({
   where: { user_id: req.user.id },
 });
@@ -338,8 +338,8 @@ Le mode `surprise` utilise une pondération à part (score global 60% + original
 | Inputs malveillants | Validation Zod sur tous les endpoints |
 | Spam / DDoS | Rate limiting par IP (global + par route IA) |
 | Exposition clés API | Proxy backend Unsplash, variables d'env serveur uniquement |
-| Accès inter-utilisateurs | `where: { user_id }` — filtre applicatif Prisma sur chaque route protégée |
-| IDOR | 404 si ressource non possédée (pas de 403 qui confirme l'existence) |
+| Accès inter-utilisateurs | Filtre `where: { user_id }` sur les listes + helper d'autorisation (propriétaire / editor / viewer) sur les ressources ciblées |
+| IDOR | 404 si accès non autorisé (pas de 403 qui confirmerait l'existence de la ressource) |
 
 ### Séquence — authentification (login JWT)
 
