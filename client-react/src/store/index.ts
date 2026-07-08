@@ -90,23 +90,26 @@ interface ChatState {
   resetChat: () => void;
 }
 
+// Valeurs par défaut du chatData — définies une seule fois, réutilisées à l'init et dans resetChat.
+const CHAT_DATA_DEFAUT: Record<string, unknown> = {
+  travelers:     null,
+  profile:       null,
+  mode:          'party',
+  premium:       false,
+  interests:     [],
+  budget:        null,
+  origin:        '',
+  destination:   null,
+  duration:      null,
+  departure:     null,
+  return_date:   null,
+};
+
 export const useChatStore = create<ChatState>()(
   persist(
     (set) => ({
       messages: [],
-      chatData: {
-        travelers:     null,
-        profile:       null,
-        mode:          'party',
-        premium:       false,
-        interests:     [],
-        budget:        null,
-        origin:        '',
-        destination:   null,
-        duration:      null,
-        departure:     null,
-        return_date:   null,
-      },
+      chatData: { ...CHAT_DATA_DEFAUT },
       isTyping:   false,
       isReady:    false,
       turnCount:  0,
@@ -126,7 +129,7 @@ export const useChatStore = create<ChatState>()(
 
       resetChat: () => set({
         messages:   [],
-        chatData:   { travelers: null, profile: null, mode: 'party', premium: false, interests: [], budget: null, origin: '', destination: null, duration: null, departure: null, return_date: null },
+        chatData:   { ...CHAT_DATA_DEFAUT },
         isTyping:   false,
         isReady:    false,
         turnCount:  0,

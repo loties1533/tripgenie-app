@@ -76,11 +76,7 @@ router.use(requireAuth);
 // ---- GET /api/trips ----
 router.get('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.user) {
-      res.status(401).json({ error: 'Non authentifié' });
-      return;
-    }
-    const userId = req.user.id;
+    const userId = req.user!.id;
 
     const { mode, status } = req.query;
     const limit  = Math.min(Math.max(parseInt((req.query.limit as string) || '20', 10), 1), 50);
@@ -116,11 +112,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
     }
     const { title, destination, country, origin, departure, return_date, travelers, budget, mode, premium, pack_data, score } = donneesValidees.data;
 
-    if (!req.user) {
-      res.status(401).json({ error: 'Non authentifié' });
-      return;
-    }
-    const userId = req.user.id;
+    const userId = req.user!.id;
 
     const trip = await prisma.trip.create({
       data: {
@@ -152,11 +144,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
 // ---- GET /api/trips/:id ----
 router.get('/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.user) {
-      res.status(401).json({ error: 'Non authentifié' });
-      return;
-    }
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const tripId = String(req.params.id);
 
     // Lecture autorisée au propriétaire ET aux collaborateurs (editor/viewer).
@@ -188,11 +176,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction): Prom
       res.status(400).json({ error: donneesValidees.error.issues[0].message });
       return;
     }
-    if (!req.user) {
-      res.status(401).json({ error: 'Non authentifié' });
-      return;
-    }
-    const userId = req.user.id;
+    const userId = req.user!.id;
     const tripId = String(req.params.id);
 
     // Allowlist : on ne construit `champsModifies` qu'avec les colonnes fournies et validées.
@@ -231,11 +215,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction): Prom
 // ---- DELETE /api/trips/:id ----
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.user) {
-      res.status(401).json({ error: 'Non authentifié' });
-      return;
-    }
-    const userId = req.user.id;
+    const userId = req.user!.id;
 
     // deleteMany scopé par user_id (les packs partent en cascade)
     await prisma.trip.deleteMany({ where: { id: String(req.params.id), user_id: userId } });

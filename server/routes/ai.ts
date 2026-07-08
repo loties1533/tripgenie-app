@@ -20,7 +20,7 @@ import { getRealWeather } from '../services/weather.js';
 import { getDestinationPhoto } from '../services/photo.js';
 import prisma from '../db/prisma.js';
 import type { Prisma } from '@prisma/client';
-import { MODES, DEFAULT_VALUES } from '../lib/constants.js';
+import { MODES, MODES_LIST, DEFAULT_VALUES } from '../lib/constants.js';
 import type { TravelMode } from '../lib/types.js';
 import { peutEditerVoyage } from '../lib/tripAccess.js';
 import type { FlightSearchResult, EventSearchResult, HotelSearchResult } from '../services/smartSearch.js';
@@ -28,7 +28,7 @@ import type { WeatherData } from '../services/weather.js';
 
 const router = express.Router();
 
-const schemaMode = z.enum(['party', 'student', 'group', 'relax', 'surprise']);
+const schemaMode = z.enum(MODES_LIST as [TravelMode, ...TravelMode[]]);
 
 // Normalisation des modes : accepte les synonymes FR (fête→party, détente→relax…) et la casse,
 // pour ne pas planter quand le LLM renvoie le mot français saisi par l'utilisateur.
@@ -45,7 +45,7 @@ const MODE_ALIASES: Record<string, string> = {
 function canonicalMode(v: unknown): string | undefined {
   if (typeof v !== 'string') return undefined;
   const k = v.trim().toLowerCase();
-  return MODE_ALIASES[k] ?? (['party', 'student', 'group', 'relax', 'surprise'].includes(k) ? k : undefined);
+  return MODE_ALIASES[k] ?? ((MODES_LIST as string[]).includes(k) ? k : undefined);
 }
 // /destinations : garantit toujours un mode valide (défaut 'surprise' = l'app choisit) → jamais de 400 sur le mode.
 const modeDestinations = z.preprocess((v) => canonicalMode(v) ?? 'surprise', schemaMode);

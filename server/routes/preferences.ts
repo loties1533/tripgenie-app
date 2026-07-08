@@ -3,12 +3,14 @@ import express from 'express';
 import { z } from 'zod';
 import prisma from '../db/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
+import { MODES_LIST } from '../lib/constants.js';
+import type { TravelMode } from '../lib/types.js';
 import type { Request, Response, NextFunction } from 'express';
 
 const router = express.Router();
 
 const schemaPreferences = z.object({
-  default_mode:    z.enum(['party', 'student', 'group', 'relax', 'surprise']).optional(),
+  default_mode:    z.enum(MODES_LIST as [TravelMode, ...TravelMode[]]).optional(),
   default_premium: z.boolean().optional(),
   preferred_prefs: z.array(z.string().max(50)).max(10).optional(),
   home_city:       z.string().max(100).optional(),
