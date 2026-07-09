@@ -75,9 +75,9 @@ const schemaDestinations = z.object({
   premium: z.preprocess((v) => v === 'true' ? true : v === 'false' ? false : v, z.boolean()).optional(),
   profile: z.string().trim().max(40).optional(),
   interests: z.array(z.string()).max(20).optional(),
-  budget: z.number().int().min(0).optional(),
-  travelers: z.number().int().min(1).max(20).optional(),
-  duration: z.number().int().min(1).optional(),
+  budget: z.preprocess((v) => typeof v === 'string' ? Number(v) : v, z.number().int().min(0)).optional(),
+  travelers: z.preprocess((v) => typeof v === 'string' ? Number(v) : v, z.number().int().min(1).max(20)).optional(),
+  duration: z.preprocess((v) => typeof v === 'string' ? Number(v) : v, z.number().int().min(1)).optional(),
   origin: z.string().trim().min(1).optional(),
   departure: z.string().trim().optional(),
 });
