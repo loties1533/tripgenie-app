@@ -40,7 +40,7 @@ function FlightCard({ flight, packId, destination }: { flight: any; packId: stri
 
   return (
     <motion.div initial={{ opacity: 0, x: isReturn ? 8 : -8 }} animate={{ opacity: 1, x: 0 }}
-      className="glass rounded-2xl p-4 group">
+      className="glass rounded-md p-4 group">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-gold/10 text-gold rounded-md border border-gold/20">
@@ -107,7 +107,7 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
   const icons: Record<string, string> = { activity: '🏛', food: '🍽', event: '🎉', transport: '🚗' }
 
   return (
-    <div className="glass rounded-2xl overflow-hidden">
+    <div className="glass rounded-md overflow-hidden">
       <button onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-gold/5 transition-colors">
         <div className="flex items-center gap-3">
@@ -156,7 +156,7 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
             
             {/* Proactive Plan B */}
             {day.plan_b && (
-              <div className="mt-4 p-3 rounded-xl bg-gold/5 border border-gold/10 flex gap-3">
+              <div className="mt-4 p-3 rounded-md bg-gold/5 border border-gold/10 flex gap-3">
                 <span className="text-lg">✨</span>
                 <div className="flex-1">
                   <p className="text-[10px] font-bold text-gold uppercase tracking-wider">Alternative Proactive</p>
@@ -196,7 +196,7 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
   const total = breakdown.total || '—'
 
   return (
-    <div className="glass rounded-2xl p-5">
+    <div className="glass rounded-md p-5">
       <SectionTitle sub={`Répartition indicative · Total : ${total}`}>Budget</SectionTitle>
       <div className="flex flex-col sm:flex-row gap-4 items-center">
         <div className="w-44 h-44">
@@ -234,8 +234,8 @@ function EventCard({ event, destination }: { event: any; destination: string }) 
   const bookingUrl = lienReservation(event, destination)
 
   return (
-    <div className="flex gap-3 p-3 glass rounded-xl">
-      <div className="w-10 h-10 bg-coral/10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg">🎭</div>
+    <div className="flex gap-3 p-3 glass rounded-md">
+      <div className="w-10 h-10 bg-coral/10 rounded-md flex items-center justify-center flex-shrink-0 text-lg">🎭</div>
       <div className="flex-1 min-w-0">
         <p className="font-medium text-sm text-ink truncate">{event.title}</p>
         <p className="text-xs text-muted mt-0.5">{event.start} · {event.venue}</p>
@@ -280,7 +280,7 @@ export default function PackResults() {
   // Bandeau Mode Survie — affiché quand toutes les IA ont échoué et que le pack
   // est un fallback statique. Important pour la transparence envers l'utilisateur.
   const MockBanner = donneesPack.isMock ? (
-    <div className="mx-4 mb-4 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
+    <div className="mx-4 mb-4 px-4 py-3 rounded-md bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
       <span className="text-xl flex-shrink-0">⚠️</span>
       <div>
         <p className="text-sm font-bold text-amber-600">Données de démonstration</p>
@@ -329,9 +329,9 @@ export default function PackResults() {
 
   // ---- Internal Cards with Locate & Vote button ----
   const LocalHotelCard = ({ hotel }: { hotel: any }) => (
-    <div className="glass rounded-xl p-4 flex flex-col gap-3 group hover:border-gold/30 transition-colors">
+    <div className="glass rounded-md p-4 flex flex-col gap-3 group hover:border-gold/30 transition-colors">
       <div className="flex gap-3">
-        <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center text-2xl border border-gold/20">🏨</div>
+        <div className="w-12 h-12 bg-gold/10 rounded-md flex items-center justify-center text-2xl border border-gold/20">🏨</div>
         <div className="flex-1">
           <p className="font-semibold text-sm text-ink">{hotel.name}</p>
           <p className="text-xs text-muted mt-0.5">{hotel.location} · {hotel.stars}★</p>
@@ -372,9 +372,9 @@ export default function PackResults() {
   )
 
   const LocalActivityCard = ({ activity }: { activity: any }) => (
-    <div className="glass rounded-xl p-5 flex flex-col gap-4 hover:border-gold/40 transition-colors shadow-sm">
+    <div className="glass rounded-md p-5 flex flex-col gap-4 hover:border-gold/40 transition-colors shadow-sm">
       <div className="flex gap-4">
-        <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center flex-shrink-0 border border-gold/20">
+        <div className="w-12 h-12 rounded-md bg-gold/10 flex items-center justify-center flex-shrink-0 border border-gold/20">
           <span className="text-2xl">{activity.emoji || '🎯'}</span>
         </div>
         <div className="flex-1">
@@ -382,7 +382,7 @@ export default function PackResults() {
           <p className="text-xs text-gold font-semibold uppercase tracking-widest mt-1">{activity.category || 'Expérience'}</p>
           <p className="text-sm text-muted/90 mt-2 leading-relaxed">{activity.desc || activity.description}</p>
           {activity.plan_b && (
-            <div className="mt-3 p-2 bg-gold/5 rounded-lg border border-gold/10 flex items-start gap-2">
+            <div className="mt-3 p-2 bg-gold/5 rounded-md border border-gold/10 flex items-start gap-2">
               <span className="text-sm">✨</span>
               <div>
                 <p className="text-[10px] text-gold font-bold uppercase tracking-wider">Plan B Proactif</p>
@@ -398,7 +398,7 @@ export default function PackResults() {
             href={`https://maps.google.com/?q=${encodeURIComponent(activity.name + ' ' + donneesPack.destination)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] font-semibold text-ink bg-parchment-dark hover:bg-gold hover:text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+            className="text-[11px] font-semibold text-ink bg-parchment-dark hover:bg-gold hover:text-white px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5"
           >
             📍 Carte
           </a>
@@ -406,7 +406,7 @@ export default function PackResults() {
             href={lienReservation(activity, donneesPack.destination)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] font-semibold text-white bg-gold hover:bg-gold-dark px-4 py-1.5 rounded-lg transition-colors shadow-glow-gold hover:shadow-none flex items-center gap-1.5"
+            className="text-[11px] font-semibold text-white bg-gold hover:bg-gold-dark px-4 py-1.5 rounded-md transition-colors hover:shadow-none flex items-center gap-1.5"
           >
             Réserver ↗
           </a>
@@ -427,7 +427,7 @@ export default function PackResults() {
       {MockBanner}
 
       {/* Hero banner */}
-      <div className="glass-premium rounded-3xl p-4 sm:p-6 relative overflow-hidden shadow-glow-gold min-h-[220px] sm:min-h-[260px] flex items-end">
+      <div className="glass-premium rounded-md p-4 sm:p-6 relative overflow-hidden min-h-[220px] sm:min-h-[260px] flex items-end">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
@@ -469,7 +469,7 @@ export default function PackResults() {
             <div className="flex flex-col gap-2 sm:items-end">
               {/* Score TripGenie — visible dès l'apparition du pack + détail de l'algo par critère */}
               {donneesPack.score != null && (
-                <div className="glass-premium rounded-xl px-4 py-2 border border-gold/30 shadow-glow-gold">
+                <div className="glass-premium rounded-md px-4 py-2 border border-gold/30">
                   <div className="flex items-baseline gap-1 justify-center">
                     <span className="text-2xl font-bold text-gold leading-none">{scorePourcentage}</span>
                     <span className="text-xs text-muted">/100</span>
@@ -480,15 +480,15 @@ export default function PackResults() {
                 </div>
               )}
               <div className="flex flex-wrap gap-2">
-                <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
+                <div className="glass rounded-md px-3 py-1.5 flex items-center gap-1.5">
                   <span className="text-gold font-bold text-base">{travelers ?? '—'}</span>
                   <span className="text-[10px] text-muted uppercase tracking-tighter">voy.</span>
                 </div>
-                <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
+                <div className="glass rounded-md px-3 py-1.5 flex items-center gap-1.5">
                   <span className="text-gold font-bold text-base">{donneesPack.summary?.nights}</span>
                   <span className="text-[10px] text-muted uppercase tracking-tighter">nuits</span>
                 </div>
-                <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
+                <div className="glass rounded-md px-3 py-1.5 flex items-center gap-1.5">
                   <span className="text-gold font-bold text-base">{donneesPack.summary?.total_budget}</span>
                   <span className="text-[10px] text-muted uppercase tracking-tighter">budget</span>
                 </div>
@@ -521,7 +521,7 @@ export default function PackResults() {
           {(donneesPack.tips?.length ?? 0) > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               {donneesPack.tips?.map((tip, i) => (
-                <div key={i} className="bg-gold/5 rounded-xl px-3 py-2 text-xs">
+                <div key={i} className="bg-gold/5 rounded-md px-3 py-2 text-xs">
                   <span className="font-semibold text-ink">{tip.title} · </span>
                   <span className="text-muted">{tip.content}</span>
                 </div>

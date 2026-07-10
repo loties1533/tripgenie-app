@@ -109,9 +109,9 @@ export default function TripDetail() {
                   {/* Bouton Modifier : visible partout, mais sur mobile ouvre la bottom sheet */}
                   <button
                     onClick={() => setChatOpen(v => !v)}
-                    className={`text-sm px-4 py-2 rounded-xl font-bold transition-all border flex items-center gap-1.5 ${
+                    className={`text-sm px-4 py-2 rounded-md font-bold transition-all border flex items-center gap-1.5 ${
                       chatOpen
-                        ? 'bg-gold text-white border-gold shadow-glow-gold'
+                        ? 'bg-gold text-white border-gold'
                         : 'border-gold/30 text-gold hover:bg-gold/10'
                     }`}
                   >
@@ -160,14 +160,14 @@ export default function TripDetail() {
                   className="hidden lg:flex flex-col flex-shrink-0 sticky top-20"
                   style={{ width: 340, height: 'calc(100vh - 6rem)' }}
                 >
-                  <div className="glass-premium rounded-2xl overflow-hidden h-full flex flex-col border border-gold/20 shadow-glow-gold">
+                  <div className="glass-premium rounded-md overflow-hidden h-full flex flex-col border border-gold/20">
 
                     {/* Header du panel */}
                     <div className="px-4 py-3 border-b border-gold/10 flex items-center justify-between
                                     bg-gradient-to-r from-gold/5 to-transparent">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-light to-gold-dark
-                                        flex items-center justify-center shadow-glow-gold">
+                                        flex items-center justify-center">
                           <Logo size={17} className="text-white" />
                         </div>
                         <div>
@@ -236,7 +236,7 @@ export default function TripDetail() {
                   className="fixed bottom-0 left-0 right-0 z-50 lg:hidden rounded-t-3xl overflow-hidden"
                   style={{ height: '88vh' }}
                 >
-                  <div className="glass-premium h-full flex flex-col border-t border-x border-gold/20 shadow-glow-gold rounded-t-3xl">
+                  <div className="glass-premium h-full flex flex-col border-t border-x border-gold/20 rounded-t-3xl">
 
                     {/* Barre de glissement */}
                     <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
@@ -248,7 +248,7 @@ export default function TripDetail() {
                                     bg-gradient-to-r from-gold/5 to-transparent flex-shrink-0">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-light to-gold-dark
-                                        flex items-center justify-center shadow-glow-gold">
+                                        flex items-center justify-center">
                           <Logo size={17} className="text-white" />
                         </div>
                         <div>
@@ -305,7 +305,7 @@ export default function TripDetail() {
                 onClick={() => setChatOpen(true)}
                 className="fixed bottom-20 right-4 z-40 lg:hidden w-14 h-14 rounded-full
                            bg-gradient-to-br from-gold-light to-gold-dark text-white text-2xl
-                           shadow-xl shadow-gold/40 flex items-center justify-center
+                           shadow-sm shadow-gold/40 flex items-center justify-center
                            active:scale-95 transition-transform"
                 aria-label="Modifier le pack"
               >

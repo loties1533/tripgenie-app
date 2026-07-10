@@ -32,9 +32,9 @@ export function Header() {
         </Link>
 
         {/* Nav — Desktop */}
-        <nav className="hidden sm:flex items-center bg-parchment-dark/50 p-1 rounded-xl border border-gold/10">
+        <nav className="hidden sm:flex items-center bg-parchment-dark/50 p-1 rounded-md border border-gold/10">
           <Link to="/"
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all
               ${emplacement.pathname === '/'
                 ? 'text-ink bg-white shadow-sm'
                 : 'text-muted hover:text-ink'
@@ -42,16 +42,16 @@ export function Header() {
             Accueil
           </Link>
           <Link to="/trips"
-            className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2
+            className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex items-center gap-2
               ${emplacement.pathname === '/trips'
-                ? 'text-white bg-gold shadow-glow-gold'
+                ? 'text-white bg-gold'
                 : 'text-gold hover:bg-gold/10'
               }`}>
             Mes voyages
           </Link>
           {user && (
             <Link to="/preferences"
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all
                 ${emplacement.pathname === '/preferences'
                   ? 'text-ink bg-white shadow-sm'
                   : 'text-muted hover:text-ink'
@@ -71,7 +71,7 @@ export function Header() {
                   <span className="text-[10px] text-muted mt-0.5">Membre</span>
                 </div>
                 <button onClick={gererDeconnexion}
-                  className="w-9 h-9 rounded-xl bg-coral/10 text-coral border border-coral/20 
+                  className="w-9 h-9 rounded-md bg-coral/10 text-coral border border-coral/20 
                              hover:bg-coral hover:text-white transition-all flex items-center justify-center group">
                   <IconeDeconnexion />
                 </button>
@@ -84,7 +84,7 @@ export function Header() {
           {/* Hamburger — Mobile only */}
           <button
             onClick={() => setMenuOpen(o => !o)}
-            className="sm:hidden w-9 h-9 rounded-xl bg-parchment-dark border border-gold/10
+            className="sm:hidden w-9 h-9 rounded-md bg-parchment-dark border border-gold/10
                        flex items-center justify-center text-muted hover:text-gold transition-colors"
             aria-label="Menu"
           >
@@ -105,16 +105,16 @@ export function Header() {
           >
             <nav className="flex flex-col gap-1 p-4">
               <Link to="/" onClick={() => setMenuOpen(false)}
-                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${emplacement.pathname === '/' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink'}`}>
+                className={`px-4 py-3 rounded-md text-sm font-medium transition-all ${emplacement.pathname === '/' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink'}`}>
                 Accueil
               </Link>
               <Link to="/trips" onClick={() => setMenuOpen(false)}
-                className={`px-4 py-3 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${emplacement.pathname === '/trips' ? 'bg-gold text-white' : 'text-gold hover:bg-gold/10'}`}>
+                className={`px-4 py-3 rounded-md text-sm font-bold transition-all flex items-center gap-2 ${emplacement.pathname === '/trips' ? 'bg-gold text-white' : 'text-gold hover:bg-gold/10'}`}>
                 Mes voyages
               </Link>
               {user && (
                 <Link to="/preferences" onClick={() => setMenuOpen(false)}
-                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${emplacement.pathname === '/preferences' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink'}`}>
+                  className={`px-4 py-3 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${emplacement.pathname === '/preferences' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink'}`}>
                   Préférences
                 </Link>
               )}
@@ -123,12 +123,12 @@ export function Header() {
                 ? <>
                     <div className="px-4 py-2 text-xs text-muted">Connecté en tant que <span className="font-semibold text-ink">{user.name}</span></div>
                     <button onClick={gererDeconnexion}
-                      className="px-4 py-3 rounded-xl text-sm font-medium text-coral hover:bg-coral/10 transition-all text-left">
+                      className="px-4 py-3 rounded-md text-sm font-medium text-coral hover:bg-coral/10 transition-all text-left">
                       🚪 Déconnexion
                     </button>
                   </>
                 : <Link to="/login" onClick={() => setMenuOpen(false)}
-                    className="px-4 py-3 rounded-xl text-sm font-bold bg-gold text-white text-center transition-all">
+                    className="px-4 py-3 rounded-md text-sm font-bold bg-gold text-white text-center transition-all">
                     Connexion
                   </Link>
               }

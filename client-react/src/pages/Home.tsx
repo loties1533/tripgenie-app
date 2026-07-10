@@ -113,8 +113,6 @@ function ChatSection() {
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}
       className="relative z-20 max-w-3xl mx-auto -mt-20" id="chat-section">
 
-      <div className="absolute inset-0 bg-gold/10 blur-[80px] rounded-[3rem] pointer-events-none" />
-
       {/* Pitch d'intro — explique le concept 2 valeurs sûres + 1 pépite */}
       <div className="relative mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
@@ -122,7 +120,7 @@ function ChatSection() {
           { n: '2', t: 'Recevez 3 destinations', d: '2 valeurs sûres + 1 pépite plus confidentielle, selon votre budget.' },
           { n: '3', t: 'On génère tout', d: 'Vols, hôtels, activités, budget : votre pack complet sur-mesure.' },
         ].map(e => (
-          <div key={e.n} className="glass rounded-xl p-4 border border-gold/10">
+          <div key={e.n} className="glass rounded-md p-4 border border-gold/10">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-6 h-6 rounded-full bg-gold/15 text-gold text-xs font-bold flex items-center justify-center flex-shrink-0">{e.n}</span>
               <p className="text-sm font-semibold text-ink leading-tight">{e.t}</p>
@@ -132,12 +130,12 @@ function ChatSection() {
         ))}
       </div>
 
-      <div className="relative glass-premium rounded-[2rem] overflow-hidden shadow-2xl border-t border-gold/30"
+      <div className="relative glass-premium rounded-md overflow-hidden shadow-sm border-t border-gold/30"
            style={{ minHeight: 460 }}>
         <div className="flex items-center justify-between px-5 sm:px-8 py-4 border-b border-gold/10
                         bg-gradient-to-b from-white/40 to-transparent">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-glow-gold">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
               <Logo size={20} className="text-white" />
             </div>
             <div>
@@ -235,8 +233,8 @@ function ConceptsVoyage() {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}
             onClick={() => gererSelection(c)}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && gererSelection(c)}
-            className="group cursor-pointer relative h-[320px] sm:h-[420px] rounded-2xl overflow-hidden
-                       shadow-2xl border border-gold/20 hover:border-gold/60 focus:outline-none focus:ring-2 focus:ring-gold/60
+            className="group cursor-pointer relative h-[320px] sm:h-[420px] rounded-md overflow-hidden
+                       shadow-sm border border-gold/20 hover:border-gold/60 focus:outline-none focus:ring-2 focus:ring-gold/60
                        transition-all duration-500 hover:-translate-y-2">
             <div className="absolute inset-0 bg-ink">
               <PhotoVille city={c.city} photo={c.photo} />
@@ -379,7 +377,7 @@ export default function Home() {
                     <motion.div key={i}
                       initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 + i * 0.12 }}
-                      className="group relative h-[260px] sm:h-[340px] rounded-2xl overflow-hidden ring-1 ring-gold/20 shadow-2xl shadow-black/50">
+                      className="group relative h-[260px] sm:h-[340px] rounded-md overflow-hidden ring-1 ring-gold/20 shadow-sm shadow-black/50">
                       <img src={f.img} alt={f.title}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                       <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-transparent" />
@@ -437,7 +435,7 @@ export default function Home() {
                     <motion.div key={i}
                       initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.6 + i * 0.12 }}
-                      className="glass rounded-2xl p-6 border border-gold/10 flex flex-col">
+                      className="glass rounded-md p-6 border border-gold/10 flex flex-col">
                       <span className="w-8 h-8 rounded-full bg-gold/15 text-gold text-sm font-bold flex items-center justify-center mb-4">
                         {i + 1}
                       </span>

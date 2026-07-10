@@ -10,7 +10,7 @@ export function Skeleton({ className }: { className?: string }) {
 
 export function SkeletonCard() {
   return (
-    <div className="glass rounded-2xl p-5 space-y-3">
+    <div className="glass rounded-md p-5 space-y-3">
       <Skeleton className="h-5 w-2/3" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-4/5" />
@@ -26,7 +26,7 @@ export function SkeletonCard() {
 export function TabBar({ tabs, active, onChange }: { tabs: any[], active: string, onChange: (id: string) => void }) {
   return (
     <div className="overflow-x-auto scroll-hide -mx-1">
-      <div className="flex gap-1 p-1 bg-parchment-dark rounded-xl min-w-max mx-1">
+      <div className="flex gap-1 p-1 bg-parchment-dark rounded-md min-w-max mx-1">
         {tabs.map(t => (
           <button key={t.id} onClick={() => onChange(t.id)}
             className={clsx('tab-btn flex items-center justify-center gap-1.5 whitespace-nowrap', active === t.id && 'active')}>

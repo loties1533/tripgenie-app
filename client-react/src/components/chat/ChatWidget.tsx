@@ -234,7 +234,7 @@ function InlineInput({
               min={today}
               value={dateRange.departure}
               onChange={e => setDateRange({ ...dateRange, departure: e.target.value })}
-              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-ink outline-none transition-colors w-44"
+              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-md px-3 py-2 text-sm text-ink outline-none transition-colors w-44"
             />
           </div>
           <div className="flex flex-col gap-1">
@@ -246,7 +246,7 @@ function InlineInput({
               min={dateRange.departure || today}
               value={dateRange.return_date}
               onChange={e => setDateRange({ ...dateRange, return_date: e.target.value })}
-              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-ink outline-none transition-colors w-44"
+              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-md px-3 py-2 text-sm text-ink outline-none transition-colors w-44"
             />
           </div>
         </>
@@ -262,7 +262,7 @@ function InlineInput({
             onChange={e => setTravelersCount(
               e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1)
             )}
-            className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-ink outline-none transition-colors w-32"
+            className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-md px-3 py-2 text-sm text-ink outline-none transition-colors w-32"
           />
         </div>
       ) : (
@@ -279,7 +279,7 @@ function InlineInput({
               onChange={e => setBudgetAmount(
                 e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1)
               )}
-              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-xl px-3 py-2 text-sm text-ink outline-none transition-colors w-32"
+              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-md px-3 py-2 text-sm text-ink outline-none transition-colors w-32"
             />
             <span className="text-gold text-sm font-semibold">€</span>
           </div>
@@ -672,7 +672,7 @@ export default function ChatWidget() {
         {isMockMode && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="mx-4 mt-2 px-3 py-1.5 bg-amber-50 border border-amber-200
-                       rounded-lg text-xs text-amber-700 flex items-center gap-1.5">
+                       rounded-md text-xs text-amber-700 flex items-center gap-1.5">
             <span>⚡</span> Mode démonstration actif (quotas IA saturés)
           </motion.div>
         )}
@@ -759,7 +759,7 @@ export default function ChatWidget() {
       {/* Input texte libre (mode freeform uniquement) */}
       {!quizMode && (
         <div className="px-4 pb-4 pt-2">
-          <div className="flex gap-2 items-end bg-white/60 backdrop-blur-md border border-gold/20 rounded-2xl p-1 shadow-inner">
+          <div className="flex gap-2 items-end bg-white/60 backdrop-blur-md border border-gold/20 rounded-md p-1 shadow-inner">
             <textarea
               ref={inputRef}
               value={input}
@@ -780,9 +780,9 @@ export default function ChatWidget() {
               whileTap={{ scale: 0.92 }}
               onClick={sendMessage}
               disabled={!input.trim() || sending}
-              className="w-11 h-11 rounded-xl bg-gold text-white flex items-center justify-center
+              className="w-11 h-11 rounded-md bg-gold text-white flex items-center justify-center
                          disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gold-dark
-                         transition-all duration-200 flex-shrink-0 shadow-glow-gold hover:shadow-none">
+                         transition-all duration-200 flex-shrink-0 hover:shadow-none">
               {sending
                 ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 : <SendIcon />}

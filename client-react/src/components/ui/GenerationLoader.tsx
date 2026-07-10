@@ -68,7 +68,7 @@ export default function GenerationLoader({ destination }: { destination?: string
       className="max-w-lg mx-auto mt-8 px-4"
     >
       {/* Card principale */}
-      <div className="glass-premium rounded-3xl p-8 border border-gold/20 shadow-glow-gold">
+      <div className="glass-premium rounded-md p-8 border border-gold/20">
 
         {/* Destination + icône animée */}
         <div className="text-center mb-8">

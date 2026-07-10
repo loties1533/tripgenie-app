@@ -69,7 +69,7 @@ export default function PreferencesPage() {
   }
 
   const classeInput = `w-full bg-white border border-parchment-dark
-    rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted
+    rounded-md px-4 py-3 text-sm text-ink placeholder:text-muted
     focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all`
 
   return (
@@ -77,7 +77,7 @@ export default function PreferencesPage() {
       <Seo title="Préférences" path="/preferences" noindex />
       <div className="max-w-lg mx-auto py-12">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-3xl p-8 border border-gold/20 shadow-card-lg">
+          className="glass rounded-md p-8 border border-gold/20 shadow-card-lg">
 
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-ink">Mes préférences</h1>
@@ -102,9 +102,9 @@ export default function PreferencesPage() {
                   <div className="grid grid-cols-3 gap-2">
                     {MODES.map(m => (
                       <button key={m.value} onClick={() => setMode(m.value)}
-                        className={`py-2.5 rounded-xl text-sm font-medium border transition-all
+                        className={`py-2.5 rounded-md text-sm font-medium border transition-all
                           ${mode === m.value
-                            ? 'bg-gold text-white border-gold shadow-glow-gold'
+                            ? 'bg-gold text-white border-gold'
                             : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40'}`}>
                         {m.label}
                       </button>
@@ -121,9 +121,9 @@ export default function PreferencesPage() {
                       { value: true,  label: '💎 Premium' },
                     ].map(n => (
                       <button key={String(n.value)} onClick={() => setPremium(n.value)}
-                        className={`py-2.5 rounded-xl text-sm font-medium border transition-all
+                        className={`py-2.5 rounded-md text-sm font-medium border transition-all
                           ${premium === n.value
-                            ? 'bg-gold text-white border-gold shadow-glow-gold'
+                            ? 'bg-gold text-white border-gold'
                             : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40'}`}>
                         {n.label}
                       </button>

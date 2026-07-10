@@ -96,7 +96,7 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
 
   if (loading) {
     return (
-      <div className="w-full h-[400px] bg-ink/20 animate-pulse rounded-3xl flex items-center justify-center border border-white/5">
+      <div className="w-full h-[400px] bg-ink/20 animate-pulse rounded-md flex items-center justify-center border border-white/5">
         <p className="text-muted text-sm">Chargement de la carte...</p>
       </div>
     )
@@ -105,7 +105,7 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
   if (!center) return null
 
   return (
-    <div className="w-full h-[400px] rounded-3xl overflow-hidden border border-white/10 shadow-glow-gold relative z-0">
+    <div className="w-full h-[400px] rounded-md overflow-hidden border border-white/10 relative z-0">
       <style>{`
         .leaflet-popup-content-wrapper {
           background: rgba(28, 28, 30, 0.8) !important;

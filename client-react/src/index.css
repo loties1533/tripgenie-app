@@ -77,13 +77,10 @@
   .glass {
     /* Mode clair : carte blanche nette, bordure discrète, ombre douce (pas de verre translucide) */
     background: #FFFFFF;
-    border: 1px solid rgba(26, 20, 16, 0.08);
-    box-shadow: 0 1px 2px rgba(26, 20, 16, 0.04), 0 6px 20px -6px rgba(26, 20, 16, 0.08);
+    border: 1px solid rgba(26, 20, 16, 0.12);
   }
-  /* Mode clair : carte « premium » = simple carte nette + ombre un peu plus marquée (pas de bordure dorée) */
   .glass-premium {
     @apply glass;
-    box-shadow: 0 2px 4px rgba(26, 20, 16, 0.05), 0 12px 32px -8px rgba(26, 20, 16, 0.12);
   }
 
   /* ---- Scrollbar ---- */
@@ -93,33 +90,31 @@
   /* ---- Chat bubbles ---- */
   .bubble-bot {
     @apply bg-white text-ink
-           rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm
-           border border-parchment-dark
+           rounded-md rounded-tl-sm px-4 py-3
+           border border-gray-300
            text-[15px] leading-relaxed;
   }
   .bubble-user {
-    @apply bg-gold text-white rounded-2xl rounded-tr-sm px-4 py-3
+    @apply bg-gold text-white rounded-md rounded-tr-sm px-4 py-3
            text-[15px] leading-relaxed font-medium;
   }
 
   /* ---- Chip button ---- */
   .chip {
-    @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full
-           text-sm font-medium border border-gold/30 text-ink
-           bg-white hover:bg-gold hover:text-white
-           hover:border-gold transition-all duration-200 cursor-pointer
-           active:scale-95;
+    @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm
+           text-sm font-medium border border-gray-300 text-ink
+           bg-white hover:border-gold hover:bg-gold/5
+           transition-colors cursor-pointer;
   }
 
   /* ---- Primary button ---- */
   .btn-primary {
     @apply bg-gold hover:bg-gold-dark text-white font-medium px-6 py-3
-           rounded-xl transition-all duration-200 active:scale-[.98]
-           shadow-glow-gold hover:shadow-none;
+           rounded-sm transition-colors;
   }
   .btn-ghost {
-    @apply border border-gold/30 text-ink hover:bg-gold/10
-           font-medium px-4 py-2 rounded-xl transition-all duration-200;
+    @apply border border-gray-300 text-ink hover:border-gold hover:bg-gold/5
+           font-medium px-4 py-2 rounded-sm transition-colors;
   }
 
   /* ---- Skeleton ---- */
@@ -129,23 +124,23 @@
 
   /* ---- Score badge ---- */
   .score-badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-sm text-xs font-semibold;
   }
 
   /* ---- Verified badge ---- */
   .verified {
     @apply inline-flex items-center gap-1 text-[11px] font-semibold
-           bg-sage/10 text-sage px-2 py-0.5 rounded-full;
+           bg-sage/10 text-sage px-2 py-0.5 rounded-sm;
   }
 
   /* ---- Tab ---- */
   .tab-btn {
-    @apply px-4 py-2 text-sm font-medium text-muted rounded-lg
-           hover:text-ink hover:bg-parchment-dark
-           transition-all duration-150;
+    @apply px-4 py-2 text-sm font-medium text-muted rounded-sm
+           hover:text-ink hover:bg-gray-100
+           transition-colors;
   }
   .tab-btn.active {
-    @apply text-ink bg-white shadow-sm border border-gold/20;
+    @apply text-ink bg-white border border-gray-300;
   }
 }
 

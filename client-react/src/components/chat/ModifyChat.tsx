@@ -97,7 +97,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
                 <Logo size={13} className="text-white" />
               </div>
             )}
-            <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+            <div className={`max-w-[82%] px-3.5 py-2.5 rounded-md text-sm leading-relaxed ${
               m.role === 'user'
                 ? 'bg-gold text-white rounded-br-sm'
                 : 'glass text-ink rounded-bl-sm border border-gold/10'
@@ -112,7 +112,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center mr-2 mt-1 flex-shrink-0">
               <Logo size={13} className="text-white" />
             </div>
-            <div className="glass px-4 py-3 rounded-2xl rounded-bl-sm border border-gold/10">
+            <div className="glass px-4 py-3 rounded-md rounded-bl-sm border border-gold/10">
               <span className="flex gap-1.5 items-center">
                 {[0, 150, 300].map(delay => (
                   <span key={delay} className="w-1.5 h-1.5 rounded-full bg-gold animate-bounce"
@@ -145,7 +145,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && envoyer()}
             placeholder="Remplace l'hôtel par..."
-            className="flex-1 bg-ink/5 border border-gold/20 rounded-xl px-3.5 py-2.5 text-sm
+            className="flex-1 bg-ink/5 border border-gold/20 rounded-md px-3.5 py-2.5 text-sm
                        text-ink placeholder:text-muted
                        focus:outline-none focus:border-gold/50 transition-colors"
           />
@@ -153,7 +153,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             onClick={() => envoyer()}
             disabled={chargement || !input.trim()}
             className="bg-gold hover:bg-gold/80 disabled:opacity-30 text-white
-                       w-10 h-10 rounded-xl font-bold transition-all flex items-center justify-center"
+                       w-10 h-10 rounded-md font-bold transition-all flex items-center justify-center"
           >
             ↑
           </button>

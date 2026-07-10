@@ -95,19 +95,19 @@ export default function Trips() {
           <div className="flex items-center gap-3">
             {trips.length > 0 && (
               <div className="flex gap-3">
-                <div className="glass-premium px-4 py-2.5 rounded-xl text-center">
+                <div className="glass-premium px-4 py-2.5 rounded-md text-center">
                   <p className="text-[10px] text-muted uppercase tracking-wider font-semibold">Voyages</p>
                   <p className="text-xl font-bold text-gold">{trips.length}</p>
                 </div>
-                <div className="glass-premium px-4 py-2.5 rounded-xl text-center">
+                <div className="glass-premium px-4 py-2.5 rounded-md text-center">
                   <p className="text-[10px] text-muted uppercase tracking-wider font-semibold">Score moy.</p>
                   <p className="text-xl font-bold text-gold">{scoreMoyen}%</p>
                 </div>
               </div>
             )}
             <Link to="/"
-              className="flex items-center gap-2 bg-gold hover:bg-gold/80 text-white px-4 py-2.5 rounded-xl
-                         text-sm font-bold transition-all shadow-glow-gold active:scale-95">
+              className="flex items-center gap-2 bg-gold hover:bg-gold/80 text-white px-4 py-2.5 rounded-md
+                         text-sm font-bold transition-all active:scale-95">
               + Nouveau
             </Link>
           </div>
@@ -122,7 +122,7 @@ export default function Trips() {
 
         {/* ── Error ── */}
         {error && (
-          <div className="text-center py-20 glass rounded-3xl border border-red-500/20">
+          <div className="text-center py-20 glass rounded-md border border-red-500/20">
             <p className="text-4xl mb-3">⚠️</p>
             <p className="text-muted mb-4">Impossible de charger vos voyages.</p>
             <button onClick={() => window.location.reload()} className="btn-primary">Réessayer</button>
@@ -131,7 +131,7 @@ export default function Trips() {
 
         {/* ── Empty ── */}
         {!isLoading && trips.length === 0 && (
-          <div className="text-center py-24 glass-premium rounded-3xl shadow-glow-gold">
+          <div className="text-center py-24 glass-premium rounded-md">
             <p className="text-6xl mb-5">✈️</p>
             <h3 className="text-2xl font-bold text-ink mb-2">
               Votre carnet est vide
@@ -155,8 +155,8 @@ export default function Trips() {
                 transition={{ delay: i * 0.07, duration: 0.4, ease: 'easeOut' }}
                 onClick={() => navigate(`/trip/${trip.id}`)}
                 onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && navigate(`/trip/${trip.id}`)}
-                className="glass-premium rounded-2xl p-5 cursor-pointer
-                           hover:shadow-glow-gold hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-gold/60
+                className="glass-premium rounded-md p-5 cursor-pointer
+                           hover: hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-gold/60
                            transition-all duration-300 group relative overflow-hidden border border-transparent hover:border-gold/20"
               >
                 {/* Fond déco */}

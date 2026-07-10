@@ -35,7 +35,7 @@ export default function LoginPage() {
   }
 
   const classeInput = `w-full bg-white border border-parchment-dark
-    rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted
+    rounded-md px-4 py-3 text-sm text-ink placeholder:text-muted
     focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all`
 
   return (
@@ -43,11 +43,11 @@ export default function LoginPage() {
       <Seo title="Connexion" description="Connectez-vous ou créez un compte TripGenie pour sauvegarder et retrouver vos voyages." path="/login" />
       <div className="max-w-sm mx-auto py-16">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-3xl p-8 border border-gold/20 shadow-card-lg">
+          className="glass rounded-md p-8 border border-gold/20 shadow-card-lg">
 
           {/* Logo */}
           <div className="text-center mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gold/20 border border-gold/40 flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-md bg-gold/20 border border-gold/40 flex items-center justify-center mx-auto mb-3">
               <Logo size={24} className="text-gold" />
             </div>
             <h1 className="text-2xl font-bold text-ink">TripGenie</h1>
@@ -55,10 +55,10 @@ export default function LoginPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 p-1 bg-parchment-dark rounded-xl mb-6">
+          <div className="flex gap-1 p-1 bg-parchment-dark rounded-md mb-6">
             {['login', 'signup'].map(t => (
               <button key={t} onClick={() => { setOnglet(t); setErreur('') }}
-                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all
+                className={`flex-1 py-2 rounded-md text-sm font-medium transition-all
                   ${onglet === t ? 'bg-white text-ink shadow-sm' : 'text-muted'}`}>
                 {t === 'login' ? 'Connexion' : 'Inscription'}
               </button>
@@ -80,7 +80,7 @@ export default function LoginPage() {
 
           {erreur && (
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="mt-3 text-sm text-coral bg-coral/5 rounded-lg px-3 py-2">
+              className="mt-3 text-sm text-coral bg-coral/5 rounded-md px-3 py-2">
               {erreur}
             </motion.p>
           )}
