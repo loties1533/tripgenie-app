@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useChatStore, useSearchStore } from '../../store'
 import { chatOnboarding, getDestinations, getPreferences } from '../../lib/api'
 import Logo from '../ui/Logo'
@@ -153,11 +152,8 @@ function TypingDots() {
 function Message({ msg, onChipClick }: { msg: any; onChipClick?: (label: string) => void }) {
   const isBot = msg.role === 'bot' || msg.role === 'assistant'
   return (
-    <motion.div
+    <div
       className={`flex gap-2 ${isBot ? 'justify-start' : 'justify-end'} msg-enter`}
-      initial={{ opacity: 0, y: 8, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.28, ease: [0.34,1.2,0.64,1] }}
     >
       {isBot && (
         <div className="w-7 h-7 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-1">
@@ -182,7 +178,7 @@ function Message({ msg, onChipClick }: { msg: any; onChipClick?: (label: string)
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -222,8 +218,7 @@ function InlineInput({
     : budgetAmount !== '' && (budgetAmount as number) >= 1
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+    <div
       className="flex flex-col gap-3 pl-9 pr-4">
       {mode === 'date' ? (
         <>
@@ -295,7 +290,7 @@ function InlineInput({
           ← Retour
         </button>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -668,19 +663,19 @@ export default function ChatWidget() {
 
   return (
     <div className="flex flex-col h-full">
-      <AnimatePresence>
+      
         {isMockMode && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+          <div
             className="mx-4 mt-2 px-3 py-1.5 bg-amber-50 border border-amber-200
                        rounded-md text-xs text-amber-700 flex items-center gap-1.5">
             <span>⚡</span> Mode démonstration actif (quotas IA saturés)
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto scroll-hide px-4 py-4 flex flex-col gap-4">
-        <AnimatePresence initial={false}>
+        
           {messages.map((msg, idx) => {
             const isLastBot = idx === messages.length - 1
               && (msg.role === 'bot' || msg.role === 'assistant')
@@ -691,11 +686,11 @@ export default function ChatWidget() {
               <Message key={msg.id} msg={msg} onChipClick={isLastBot ? sendChip : undefined} />
             )
           })}
-        </AnimatePresence>
+        
 
         {/* Choix de mode (accueil) */}
         {isWelcomeState && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          <div
             className="flex flex-col gap-2 pl-9">
             <button onClick={() => handleModeSelect('quiz')}
               className="w-full text-left px-4 py-3 text-sm text-ink bg-white border border-gray-300 rounded-sm hover:border-gold hover:bg-gold/5 transition-colors cursor-pointer">
@@ -705,7 +700,7 @@ export default function ChatWidget() {
               className="w-full text-left px-4 py-3 text-sm text-ink bg-white border border-gray-300 rounded-sm hover:border-gold hover:bg-gold/5 transition-colors cursor-pointer">
               Décrire mon voyage (libre)
             </button>
-          </motion.div>
+          </div>
         )}
 
         {/* Quiz : input inline OU chips OU récap — masqué dès que l'onboarding
@@ -726,7 +721,7 @@ export default function ChatWidget() {
                 onCancel={() => setInputMode(null)}
               />
             ) : awaitingConfirm ? (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              <div
                 className="flex flex-wrap gap-2 pl-9">
                 <button onClick={handleModify}
                   className="chip text-sm hover:border-gold/60 hover:bg-gold/10 transition-all">
@@ -736,24 +731,24 @@ export default function ChatWidget() {
                   className="chip text-sm hover:border-gold/60 hover:bg-gold/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
                   C'est parfait →
                 </button>
-              </motion.div>
+              </div>
             ) : (
               <QuizChips step={quizStep} onSelect={handleQuizChip} disabled={isTyping} />
             )}
           </>
         )}
 
-        <AnimatePresence>
+        
           {isTyping && (
-            <motion.div className="flex gap-2 justify-start"
-              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <div className="flex gap-2 justify-start"
+>
               <div className="w-7 h-7 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-1">
                 <Logo size={15} className="text-gold" />
               </div>
               <div className="bubble-bot"><TypingDots /></div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        
       </div>
 
       {/* Input texte libre (mode freeform uniquement) */}
@@ -776,8 +771,7 @@ export default function ChatWidget() {
                 e.currentTarget.style.height = Math.min(e.currentTarget.scrollHeight, 128) + 'px'
               }}
             />
-            <motion.button
-              whileTap={{ scale: 0.92 }}
+            <button
               onClick={sendMessage}
               disabled={!input.trim() || sending}
               className="w-11 h-11 rounded-md bg-gold text-white flex items-center justify-center
@@ -786,7 +780,7 @@ export default function ChatWidget() {
               {sending
                 ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 : <SendIcon />}
-            </motion.button>
+            </button>
           </div>
         </div>
       )}
@@ -799,7 +793,7 @@ function QuizChips({ step, onSelect, disabled }: { step: number; onSelect: (chip
   const currentStep = QUIZ_STEPS[step]
   if (!currentStep) return null
   return (
-    <motion.div key={step} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+    <div key={step}
       className="flex flex-wrap gap-2 pl-9">
       {currentStep.chips.map((chip, i) => (
         <button key={i} onClick={() => !disabled && onSelect(chip)} disabled={disabled}
@@ -807,7 +801,7 @@ function QuizChips({ step, onSelect, disabled }: { step: number; onSelect: (chip
           {chip.label}
         </button>
       ))}
-    </motion.div>
+    </div>
   )
 }
 

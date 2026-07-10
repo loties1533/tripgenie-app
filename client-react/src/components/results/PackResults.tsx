@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Cell, ResponsiveContainer, PieChart, Pie, Tooltip } from 'recharts'
@@ -39,7 +38,7 @@ function FlightCard({ flight, packId, destination }: { flight: any; packId: stri
   const kayakUrl = flight.links?.kayak
 
   return (
-    <motion.div initial={{ opacity: 0, x: isReturn ? 8 : -8 }} animate={{ opacity: 1, x: 0 }}
+    <div
       className="glass rounded-md p-4 group">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -97,7 +96,7 @@ function FlightCard({ flight, packId, destination }: { flight: any; packId: stri
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -119,17 +118,15 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
             <p className="text-xs text-muted">{day.subtitle}</p>
           </div>
         </div>
-        <motion.span animate={{ rotate: open ? 180 : 0 }} className="text-muted text-sm">▼</motion.span>
+        <span className="text-muted text-sm">▼</span>
       </button>
-      <AnimatePresence>
+      
         {open && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}
+          <div
             className="px-5 pb-4 space-y-3 border-t border-parchment-dark">
             {day.items?.map((item: any, i: number) => (
-              <motion.div key={i} className="flex gap-3 pt-3"
-                initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.08, duration: 0.3 }}>
+              <div key={i} className="flex gap-3 pt-3"
+>
                 <div className="text-center flex-shrink-0 w-12">
                   <p className="text-xs font-medium text-gold">{item.time}</p>
                   <p className="text-lg">{icons[item.type] || '📍'}</p>
@@ -151,7 +148,7 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
                     {item.duration && <span className="text-xs text-muted">{item.duration}</span>}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
             
             {/* Proactive Plan B */}
@@ -164,9 +161,9 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
                 </div>
               </div>
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      
     </div>
   )
 }
@@ -418,10 +415,9 @@ export default function PackResults() {
 
 
   return (
-    <motion.div id="pack-results" className="mt-10 space-y-5"
+    <div id="pack-results" className="mt-10 space-y-5"
       data-mode={mode}
-      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}>
+>
 
       {/* Bandeau Mode Survie — visible uniquement quand isMock: true */}
       {MockBanner}
@@ -445,12 +441,11 @@ export default function PackResults() {
               <div className="flex items-center gap-2 mb-1">
                 <ModeBadge mode={mode} />
                 {tripId && (
-                  <motion.span 
-                    initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+                  <span 
                     className="bg-sage/10 text-sage text-[10px] px-2 py-0.5 rounded-full border border-sage/20 font-bold uppercase tracking-widest"
                   >
                     ✓ Sauvegardé
-                  </motion.span>
+                  </span>
                 )}
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-ink flex flex-wrap items-center gap-2">
@@ -544,10 +539,9 @@ export default function PackResults() {
       <TabBar tabs={TABS} active={activeTab} onChange={setActiveTab} />
 
       {/* Tab content */}
-      <AnimatePresence mode="wait">
-        <motion.div key={activeTab}
-          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}>
+      
+        <div key={activeTab}
+>
 
           {activeTab === 'overview' && (
             <div className="space-y-4">
@@ -590,8 +584,8 @@ export default function PackResults() {
           )}
 
           {activeTab === 'budget' && <BudgetChart breakdown={donneesPack.budget_breakdown} />}
-        </motion.div>
-      </AnimatePresence>
-    </motion.div>
+        </div>
+      
+    </div>
   )
 }

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { PageLayout } from '../components/layout'
 import Seo from '../components/Seo'
@@ -76,7 +75,7 @@ export default function PreferencesPage() {
     <PageLayout>
       <Seo title="Préférences" path="/preferences" noindex />
       <div className="max-w-lg mx-auto py-12">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+        <div
           className="glass rounded-md p-8 border border-gold/20 shadow-card-lg">
 
           <div className="mb-6">
@@ -161,7 +160,7 @@ export default function PreferencesPage() {
               ← Retour à l'accueil
             </Link>
           </p>
-        </motion.div>
+        </div>
       </div>
     </PageLayout>
   )

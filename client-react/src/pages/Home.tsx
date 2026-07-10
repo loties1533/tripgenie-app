@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { PageLayout } from '../components/layout'
 import Seo from '../components/Seo'
@@ -62,8 +61,7 @@ function Hero() {
   const slide = HERO_SLIDES[current]
 
   return (
-    <motion.section
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}
+    <section
       className="relative w-screen left-1/2 right-1/2 -translate-x-1/2 -mt-6 mb-10 h-[48vh] min-h-[340px] flex items-center justify-center overflow-hidden">
 
       <div className="absolute inset-0 z-0 bg-ink">
@@ -83,24 +81,23 @@ function Hero() {
       </div>
 
       <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
-        <motion.h1
-          initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
+        <h1
           className="text-4xl sm:text-6xl lg:text-[5.5rem] font-bold text-white leading-[1.0] mb-5 drop-shadow-2xl">
           Votre voyage,
           <br />
           <span className="font-light">généré sur-mesure.</span>
-        </motion.h1>
+        </h1>
 
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.65 }}>
+        <div>
           <button
             onClick={() => document.getElementById('chat-section')?.scrollIntoView({ behavior: 'smooth' })}
             className="flex items-center gap-2 mx-auto text-parchment/70 hover:text-gold text-sm tracking-widest uppercase transition-colors animate-bounce-slow">
             <span>Commencer</span>
             <span className="text-lg">↓</span>
           </button>
-        </motion.div>
+        </div>
       </div>
-    </motion.section>
+    </section>
   )
 }
 
@@ -109,8 +106,7 @@ function ChatSection() {
   const { resetChat } = useChatStore()
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}
+    <section
       className="relative z-20 max-w-3xl mx-auto -mt-20" id="chat-section">
 
       {/* Pitch d'intro — explique le concept 2 valeurs sûres + 1 pépite */}
@@ -156,7 +152,7 @@ function ChatSection() {
           <ChatWidget />
         </div>
       </div>
-    </motion.section>
+    </section>
   )
 }
 
@@ -216,8 +212,7 @@ function ConceptsVoyage() {
   }
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}
+    <section
       className="relative z-20 max-w-6xl mx-auto -mt-20 px-4 pb-20">
 
       <div className="text-center mb-8">
@@ -227,10 +222,9 @@ function ConceptsVoyage() {
 
       <div className="grid md:grid-cols-3 gap-5">
         {concepts.map((c: any, i: number) => (
-          <motion.div key={i}
+          <div key={i}
             role="button"
             tabIndex={0}
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.15 }}
             onClick={() => gererSelection(c)}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && gererSelection(c)}
             className="group cursor-pointer relative h-[320px] sm:h-[420px] rounded-md overflow-hidden
@@ -258,10 +252,10 @@ function ConceptsVoyage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
-    </motion.section>
+    </section>
   )
 }
 
@@ -324,13 +318,10 @@ export default function Home() {
       {!pack && !concepts && !isLoading && <Hero />}
 
       {/* ── Split layout quand le pack est affiché inline (user non connecté) ── */}
-      <AnimatePresence mode="wait">
+      
         {hasPack ? (
-          <motion.div
+          <div
             key="pack-view"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
             className="mt-2"
             id="pack-results"
           >
@@ -349,9 +340,9 @@ export default function Home() {
               </button>
             </div>
             <PackResults />
-          </motion.div>
+          </div>
         ) : (
-          <motion.div key="form-view">
+          <div key="form-view">
             {/* Chat onboarding */}
             {!concepts && !isLoading && <ChatSection />}
 
@@ -365,8 +356,7 @@ export default function Home() {
 
             {/* Features */}
             {!concepts && !isLoading && (
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              <div
                 className="mt-20 pb-24">
                 <div className="text-center mb-10">
                   <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-2">Notre Savoir-Faire</p>
@@ -374,9 +364,7 @@ export default function Home() {
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   {FEATURES.map((f, i) => (
-                    <motion.div key={i}
-                      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 + i * 0.12 }}
+                    <div key={i}
                       className="group relative h-[260px] sm:h-[340px] rounded-md overflow-hidden ring-1 ring-gold/20 shadow-sm shadow-black/50">
                       <img src={f.img} alt={f.title}
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -391,16 +379,15 @@ export default function Home() {
                         <h3 className="text-xl text-white font-bold mb-1 leading-tight">{f.title}</h3>
                         <p className="text-white/60 text-sm leading-relaxed font-light">{f.desc}</p>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Contenu éditorial — accueil vide (présentation + SEO) */}
             {!concepts && !isLoading && (
-              <motion.section
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              <section
                 className="max-w-5xl mx-auto pb-28">
 
                 <div className="text-center max-w-2xl mx-auto mb-12">
@@ -432,9 +419,7 @@ export default function Home() {
                       d: "Décrivez votre voyage et comparez les propositions librement. Vous créez un compte seulement si vous voulez sauvegarder vos packs et les retrouver plus tard.",
                     },
                   ].map((c, i) => (
-                    <motion.div key={i}
-                      initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 + i * 0.12 }}
+                    <div key={i}
                       className="glass rounded-md p-6 border border-gold/10 flex flex-col">
                       <span className="w-8 h-8 rounded-full bg-gold/15 text-gold text-sm font-bold flex items-center justify-center mb-4">
                         {i + 1}
@@ -443,14 +428,14 @@ export default function Home() {
                         {c.t}
                       </h3>
                       <p className="text-muted text-sm leading-relaxed">{c.d}</p>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
-              </motion.section>
+              </section>
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      
 
     </PageLayout>
   )

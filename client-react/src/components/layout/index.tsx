@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../../store'
 import { logout } from '../../lib/api'
@@ -94,13 +93,9 @@ export function Header() {
       </div>
 
       {/* Mobile menu drawer */}
-      <AnimatePresence>
+      
         {menuOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+          <div
             className="sm:hidden overflow-hidden bg-white/95 backdrop-blur-md border-t border-gold/10"
           >
             <nav className="flex flex-col gap-1 p-4">
@@ -133,9 +128,9 @@ export function Header() {
                   </Link>
               }
             </nav>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      
     </header>
   )
 }

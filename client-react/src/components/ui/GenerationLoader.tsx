@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 const STEPS = [
   { icon: '✈️', label: 'Recherche des vols',         duration: 8000  },
@@ -62,9 +61,7 @@ export default function GenerationLoader({ destination }: { destination?: string
   )
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       className="max-w-lg mx-auto mt-8 px-4"
     >
       {/* Card principale */}
@@ -72,13 +69,11 @@ export default function GenerationLoader({ destination }: { destination?: string
 
         {/* Destination + icône animée */}
         <div className="text-center mb-8">
-          <motion.div
-            animate={{ scale: [1, 1.08, 1], rotate: [0, 3, -3, 0] }}
-            transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+          <div
             className="text-5xl mb-3"
           >
             {STEPS[currentStep]?.icon}
-          </motion.div>
+          </div>
           <h3 className="text-xl font-bold text-ink">
             {destination ? `Votre pack ${destination}` : 'Votre pack'}
           </h3>
@@ -92,11 +87,8 @@ export default function GenerationLoader({ destination }: { destination?: string
             const active  = i === currentStep
             const pending = i > currentStep
             return (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: pending ? 0.35 : 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
                 className="flex items-center gap-3"
               >
                 {/* Icône état */}
@@ -106,10 +98,8 @@ export default function GenerationLoader({ destination }: { destination?: string
                   'bg-white/5 text-muted'
                 }`}>
                   {done ? '✓' : active ? (
-                    <motion.span
-                      animate={{ opacity: [1, 0.4, 1] }}
-                      transition={{ repeat: Infinity, duration: 1.2 }}
-                    >●</motion.span>
+                    <span
+                    >●</span>
                   ) : '○'}
                 </div>
 
@@ -124,16 +114,14 @@ export default function GenerationLoader({ destination }: { destination?: string
 
                 {/* Spinner sur l'étape active */}
                 {active && (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
+                  <div
                     className="ml-auto w-4 h-4 border-2 border-gold/30 border-t-gold rounded-full flex-shrink-0"
                   />
                 )}
                 {done && (
                   <span className="ml-auto text-xs text-emerald-400">✓</span>
                 )}
-              </motion.div>
+              </div>
             )
           })}
         </div>
@@ -145,30 +133,25 @@ export default function GenerationLoader({ destination }: { destination?: string
             <span>{elapsed}s</span>
           </div>
           <div className="h-1.5 rounded-full bg-ink/10 overflow-hidden">
-            <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-gold-light to-gold"
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 1, ease: 'easeOut' }}
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-gold-light to-gold transition-all duration-700"
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         {/* Tip rotatif */}
         <div className="h-8 flex items-center justify-center">
-          <AnimatePresence mode="wait">
-            <motion.p
+          
+            <p
               key={tipIndex}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.4 }}
               className="text-xs text-muted text-center italic"
             >
               {TIPS[tipIndex]}
-            </motion.p>
-          </AnimatePresence>
+            </p>
+          
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }

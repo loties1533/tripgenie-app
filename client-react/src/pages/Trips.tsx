@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import React from 'react'
 import { PageLayout } from '../components/layout'
@@ -147,12 +146,9 @@ export default function Trips() {
         {trips.length > 0 && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {trips.map((trip, i) => (
-              <motion.div key={trip.id}
+              <div key={trip.id}
                 role="button"
                 tabIndex={0}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07, duration: 0.4, ease: 'easeOut' }}
                 onClick={() => navigate(`/trip/${trip.id}`)}
                 onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && navigate(`/trip/${trip.id}`)}
                 className="glass-premium rounded-md p-5 cursor-pointer
@@ -223,7 +219,7 @@ export default function Trips() {
                     →
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

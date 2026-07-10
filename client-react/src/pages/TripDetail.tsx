@@ -1,6 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { PageLayout } from '../components/layout'
 import Seo from '../components/Seo'
@@ -90,7 +89,7 @@ export default function TripDetail() {
       <Seo title="Votre voyage" noindex />
       {data?.trip && (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-5 items-start">
+          <div className="flex gap-5 items-start">
 
             {/* ── Left : Pack ── */}
             <div className="flex-1 min-w-0">
@@ -149,14 +148,10 @@ export default function TripDetail() {
             </div>
 
             {/* ── Right : Chat modifier (desktop uniquement lg+) ── */}
-            <AnimatePresence>
+            
               {chatOpen && (
-                <motion.div
+                <div
                   key="modify-panel"
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 24 }}
-                  transition={{ duration: 0.25 }}
                   className="hidden lg:flex flex-col flex-shrink-0 sticky top-20"
                   style={{ width: 340, height: 'calc(100vh - 6rem)' }}
                 >
@@ -205,34 +200,26 @@ export default function TripDetail() {
                     {/* Chat */}
                     <ModifyChat tripId={id} mode={data.trip.mode} />
                   </div>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
+            
 
-          </motion.div>
+          </div>
 
           {/* ── Mobile : Bottom sheet (< lg uniquement) ── */}
-          <AnimatePresence>
+          
             {chatOpen && (
               <>
                 {/* Overlay sombre */}
-                <motion.div
+                <div
                   key="mobile-overlay"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
                   className="fixed inset-0 z-40 bg-black/60 lg:hidden"
                   onClick={() => setChatOpen(false)}
                 />
 
                 {/* Sheet qui monte du bas */}
-                <motion.div
+                <div
                   key="mobile-chat-sheet"
-                  initial={{ y: '100%' }}
-                  animate={{ y: 0 }}
-                  exit={{ y: '100%' }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 280 }}
                   className="fixed bottom-0 left-0 right-0 z-50 lg:hidden rounded-t-3xl overflow-hidden"
                   style={{ height: '88vh' }}
                 >
@@ -288,20 +275,16 @@ export default function TripDetail() {
                       <ModifyChat tripId={id} mode={data.trip.mode} />
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </>
             )}
-          </AnimatePresence>
+          
 
           {/* ── Mobile FAB flottant (< lg) — visible quand chat fermé ── */}
-          <AnimatePresence>
+          
             {!chatOpen && (
-              <motion.button
+              <button
                 key="mobile-fab"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                 onClick={() => setChatOpen(true)}
                 className="fixed bottom-20 right-4 z-40 lg:hidden w-14 h-14 rounded-full
                            bg-gradient-to-br from-gold-light to-gold-dark text-white text-2xl
@@ -310,9 +293,9 @@ export default function TripDetail() {
                 aria-label="Modifier le pack"
               >
                 ✏️
-              </motion.button>
+              </button>
             )}
-          </AnimatePresence>
+          
         </>
       )}
     </PageLayout>

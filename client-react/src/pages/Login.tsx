@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { PageLayout } from '../components/layout'
 import Seo from '../components/Seo'
 import Logo from '../components/ui/Logo'
@@ -42,7 +41,7 @@ export default function LoginPage() {
     <PageLayout>
       <Seo title="Connexion" description="Connectez-vous ou créez un compte TripGenie pour sauvegarder et retrouver vos voyages." path="/login" />
       <div className="max-w-sm mx-auto py-16">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+        <div
           className="glass rounded-md p-8 border border-gold/20 shadow-card-lg">
 
           {/* Logo */}
@@ -79,10 +78,10 @@ export default function LoginPage() {
           </div>
 
           {erreur && (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            <p
               className="mt-3 text-sm text-coral bg-coral/5 rounded-md px-3 py-2">
               {erreur}
-            </motion.p>
+            </p>
           )}
 
           <button onClick={submit} disabled={chargement}
@@ -98,7 +97,7 @@ export default function LoginPage() {
               ← Retour à l'accueil
             </Link>
           </p>
-        </motion.div>
+        </div>
       </div>
     </PageLayout>
   )

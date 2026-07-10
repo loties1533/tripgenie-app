@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { useSearchStore } from '../../store'
 import Logo from '../ui/Logo'
 
@@ -85,11 +84,8 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
         {messages.map((m, i) => (
-          <motion.div
+          <div
             key={i}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
             className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {m.role === 'assistant' && (
@@ -104,7 +100,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             }`}>
               {m.text}
             </div>
-          </motion.div>
+          </div>
         ))}
 
         {chargement && (
