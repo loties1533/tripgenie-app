@@ -74,7 +74,7 @@ export default function TripDetail() {
       <Seo title="Votre voyage" noindex />
         <div className="text-center py-24">
           <p className="text-5xl mb-4">🔍</p>
-          <h2 className="font-display text-2xl font-bold text-ink dark:text-parchment mb-2">
+          <h2 className="text-2xl font-bold text-ink mb-2">
             Voyage introuvable
           </h2>
           <p className="text-muted mb-6">Ce lien de partage est invalide ou expiré.</p>
@@ -98,7 +98,7 @@ export default function TripDetail() {
               {/* Barre d'actions */}
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <p className="text-sm text-muted truncate max-w-[200px] sm:max-w-none">
-                  <span className="font-semibold text-ink dark:text-parchment">
+                  <span className="font-semibold text-ink">
                     {data.trip.destination}
                   </span>
                   {' · '}{data.trip.travelers} pers.
@@ -136,7 +136,7 @@ export default function TripDetail() {
                       className={`text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${
                         status === s.key
                           ? 'bg-gold text-white border-gold'
-                          : 'border-gold/20 text-muted hover:border-gold/50 hover:text-ink dark:hover:text-parchment'
+                          : 'border-gold/20 text-muted hover:border-gold/50 hover:text-ink'
                       } disabled:opacity-50`}
                     >
                       {s.label}
@@ -171,7 +171,7 @@ export default function TripDetail() {
                           <Logo size={17} className="text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-ink dark:text-parchment leading-none">
+                          <p className="text-sm font-bold text-ink leading-none">
                             Modifier le pack
                           </p>
                           <p className="text-[11px] text-muted mt-0.5">{data.trip.destination}</p>
@@ -180,7 +180,7 @@ export default function TripDetail() {
                       <button
                         onClick={() => setChatOpen(false)}
                         className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center
-                                   text-muted hover:text-ink dark:hover:text-parchment transition-colors text-base"
+                                   text-muted hover:text-ink transition-colors text-base"
                       >
                         ×
                       </button>
@@ -252,7 +252,7 @@ export default function TripDetail() {
                           <Logo size={17} className="text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-ink dark:text-parchment leading-none">
+                          <p className="text-sm font-bold text-ink leading-none">
                             Modifier le pack
                           </p>
                           <p className="text-[11px] text-muted mt-0.5">{data.trip.destination}</p>
@@ -261,7 +261,7 @@ export default function TripDetail() {
                       <button
                         onClick={() => setChatOpen(false)}
                         className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center
-                                   text-muted hover:text-ink dark:hover:text-parchment transition-colors text-lg"
+                                   text-muted hover:text-ink transition-colors text-lg"
                       >
                         ×
                       </button>

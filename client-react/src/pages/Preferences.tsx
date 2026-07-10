@@ -68,8 +68,8 @@ export default function PreferencesPage() {
     }
   }
 
-  const classeInput = `w-full bg-white dark:bg-ink-light border border-parchment-dark dark:border-white/10
-    rounded-xl px-4 py-3 text-sm text-ink dark:text-parchment placeholder:text-muted
+  const classeInput = `w-full bg-white border border-parchment-dark
+    rounded-xl px-4 py-3 text-sm text-ink placeholder:text-muted
     focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all`
 
   return (
@@ -80,7 +80,7 @@ export default function PreferencesPage() {
           className="glass rounded-3xl p-8 border border-gold/20 shadow-card-lg">
 
           <div className="mb-6">
-            <h1 className="font-display text-2xl font-bold text-ink dark:text-parchment">Mes préférences</h1>
+            <h1 className="text-2xl font-bold text-ink">Mes préférences</h1>
             <p className="text-sm text-muted mt-1">Elles pré-remplissent chaque nouveau voyage.</p>
           </div>
 
@@ -105,7 +105,7 @@ export default function PreferencesPage() {
                         className={`py-2.5 rounded-xl text-sm font-medium border transition-all
                           ${mode === m.value
                             ? 'bg-gold text-white border-gold shadow-glow-gold'
-                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40 dark:bg-white/5 dark:border-white/10'}`}>
+                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40'}`}>
                         {m.label}
                       </button>
                     ))}
@@ -124,7 +124,7 @@ export default function PreferencesPage() {
                         className={`py-2.5 rounded-xl text-sm font-medium border transition-all
                           ${premium === n.value
                             ? 'bg-gold text-white border-gold shadow-glow-gold'
-                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40 dark:bg-white/5 dark:border-white/10'}`}>
+                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40'}`}>
                         {n.label}
                       </button>
                     ))}
@@ -140,7 +140,7 @@ export default function PreferencesPage() {
                         className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all capitalize
                           ${interests.includes(i)
                             ? 'bg-sage/30 border-sage text-sage'
-                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40 dark:bg-white/5 dark:border-white/10'}`}>
+                            : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40'}`}>
                         {i}
                       </button>
                     ))}
@@ -157,7 +157,7 @@ export default function PreferencesPage() {
           }
 
           <p className="text-center text-xs text-muted mt-5">
-            <Link to="/" className="hover:text-ink dark:hover:text-parchment transition-colors">
+            <Link to="/" className="hover:text-ink transition-colors">
               ← Retour à l'accueil
             </Link>
           </p>

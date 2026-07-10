@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -70,14 +70,6 @@
     background: #F4F3F1;
     min-height: 100vh;
   }
-
-  .dark body {
-    @apply text-parchment;
-    background:
-      radial-gradient(circle at 50% 0%, var(--orb1) 0%, transparent 50%),
-      #050505;
-    background-attachment: fixed;
-  }
 }
 
 @layer components {
@@ -88,28 +80,10 @@
     border: 1px solid rgba(26, 20, 16, 0.08);
     box-shadow: 0 1px 2px rgba(26, 20, 16, 0.04), 0 6px 20px -6px rgba(26, 20, 16, 0.08);
   }
-  .dark .glass {
-    background: rgba(5, 5, 5, 0.9);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-color: rgba(201, 168, 76, 0.2);
-    box-shadow: 0 8px 32px -2px rgba(0, 0, 0, 0.8);
-  }
-  
   /* Mode clair : carte « premium » = simple carte nette + ombre un peu plus marquée (pas de bordure dorée) */
   .glass-premium {
     @apply glass;
     box-shadow: 0 2px 4px rgba(26, 20, 16, 0.05), 0 12px 32px -8px rgba(26, 20, 16, 0.12);
-  }
-  /* Mode sombre : carte noire nette + bordure en dégradé doré (comme avant) */
-  .dark .glass-premium {
-    background-color: #0a0a0a;
-    border: 1px solid transparent;
-    box-shadow: 0 8px 32px -2px rgba(0, 0, 0, 0.8);
-    background-clip: padding-box, border-box;
-    background-origin: padding-box, border-box;
-    background-image: linear-gradient(#0a0a0a, #0a0a0a),
-                      linear-gradient(135deg, var(--gold-light), var(--gold-dark));
   }
 
   /* ---- Scrollbar ---- */
@@ -118,9 +92,9 @@
 
   /* ---- Chat bubbles ---- */
   .bubble-bot {
-    @apply bg-white dark:bg-ink-light text-ink dark:text-parchment
+    @apply bg-white text-ink
            rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm
-           border border-parchment-dark dark:border-white/10
+           border border-parchment-dark
            text-[15px] leading-relaxed;
   }
   .bubble-user {
@@ -131,8 +105,8 @@
   /* ---- Chip button ---- */
   .chip {
     @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full
-           text-sm font-medium border border-gold/30 text-ink dark:text-parchment
-           bg-white dark:bg-ink-light hover:bg-gold hover:text-white
+           text-sm font-medium border border-gold/30 text-ink
+           bg-white hover:bg-gold hover:text-white
            hover:border-gold transition-all duration-200 cursor-pointer
            active:scale-95;
   }
@@ -144,13 +118,13 @@
            shadow-glow-gold hover:shadow-none;
   }
   .btn-ghost {
-    @apply border border-gold/30 text-ink dark:text-parchment hover:bg-gold/10
+    @apply border border-gold/30 text-ink hover:bg-gold/10
            font-medium px-4 py-2 rounded-xl transition-all duration-200;
   }
 
   /* ---- Skeleton ---- */
   .skeleton {
-    @apply bg-parchment-dark dark:bg-ink-light animate-shimmer rounded-lg;
+    @apply bg-parchment-dark animate-shimmer rounded-lg;
   }
 
   /* ---- Score badge ---- */
@@ -167,11 +141,11 @@
   /* ---- Tab ---- */
   .tab-btn {
     @apply px-4 py-2 text-sm font-medium text-muted rounded-lg
-           hover:text-ink dark:hover:text-parchment hover:bg-parchment-dark dark:hover:bg-ink-light
+           hover:text-ink hover:bg-parchment-dark
            transition-all duration-150;
   }
   .tab-btn.active {
-    @apply text-ink dark:text-parchment bg-white dark:bg-ink-light shadow-sm border border-gold/20;
+    @apply text-ink bg-white shadow-sm border border-gold/20;
   }
 }
 
@@ -217,10 +191,6 @@
   background-size: 1000px 100%;
   animation: shimmer 2s infinite linear;
 }
-.dark .animate-shimmer {
-  background: linear-gradient(to right, #1a1a1a 4%, #2a2a2a 25%, #1a1a1a 36%);
-  background-size: 1000px 100%;
-}
 
 /* ---- Fade In ---- */
 @keyframes fadeIn {
@@ -233,27 +203,6 @@
 
 
 /* ---- Luxury Animations ---- */
-@keyframes shine {
-  0% { left: -100%; }
-  20% { left: 100%; }
-  100% { left: 100%; }
-}
-.shine-effect {
-  position: relative;
-  overflow: hidden;
-}
-.shine-effect::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
-  transform: skewX(-25deg);
-  animation: shine 4s infinite;
-}
-
 @keyframes float {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -265,36 +214,6 @@
 
 .text-gradient-gold {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-gold-light via-gold to-gold-dark;
-}
-
-/* ---- Cinematic Grain ---- */
-.grain-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 50;
-  opacity: 0.03;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
-.dark .grain-overlay {
-  opacity: 0.06;
-}
-
-/* ---- Ambient Orbs ---- */
-.ambient-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  z-index: 0;
-  pointer-events: none;
-  animation: floatOrb 15s ease-in-out infinite alternate;
-}
-@keyframes floatOrb {
-  0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-  100% { transform: translate(50px, -50px) scale(1.2); opacity: 0.6; }
 }
 
 @keyframes bounceSlow {
@@ -314,14 +233,3 @@
   animation: pulseSlow 3s ease-in-out infinite;
 }
 
-/* ---- Icône calendrier des champs date ---- */
-/* L'indicateur natif <input type="date"> est sombre par défaut : invisible
-   noir-sur-noir en mode sombre. On l'inverse (dark) pour le rendre lisible ;
-   en mode clair le natif suffit, on le laisse tel quel. */
-.dark input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) opacity(0.7);
-  cursor: pointer;
-}
-.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  filter: invert(1) opacity(1);
-}

@@ -79,7 +79,7 @@ export default function GenerationLoader({ destination }: { destination?: string
           >
             {STEPS[currentStep]?.icon}
           </motion.div>
-          <h3 className="font-display text-xl font-bold text-ink dark:text-parchment">
+          <h3 className="text-xl font-bold text-ink">
             {destination ? `Votre pack ${destination}` : 'Votre pack'}
           </h3>
           <p className="text-sm text-muted mt-1">est en cours de création…</p>
@@ -144,7 +144,7 @@ export default function GenerationLoader({ destination }: { destination?: string
             <span>Progression</span>
             <span>{elapsed}s</span>
           </div>
-          <div className="h-1.5 rounded-full bg-ink/10 dark:bg-white/10 overflow-hidden">
+          <div className="h-1.5 rounded-full bg-ink/10 overflow-hidden">
             <motion.div
               className="h-full rounded-full bg-gradient-to-r from-gold-light to-gold"
               animate={{ width: `${progress}%` }}

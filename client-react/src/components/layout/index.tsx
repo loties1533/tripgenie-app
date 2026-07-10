@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQueryClient } from '@tanstack/react-query'
-import { useAuthStore, useThemeStore } from '../../store'
+import { useAuthStore } from '../../store'
 import { logout } from '../../lib/api'
 import Logo from '../ui/Logo'
 
@@ -17,28 +17,27 @@ export function Header() {
     queryClient.clear() // Vide le cache React Query : le compte suivant ne voit jamais les données du précédent
     setMenuOpen(false)
   }
-  const { theme, toggle } = useThemeStore()
   const emplacement = useLocation()
 
   return (
-    <header className="sticky top-0 z-40 bg-white/70 dark:bg-ink/70 backdrop-blur-md border-b border-gold/10">
+    <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-md border-b border-gold/10">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group" onClick={() => setMenuOpen(false)}>
           <Logo size={40} className="text-gold transition-transform group-hover:scale-105" />
           <div className="flex flex-col">
-            <span className="font-display font-bold text-ink dark:text-parchment text-xl leading-none tracking-tight">TripGenie</span>
-            <span className="hidden sm:block text-[10px] text-gold-dark dark:text-gold font-bold uppercase tracking-widest mt-1">Voyages sur-mesure</span>
+            <span className="font-bold text-ink text-xl leading-none tracking-tight">TripGenie</span>
+            <span className="hidden sm:block text-[10px] text-gold-dark font-bold uppercase tracking-widest mt-1">Voyages sur-mesure</span>
           </div>
         </Link>
 
         {/* Nav — Desktop */}
-        <nav className="hidden sm:flex items-center bg-parchment-dark/50 dark:bg-ink-light/50 p-1 rounded-xl border border-gold/10">
+        <nav className="hidden sm:flex items-center bg-parchment-dark/50 p-1 rounded-xl border border-gold/10">
           <Link to="/"
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all
               ${emplacement.pathname === '/'
-                ? 'text-ink dark:text-parchment bg-white dark:bg-ink-light shadow-sm'
-                : 'text-muted hover:text-ink dark:hover:text-parchment'
+                ? 'text-ink bg-white shadow-sm'
+                : 'text-muted hover:text-ink'
               }`}>
             Accueil
           </Link>
@@ -54,8 +53,8 @@ export function Header() {
             <Link to="/preferences"
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all
                 ${emplacement.pathname === '/preferences'
-                  ? 'text-ink dark:text-parchment bg-white dark:bg-ink-light shadow-sm'
-                  : 'text-muted hover:text-ink dark:hover:text-parchment'
+                  ? 'text-ink bg-white shadow-sm'
+                  : 'text-muted hover:text-ink'
                 }`}>
               Préférences
             </Link>
@@ -64,17 +63,11 @@ export function Header() {
 
         {/* Right actions */}
         <div className="flex items-center gap-2">
-          <button onClick={toggle}
-            className="w-9 h-9 rounded-xl bg-parchment-dark dark:bg-ink-light border border-gold/10 
-                       text-muted hover:text-gold transition-colors flex items-center justify-center">
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-
           {/* Desktop user actions */}
           {user
             ? <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-gold/20">
                 <div className="flex flex-col items-end">
-                  <span className="text-xs font-semibold text-ink dark:text-parchment leading-none">{user.name}</span>
+                  <span className="text-xs font-semibold text-ink leading-none">{user.name}</span>
                   <span className="text-[10px] text-muted mt-0.5">Membre</span>
                 </div>
                 <button onClick={gererDeconnexion}
@@ -83,7 +76,7 @@ export function Header() {
                   <IconeDeconnexion />
                 </button>
               </div>
-            : <Link to="/login" className="hidden sm:inline-flex btn-primary text-sm px-5 py-2 shine-effect">
+            : <Link to="/login" className="hidden sm:inline-flex btn-primary text-sm px-5 py-2">
                 Connexion
               </Link>
           }
@@ -91,7 +84,7 @@ export function Header() {
           {/* Hamburger — Mobile only */}
           <button
             onClick={() => setMenuOpen(o => !o)}
-            className="sm:hidden w-9 h-9 rounded-xl bg-parchment-dark dark:bg-ink-light border border-gold/10
+            className="sm:hidden w-9 h-9 rounded-xl bg-parchment-dark border border-gold/10
                        flex items-center justify-center text-muted hover:text-gold transition-colors"
             aria-label="Menu"
           >
@@ -108,11 +101,11 @@ export function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="sm:hidden overflow-hidden bg-white/95 dark:bg-ink/95 backdrop-blur-md border-t border-gold/10"
+            className="sm:hidden overflow-hidden bg-white/95 backdrop-blur-md border-t border-gold/10"
           >
             <nav className="flex flex-col gap-1 p-4">
               <Link to="/" onClick={() => setMenuOpen(false)}
-                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${emplacement.pathname === '/' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink dark:hover:text-parchment'}`}>
+                className={`px-4 py-3 rounded-xl text-sm font-medium transition-all ${emplacement.pathname === '/' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink'}`}>
                 Accueil
               </Link>
               <Link to="/trips" onClick={() => setMenuOpen(false)}
@@ -121,14 +114,14 @@ export function Header() {
               </Link>
               {user && (
                 <Link to="/preferences" onClick={() => setMenuOpen(false)}
-                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${emplacement.pathname === '/preferences' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink dark:hover:text-parchment'}`}>
+                  className={`px-4 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${emplacement.pathname === '/preferences' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink'}`}>
                   Préférences
                 </Link>
               )}
               <div className="h-px bg-gold/10 my-1" />
               {user
                 ? <>
-                    <div className="px-4 py-2 text-xs text-muted">Connecté en tant que <span className="font-semibold text-ink dark:text-parchment">{user.name}</span></div>
+                    <div className="px-4 py-2 text-xs text-muted">Connecté en tant que <span className="font-semibold text-ink">{user.name}</span></div>
                     <button onClick={gererDeconnexion}
                       className="px-4 py-3 rounded-xl text-sm font-medium text-coral hover:bg-coral/10 transition-all text-left">
                       🚪 Déconnexion
@@ -160,12 +153,6 @@ function IconeDeconnexion() {
 export function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <div className="grain-overlay"></div>
-      
-      {/* Ambient Orbs */}
-      <div className="ambient-orb w-[600px] h-[600px] bg-gold/10 -top-40 -left-40"></div>
-      <div className="ambient-orb w-[500px] h-[500px] bg-sky/5 top-1/2 -right-20" style={{ animationDelay: '-5s' }}></div>
-
       <Header />
       <main className="max-w-5xl mx-auto px-4 py-6 relative z-10">
         {children}
@@ -174,7 +161,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
       {/* Footer Premium */}
       <footer className="relative mt-24 border-t border-gold/10 overflow-hidden">
         {/* Background */}
-        <div className="absolute inset-0 bg-ink dark:bg-ink-deep" />
+        <div className="absolute inset-0 bg-ink" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-ink/80 to-ink" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
 
@@ -185,7 +172,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
             <div>
               <div className="flex items-center gap-3 mb-5">
                 <Logo size={32} className="text-gold" />
-                <span className="font-display font-bold text-white text-lg">TripGenie</span>
+                <span className="font-bold text-white text-lg">TripGenie</span>
               </div>
               <p className="text-white/40 text-sm leading-relaxed font-light">
                 L'intelligence artificielle au service de vos voyages, pensés dans le moindre détail.

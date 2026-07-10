@@ -102,7 +102,7 @@ export default function PackSkeleton() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.6 }}
-            className="font-display text-3xl sm:text-4xl text-white font-bold mb-4 leading-snug">
+            className="text-3xl sm:text-4xl text-white font-bold mb-4 leading-snug">
             {slide.text}
           </motion.h2>
         </AnimatePresence>
@@ -121,7 +121,7 @@ export default function PackSkeleton() {
 
         {/* Barre de progression */}
         <div className="mt-12 w-full max-w-xs mx-auto">
-          <div className="h-px w-full bg-ink/10 dark:bg-white/10 rounded-full overflow-hidden">
+          <div className="h-px w-full bg-ink/10 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-gold-dark via-gold to-gold-light rounded-full"
               style={{ width: `${progress}%` }}
@@ -145,7 +145,7 @@ export default function PackSkeleton() {
 
       {/* Quote en bas */}
       <div className="absolute bottom-10 left-0 right-0 text-center z-10">
-        <p className="text-white/20 text-xs font-serif italic tracking-wider">
+        <p className="text-white/20 text-xs italic tracking-wider">
           "Les plus beaux voyages commencent par une envie."
         </p>
       </div>

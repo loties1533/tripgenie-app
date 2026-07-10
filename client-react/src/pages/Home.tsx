@@ -94,10 +94,10 @@ function Hero() {
 
         <motion.h1
           initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
-          className="font-display text-4xl sm:text-6xl lg:text-[5.5rem] font-bold text-white leading-[1.0] mb-5 drop-shadow-2xl">
+          className="text-4xl sm:text-6xl lg:text-[5.5rem] font-bold text-white leading-[1.0] mb-5 drop-shadow-2xl">
           Votre voyage,
           <br />
-          <span className="text-gradient-gold italic font-serif font-light">généré sur-mesure.</span>
+          <span className="text-gradient-gold italic font-light">généré sur-mesure.</span>
         </motion.h1>
 
         <motion.p
@@ -140,7 +140,7 @@ function ChatSection() {
           <div key={e.n} className="glass rounded-xl p-4 border border-gold/10">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-6 h-6 rounded-full bg-gold/15 text-gold text-xs font-bold flex items-center justify-center flex-shrink-0">{e.n}</span>
-              <p className="text-sm font-semibold text-ink dark:text-parchment leading-tight">{e.t}</p>
+              <p className="text-sm font-semibold text-ink leading-tight">{e.t}</p>
             </div>
             <p className="text-xs text-muted leading-relaxed">{e.d}</p>
           </div>
@@ -150,13 +150,13 @@ function ChatSection() {
       <div className="relative glass-premium rounded-[2rem] overflow-hidden shadow-2xl border-t border-gold/30"
            style={{ minHeight: 460 }}>
         <div className="flex items-center justify-between px-5 sm:px-8 py-4 border-b border-gold/10
-                        bg-gradient-to-b from-white/40 to-transparent dark:from-ink-light/40">
+                        bg-gradient-to-b from-white/40 to-transparent">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center shadow-glow-gold">
               <Logo size={20} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-display font-bold text-ink dark:text-parchment leading-none tracking-wide">Assistant TripGenie</p>
+              <p className="text-sm font-bold text-ink leading-none tracking-wide">Assistant TripGenie</p>
               <p className="text-[10px] uppercase tracking-widest text-gold mt-1 flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-gold animate-pulse" />
                 En ligne
@@ -238,7 +238,7 @@ function ConceptsVoyage() {
       className="relative z-20 max-w-6xl mx-auto -mt-20 px-4 pb-20">
 
       <div className="text-center mb-8">
-        <h2 className="font-display text-3xl text-ink dark:text-parchment font-bold mb-2">Vos Concepts de Voyage</h2>
+        <h2 className="text-3xl text-ink font-bold mb-2">Vos Concepts de Voyage</h2>
         <p className="text-muted">Choisissez la toile de fond de votre prochaine aventure.</p>
       </div>
 
@@ -259,8 +259,8 @@ function ConceptsVoyage() {
             </div>
             <div className="absolute inset-0 p-6 flex flex-col justify-end">
               <span className="text-gold font-bold tracking-widest uppercase text-[10px] mb-1">{c.country}</span>
-              <h3 className="font-display text-3xl text-white font-bold mb-1 leading-none">{c.city}</h3>
-              <p className="text-parchment/80 italic font-serif text-base mb-4 line-clamp-2">{c.tagline || c.reason}</p>
+              <h3 className="text-3xl text-white font-bold mb-1 leading-none">{c.city}</h3>
+              <p className="text-parchment/80 italic text-base mb-4 line-clamp-2">{c.tagline || c.reason}</p>
               <div className="flex items-center justify-between pt-4 border-t border-white/20">
                 <div>
                   <p className="text-[10px] uppercase tracking-wider text-muted">Budget estimé</p>
@@ -387,7 +387,7 @@ export default function Home() {
                 className="mt-20 pb-24">
                 <div className="text-center mb-10">
                   <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-2">Notre Savoir-Faire</p>
-                  <h2 className="font-display text-3xl text-ink dark:text-parchment font-bold">L'Art de Voyager Autrement</h2>
+                  <h2 className="text-3xl text-ink font-bold">L'Art de Voyager Autrement</h2>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
                   {FEATURES.map((f, i) => (
@@ -405,7 +405,7 @@ export default function Home() {
                       </div>
                       <div className="absolute inset-0 p-6 flex flex-col justify-end">
                         <p className="text-[9px] uppercase tracking-widest text-gold/80 font-semibold mb-1">{f.label}</p>
-                        <h3 className="font-display text-xl text-white font-bold mb-1 leading-tight">{f.title}</h3>
+                        <h3 className="text-xl text-white font-bold mb-1 leading-tight">{f.title}</h3>
                         <p className="text-white/60 text-sm leading-relaxed font-light">{f.desc}</p>
                       </div>
                     </motion.div>
@@ -422,7 +422,7 @@ export default function Home() {
 
                 <div className="text-center max-w-2xl mx-auto mb-12">
                   <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-2">Comment ça marche</p>
-                  <h2 className="font-display text-3xl text-ink dark:text-parchment font-bold mb-5">
+                  <h2 className="text-3xl text-ink font-bold mb-5">
                     Vous décrivez l'envie, on trouve la destination
                   </h2>
                   <p className="text-muted leading-relaxed">
@@ -456,7 +456,7 @@ export default function Home() {
                       <span className="w-8 h-8 rounded-full bg-gold/15 text-gold text-sm font-bold flex items-center justify-center mb-4">
                         {i + 1}
                       </span>
-                      <h3 className="font-display text-lg text-ink dark:text-parchment font-bold mb-2 leading-snug">
+                      <h3 className="text-lg text-ink font-bold mb-2 leading-snug">
                         {c.t}
                       </h3>
                       <p className="text-muted text-sm leading-relaxed">{c.d}</p>

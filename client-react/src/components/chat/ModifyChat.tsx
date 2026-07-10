@@ -100,7 +100,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
               m.role === 'user'
                 ? 'bg-gold text-white rounded-br-sm'
-                : 'glass text-ink dark:text-parchment rounded-bl-sm border border-gold/10'
+                : 'glass text-ink rounded-bl-sm border border-gold/10'
             }`}>
               {m.text}
             </div>
@@ -145,8 +145,8 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && envoyer()}
             placeholder="Remplace l'hôtel par..."
-            className="flex-1 bg-ink/5 dark:bg-white/5 border border-gold/20 rounded-xl px-3.5 py-2.5 text-sm
-                       text-ink dark:text-parchment placeholder:text-muted
+            className="flex-1 bg-ink/5 border border-gold/20 rounded-xl px-3.5 py-2.5 text-sm
+                       text-ink placeholder:text-muted
                        focus:outline-none focus:border-gold/50 transition-colors"
           />
           <button

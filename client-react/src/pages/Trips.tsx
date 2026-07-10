@@ -29,7 +29,7 @@ function BarreScore({ score }: { score: number }) {
   const color = pourcentage >= 80 ? 'bg-emerald-400' : pourcentage >= 60 ? 'bg-gold' : 'bg-coral'
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1 rounded-full bg-ink/10 dark:bg-white/10 overflow-hidden">
+      <div className="flex-1 h-1 rounded-full bg-ink/10 overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${pourcentage}%` }} />
       </div>
       <span className={`text-xs font-bold ${color.replace('bg-', 'text-')}`}>{pourcentage}%</span>
@@ -65,7 +65,7 @@ export default function Trips() {
       <Seo title="Mes voyages" path="/trips" noindex />
         <div className="text-center py-24">
           <p className="text-5xl mb-4">🔒</p>
-          <h2 className="font-display text-2xl font-bold text-ink dark:text-parchment mb-2">Connexion requise</h2>
+          <h2 className="text-2xl font-bold text-ink mb-2">Connexion requise</h2>
           <p className="text-muted mb-6">Connecte-toi pour accéder à tes voyages sauvegardés.</p>
           <Link to="/login" className="btn-primary">Se connecter</Link>
         </div>
@@ -86,7 +86,7 @@ export default function Trips() {
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display text-3xl font-bold text-ink dark:text-parchment">Mes Voyages</h1>
+            <h1 className="text-3xl font-bold text-ink">Mes Voyages</h1>
             <p className="text-sm text-muted mt-1">
               {trips.length > 0 ? `${trips.length} itinéraire${trips.length > 1 ? 's' : ''} sauvegardé${trips.length > 1 ? 's' : ''}` : 'Aucun voyage pour l\'instant'}
             </p>
@@ -97,11 +97,11 @@ export default function Trips() {
               <div className="flex gap-3">
                 <div className="glass-premium px-4 py-2.5 rounded-xl text-center">
                   <p className="text-[10px] text-muted uppercase tracking-wider font-semibold">Voyages</p>
-                  <p className="text-xl font-bold text-gold font-display">{trips.length}</p>
+                  <p className="text-xl font-bold text-gold">{trips.length}</p>
                 </div>
                 <div className="glass-premium px-4 py-2.5 rounded-xl text-center">
                   <p className="text-[10px] text-muted uppercase tracking-wider font-semibold">Score moy.</p>
-                  <p className="text-xl font-bold text-gold font-display">{scoreMoyen}%</p>
+                  <p className="text-xl font-bold text-gold">{scoreMoyen}%</p>
                 </div>
               </div>
             )}
@@ -133,7 +133,7 @@ export default function Trips() {
         {!isLoading && trips.length === 0 && (
           <div className="text-center py-24 glass-premium rounded-3xl shadow-glow-gold">
             <p className="text-6xl mb-5">✈️</p>
-            <h3 className="font-display text-2xl font-bold text-ink dark:text-parchment mb-2">
+            <h3 className="text-2xl font-bold text-ink mb-2">
               Votre carnet est vide
             </h3>
             <p className="text-muted mb-8 max-w-sm mx-auto">
@@ -166,7 +166,7 @@ export default function Trips() {
                 {/* Destination + supprimer */}
                 <div className="flex items-start justify-between mb-3 relative z-10">
                   <div className="min-w-0">
-                    <h3 className="font-display text-lg font-bold text-ink dark:text-parchment
+                    <h3 className="text-lg font-bold text-ink
                                    truncate group-hover:text-gold transition-colors leading-tight">
                       {trip.destination}
                     </h3>
@@ -196,7 +196,7 @@ export default function Trips() {
                     </span>
                   )}
                   {trip.status === 'archived' && (
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full border bg-ink/5 text-muted border-ink/10 dark:bg-white/5 dark:border-white/10">
+                    <span className="text-[11px] font-bold px-3 py-1 rounded-full border bg-ink/5 text-muted border-ink/10">
                       ⬛ Archivé
                     </span>
                   )}
@@ -214,7 +214,7 @@ export default function Trips() {
                 <div className="flex items-center justify-between border-t border-gold/10 pt-3 relative z-10">
                   <div>
                     <p className="text-[10px] text-muted uppercase tracking-widest font-semibold">Budget</p>
-                    <p className="text-base font-bold text-ink dark:text-parchment font-display">
+                    <p className="text-base font-bold text-ink">
                       {trip.budget || '—'}
                     </p>
                   </div>

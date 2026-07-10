@@ -57,7 +57,7 @@ function FlightCard({ flight, packId, destination }: { flight: any; packId: stri
       </div>
       <div className="flex items-center gap-4">
         <div className="text-center flex-1">
-          <p className="text-2xl font-bold text-ink dark:text-parchment font-display leading-none">{flight.departure_time}</p>
+          <p className="text-2xl font-bold text-ink leading-none">{flight.departure_time}</p>
           <p className="text-[10px] font-bold text-muted mt-1 uppercase tracking-tighter">{flight.from} · {flight.from_city}</p>
         </div>
         <div className="flex-[0.5] flex flex-col items-center gap-1 opacity-50">
@@ -69,7 +69,7 @@ function FlightCard({ flight, packId, destination }: { flight: any; packId: stri
           </div>
         </div>
         <div className="text-center flex-1">
-          <p className="text-2xl font-bold text-ink dark:text-parchment font-display leading-none">{flight.arrival_time}</p>
+          <p className="text-2xl font-bold text-ink leading-none">{flight.arrival_time}</p>
           <p className="text-[10px] font-bold text-muted mt-1 uppercase tracking-tighter">{flight.to} · {flight.to_city}</p>
         </div>
         <div className="pl-4 border-l border-white/5 flex flex-col items-end gap-1">
@@ -115,7 +115,7 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
             {day.day}
           </span>
           <div className="text-left">
-            <p className="font-semibold text-ink dark:text-parchment text-sm">{day.title}</p>
+            <p className="font-semibold text-ink text-sm">{day.title}</p>
             <p className="text-xs text-muted">{day.subtitle}</p>
           </div>
         </div>
@@ -125,7 +125,7 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}
-            className="px-5 pb-4 space-y-3 border-t border-parchment-dark dark:border-white/10">
+            className="px-5 pb-4 space-y-3 border-t border-parchment-dark">
             {day.items?.map((item: any, i: number) => (
               <motion.div key={i} className="flex gap-3 pt-3"
                 initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
@@ -138,7 +138,7 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((item.title || '') + ' ' + destination)}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="font-medium text-sm text-ink dark:text-parchment hover:text-gold transition-colors inline-flex items-center gap-1 group/loc"
+                    className="font-medium text-sm text-ink hover:text-gold transition-colors inline-flex items-center gap-1 group/loc"
                   >
                     {item.title}
                     <span className="opacity-0 group-hover/loc:opacity-100 text-[10px] text-gold transition-opacity">📍</span>
@@ -217,7 +217,7 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: d.color }} />
                 <span className="text-sm text-muted capitalize">{d.name}</span>
               </div>
-              <span className="text-sm font-medium text-ink dark:text-parchment">
+              <span className="text-sm font-medium text-ink">
                 {d.value.toLocaleString('fr-FR')}€
                 {totalNum > 0 && <span className="text-muted font-normal"> · {Math.round((d.value / totalNum) * 100)}%</span>}
               </span>
@@ -237,7 +237,7 @@ function EventCard({ event, destination }: { event: any; destination: string }) 
     <div className="flex gap-3 p-3 glass rounded-xl">
       <div className="w-10 h-10 bg-coral/10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg">🎭</div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm text-ink dark:text-parchment truncate">{event.title}</p>
+        <p className="font-medium text-sm text-ink truncate">{event.title}</p>
         <p className="text-xs text-muted mt-0.5">{event.start} · {event.venue}</p>
         {event.description && <p className="text-xs text-muted mt-1 line-clamp-2">{event.description}</p>}
         <a href={bookingUrl} target="_blank" rel="noopener noreferrer"
@@ -283,8 +283,8 @@ export default function PackResults() {
     <div className="mx-4 mb-4 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
       <span className="text-xl flex-shrink-0">⚠️</span>
       <div>
-        <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Données de démonstration</p>
-        <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-0.5">
+        <p className="text-sm font-bold text-amber-600">Données de démonstration</p>
+        <p className="text-xs text-amber-600/80 mt-0.5">
           Les services IA sont temporairement indisponibles. Ce pack est un exemple générique — réessayez dans quelques minutes pour un vrai résultat personnalisé.
         </p>
       </div>
@@ -333,7 +333,7 @@ export default function PackResults() {
       <div className="flex gap-3">
         <div className="w-12 h-12 bg-gold/10 rounded-xl flex items-center justify-center text-2xl border border-gold/20">🏨</div>
         <div className="flex-1">
-          <p className="font-semibold text-sm text-ink dark:text-parchment">{hotel.name}</p>
+          <p className="font-semibold text-sm text-ink">{hotel.name}</p>
           <p className="text-xs text-muted mt-0.5">{hotel.location} · {hotel.stars}★</p>
           <div className="flex gap-2 mt-2">
             <button 
@@ -359,7 +359,7 @@ export default function PackResults() {
           </div>
         </div>
       </div>
-      <div className="flex justify-between items-center pt-2 border-t border-parchment-dark dark:border-white/10">
+      <div className="flex justify-between items-center pt-2 border-t border-parchment-dark">
         <span className="text-xs font-bold text-gold">
           {hotel.price_per_night}<span className="font-normal text-muted"> /nuit · estim.</span>
         </span>
@@ -378,7 +378,7 @@ export default function PackResults() {
           <span className="text-2xl">{activity.emoji || '🎯'}</span>
         </div>
         <div className="flex-1">
-          <p className="font-display font-bold text-lg text-ink dark:text-parchment leading-tight">{activity.name}</p>
+          <p className="font-bold text-lg text-ink leading-tight">{activity.name}</p>
           <p className="text-xs text-gold font-semibold uppercase tracking-widest mt-1">{activity.category || 'Expérience'}</p>
           <p className="text-sm text-muted/90 mt-2 leading-relaxed">{activity.desc || activity.description}</p>
           {activity.plan_b && (
@@ -392,13 +392,13 @@ export default function PackResults() {
           )}
         </div>
       </div>
-      <div className="flex justify-between items-center pt-3 border-t border-parchment-dark dark:border-white/10 mt-auto">
+      <div className="flex justify-between items-center pt-3 border-t border-parchment-dark mt-auto">
         <div className="flex gap-2">
           <a
             href={`https://maps.google.com/?q=${encodeURIComponent(activity.name + ' ' + donneesPack.destination)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] font-semibold text-ink dark:text-parchment bg-parchment-dark dark:bg-ink-light hover:bg-gold hover:text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+            className="text-[11px] font-semibold text-ink bg-parchment-dark hover:bg-gold hover:text-white px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
           >
             📍 Carte
           </a>
@@ -436,7 +436,7 @@ export default function PackResults() {
             className="w-full h-full object-cover opacity-40 transition-transform duration-[20s]"
             onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-parchment via-parchment/85 to-parchment/30 dark:from-ink dark:via-ink/85 dark:to-ink/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-parchment via-parchment/85 to-parchment/30" />
         </div>
 
         <div className="relative z-10 w-full">
@@ -453,7 +453,7 @@ export default function PackResults() {
                   </motion.span>
                 )}
               </div>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-ink dark:text-parchment flex flex-wrap items-center gap-2">
+              <h2 className="text-2xl sm:text-3xl font-bold text-ink flex flex-wrap items-center gap-2">
                 {donneesPack.destination}
                 <span className="text-muted text-lg sm:text-xl font-normal">{donneesPack.country}</span>
                 <button
@@ -464,14 +464,14 @@ export default function PackResults() {
                   <span className="hidden sm:inline">Partager</span>
                 </button>
               </h2>
-              <p className="text-gold-dark dark:text-gold italic font-display mt-1 drop-shadow-sm">{donneesPack.tagline}</p>
+              <p className="text-gold-dark italic mt-1 drop-shadow-sm">{donneesPack.tagline}</p>
             </div>
             <div className="flex flex-col gap-2 sm:items-end">
               {/* Score TripGenie — visible dès l'apparition du pack + détail de l'algo par critère */}
               {donneesPack.score != null && (
                 <div className="glass-premium rounded-xl px-4 py-2 border border-gold/30 shadow-glow-gold">
                   <div className="flex items-baseline gap-1 justify-center">
-                    <span className="text-2xl font-bold text-gold font-display leading-none">{scorePourcentage}</span>
+                    <span className="text-2xl font-bold text-gold leading-none">{scorePourcentage}</span>
                     <span className="text-xs text-muted">/100</span>
                   </div>
                   <span className="text-[9px] uppercase tracking-widest text-muted block text-center">
@@ -481,15 +481,15 @@ export default function PackResults() {
               )}
               <div className="flex flex-wrap gap-2">
                 <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
-                  <span className="text-gold font-bold text-base font-display">{travelers ?? '—'}</span>
+                  <span className="text-gold font-bold text-base">{travelers ?? '—'}</span>
                   <span className="text-[10px] text-muted uppercase tracking-tighter">voy.</span>
                 </div>
                 <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
-                  <span className="text-gold font-bold text-base font-display">{donneesPack.summary?.nights}</span>
+                  <span className="text-gold font-bold text-base">{donneesPack.summary?.nights}</span>
                   <span className="text-[10px] text-muted uppercase tracking-tighter">nuits</span>
                 </div>
                 <div className="glass rounded-xl px-3 py-1.5 flex items-center gap-1.5">
-                  <span className="text-gold font-bold text-base font-display">{donneesPack.summary?.total_budget}</span>
+                  <span className="text-gold font-bold text-base">{donneesPack.summary?.total_budget}</span>
                   <span className="text-[10px] text-muted uppercase tracking-tighter">budget</span>
                 </div>
               </div>
@@ -500,7 +500,7 @@ export default function PackResults() {
           {donneesPack.weather && (
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted">
               <span className="text-xl">🌤</span>
-              <span className="font-medium text-ink dark:text-parchment">{donneesPack.weather.avg_temp}</span>
+              <span className="font-medium text-ink">{donneesPack.weather.avg_temp}</span>
               <span>·</span>
               <span>{donneesPack.weather.conditions}</span>
               {donneesPack.weather.humidity != null && <><span>·</span><span>💧 {donneesPack.weather.humidity}%</span></>}
@@ -522,7 +522,7 @@ export default function PackResults() {
             <div className="mt-4 flex flex-wrap gap-2">
               {donneesPack.tips?.map((tip, i) => (
                 <div key={i} className="bg-gold/5 rounded-xl px-3 py-2 text-xs">
-                  <span className="font-semibold text-ink dark:text-parchment">{tip.title} · </span>
+                  <span className="font-semibold text-ink">{tip.title} · </span>
                   <span className="text-muted">{tip.content}</span>
                 </div>
               ))}
@@ -533,7 +533,7 @@ export default function PackResults() {
           {donneesPack.local_phrases?.[0] && (
             <div className="mt-3 flex items-center gap-2 text-sm">
               <span className="text-xl">🗣</span>
-              <span className="font-display italic text-gold">"{donneesPack.local_phrases[0].phrase}"</span>
+              <span className="italic text-gold">"{donneesPack.local_phrases[0].phrase}"</span>
               <span className="text-muted text-xs">= {donneesPack.local_phrases[0].translation}</span>
             </div>
           )}
