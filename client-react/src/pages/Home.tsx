@@ -64,7 +64,7 @@ function Hero() {
   return (
     <motion.section
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}
-      className="relative w-screen left-1/2 right-1/2 -translate-x-1/2 -mt-6 mb-10 h-[70vh] min-h-[480px] flex items-center justify-center overflow-hidden">
+      className="relative w-screen left-1/2 right-1/2 -translate-x-1/2 -mt-6 mb-10 h-[48vh] min-h-[340px] flex items-center justify-center overflow-hidden">
 
       <div className="absolute inset-0 z-0 bg-ink">
         <img key={current} src={slide.img} alt={slide.city}
@@ -83,28 +83,13 @@ function Hero() {
       </div>
 
       <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
-        <motion.div
-          initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full
-                     bg-gold/10 backdrop-blur-md border border-gold/20 text-gold-light text-xs font-semibold
-                     tracking-widest uppercase mb-8 animate-float shadow-glow-gold">
-          <span className="w-1.5 h-1.5 rounded-full bg-gold-light animate-pulse-slow" />
-          Voyages sur-mesure
-        </motion.div>
-
         <motion.h1
           initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.35 }}
           className="text-4xl sm:text-6xl lg:text-[5.5rem] font-bold text-white leading-[1.0] mb-5 drop-shadow-2xl">
           Votre voyage,
           <br />
-          <span className="text-gradient-gold italic font-light">généré sur-mesure.</span>
+          <span className="font-light">généré sur-mesure.</span>
         </motion.h1>
-
-        <motion.p
-          initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }}
-          className="text-lg sm:text-xl text-parchment/70 max-w-xl mx-auto leading-relaxed font-light tracking-wide mb-8">
-          {slide.label}
-        </motion.p>
 
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.65 }}>
           <button

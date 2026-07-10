@@ -698,11 +698,11 @@ export default function ChatWidget() {
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="flex flex-col gap-2 pl-9">
             <button onClick={() => handleModeSelect('quiz')}
-              className="chip text-sm text-left hover:border-gold/60 hover:bg-gold/10 transition-all">
+              className="w-full text-left px-4 py-3 text-sm text-ink bg-white border border-gray-300 rounded-sm hover:border-gold hover:bg-gold/5 transition-colors cursor-pointer">
               Définir mes préférences (guidé)
             </button>
             <button onClick={() => handleModeSelect('freeform')}
-              className="chip text-sm text-left hover:border-gold/60 hover:bg-gold/10 transition-all">
+              className="w-full text-left px-4 py-3 text-sm text-ink bg-white border border-gray-300 rounded-sm hover:border-gold hover:bg-gold/5 transition-colors cursor-pointer">
               Décrire mon voyage (libre)
             </button>
           </motion.div>
