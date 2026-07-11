@@ -4,78 +4,19 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --gold:       #C9A84C;
-    --gold-light: #E5D5A5;
-    --gold-dark:  #8B6F28;
-    --ink:        #1A1410;
-    --ink-deep:   #0D0B09;
-    --bg:         #FAF7F2;
-    --glass-border: rgba(201, 168, 76, 0.25);
-    /* Accent dynamique par mode — défaut = gold */
-    --accent:     #C9A84C;
-    --accent-rgb: 201, 168, 76;
-    --orb1:       rgba(201,168,76,0.12);
-    --orb2:       rgba(58,107,138,0.08);
-  }
-
-  /* ---- Palettes par mode de voyage ---- */
-  [data-mode="party"] {
-    --accent:     #B06EE8;
-    --accent-rgb: 176, 110, 232;
-    --orb1:       rgba(176,110,232,0.15);
-    --orb2:       rgba(224,64,251,0.08);
-    --glass-border: rgba(176, 110, 232, 0.25);
-  }
-  [data-mode="luxury"] {
-    --accent:     #C9A84C;
-    --accent-rgb: 201, 168, 76;
-    --orb1:       rgba(201,168,76,0.15);
-    --orb2:       rgba(139,105,20,0.08);
-  }
-  [data-mode="relax"] {
-    --accent:     #3AAFCA;
-    --accent-rgb: 58, 175, 202;
-    --orb1:       rgba(58,175,202,0.15);
-    --orb2:       rgba(90,122,94,0.08);
-    --glass-border: rgba(58, 175, 202, 0.2);
-  }
-  [data-mode="student"] {
-    --accent:     #E07A35;
-    --accent-rgb: 224, 122, 53;
-    --orb1:       rgba(224,122,53,0.12);
-    --orb2:       rgba(201,168,76,0.06);
-    --glass-border: rgba(224, 122, 53, 0.22);
-  }
-  [data-mode="group"] {
-    --accent:     #5A9E6F;
-    --accent-rgb: 90, 158, 111;
-    --orb1:       rgba(90,158,111,0.12);
-    --orb2:       rgba(58,107,138,0.06);
-    --glass-border: rgba(90, 158, 111, 0.22);
-  }
-  [data-mode="surprise"] {
-    --accent:     #9C4DE8;
-    --accent-rgb: 156, 77, 232;
-    --orb1:       rgba(156,77,232,0.12);
-    --orb2:       rgba(201,168,76,0.06);
-    --glass-border: rgba(156, 77, 232, 0.22);
-  }
-
   html { scroll-behavior: smooth; }
 
   body {
     @apply font-sans text-ink;
-    /* Mode clair épuré : fond neutre propre, sans halo coloré (le doré reste un accent) */
+    /* Fond neutre clair : le bordeaux reste un accent, pas un aplat */
     background: #F4F3F1;
     min-height: 100vh;
   }
 }
 
 @layer components {
-  /* ---- Glass card ---- */
+  /* Carte : fond blanc net, bordure discrète (pas d'effet verre) */
   .glass {
-    /* Mode clair : carte blanche nette, bordure discrète, ombre douce (pas de verre translucide) */
     background: #FFFFFF;
     border: 1px solid rgba(26, 20, 16, 0.12);
   }
@@ -83,23 +24,21 @@
     @apply glass;
   }
 
-  /* ---- Scrollbar ---- */
+  /* Scrollbar masquée */
   .scroll-hide { scrollbar-width: none; }
   .scroll-hide::-webkit-scrollbar { display: none; }
 
-  /* ---- Chat bubbles ---- */
+  /* Bulles de chat */
   .bubble-bot {
-    @apply bg-white text-ink
-           rounded-md rounded-tl-sm px-4 py-3
-           border border-gray-300
-           text-[15px] leading-relaxed;
+    @apply bg-white text-ink rounded-sm px-4 py-3
+           border border-gray-300 text-[15px] leading-relaxed;
   }
   .bubble-user {
-    @apply bg-gold text-white rounded-md rounded-tr-sm px-4 py-3
+    @apply bg-gold text-ink rounded-sm px-4 py-3
            text-[15px] leading-relaxed font-medium;
   }
 
-  /* ---- Chip button ---- */
+  /* Chip (choix rapide) */
   .chip {
     @apply inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-sm
            text-sm font-medium border border-gray-300 text-ink
@@ -107,9 +46,9 @@
            transition-colors cursor-pointer;
   }
 
-  /* ---- Primary button ---- */
+  /* Boutons */
   .btn-primary {
-    @apply bg-gold hover:bg-gold-dark text-white font-medium px-6 py-3
+    @apply bg-gold hover:bg-gold-dark text-ink font-medium px-6 py-3
            rounded-sm transition-colors;
   }
   .btn-ghost {
@@ -117,34 +56,34 @@
            font-medium px-4 py-2 rounded-sm transition-colors;
   }
 
-  /* ---- Skeleton ---- */
+  /* Skeleton (chargement) */
   .skeleton {
-    @apply bg-parchment-dark animate-shimmer rounded-lg;
+    @apply bg-parchment-dark rounded-sm;
+    animation: shimmer 1.8s ease-in-out infinite;
   }
 
-  /* ---- Score badge ---- */
+  /* Badge score */
   .score-badge {
     @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-sm text-xs font-semibold;
   }
 
-  /* ---- Verified badge ---- */
+  /* Badge vérifié (sémantique succès) */
   .verified {
     @apply inline-flex items-center gap-1 text-[11px] font-semibold
            bg-sage/10 text-sage px-2 py-0.5 rounded-sm;
   }
 
-  /* ---- Tab ---- */
+  /* Onglets */
   .tab-btn {
     @apply px-4 py-2 text-sm font-medium text-muted rounded-sm
-           hover:text-ink hover:bg-gray-100
-           transition-colors;
+           hover:text-ink hover:bg-gray-100 transition-colors;
   }
   .tab-btn.active {
     @apply text-ink bg-white border border-gray-300;
   }
 }
 
-/* ---- Typing dots animation ---- */
+/* Points « en train d'écrire » */
 .typing-dot {
   animation: typing 1.2s ease-in-out infinite;
 }
@@ -153,78 +92,27 @@
 
 @keyframes typing {
   0%, 100% { transform: translateY(0); opacity: 0.4; }
-  50%       { transform: translateY(-4px); opacity: 1; }
+  50%      { transform: translateY(-4px); opacity: 1; }
 }
 
-/* ---- Smooth message appear ---- */
+/* Apparition d'un message */
 @keyframes msgIn {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.msg-enter { animation: msgIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.msg-enter { animation: msgIn 0.25s ease-out forwards; }
 
-/* ---- Budget bar ---- */
-.budget-bar {
-  transition: width 0.8s cubic-bezier(0.34, 1.2, 0.64, 1);
-}
-
-@keyframes slow-zoom {
+/* Zoom lent de l'image d'accueil */
+@keyframes slowZoom {
   from { transform: scale(1); }
-  to   { transform: scale(1.1); }
+  to   { transform: scale(1.08); }
 }
 .animate-slow-zoom {
-  animation: slow-zoom 20s ease-in-out infinite alternate;
+  animation: slowZoom 20s ease-in-out infinite alternate;
 }
 
-/* ---- Shimmer / Skeleton Loader ---- */
+/* Shimmer du skeleton */
 @keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
 }
-.animate-shimmer {
-  background: linear-gradient(to right, #f6f7f8 4%, #edeef1 25%, #f6f7f8 36%);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
-}
-
-/* ---- Fade In ---- */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
-
-/* ---- Luxury Animations ---- */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
-}
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.text-gradient-gold {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-gold-light via-gold to-gold-dark;
-}
-
-@keyframes bounceSlow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
-}
-.animate-bounce-slow {
-  animation: bounceSlow 2s ease-in-out infinite;
-}
-
-/* ---- Pulse slow ---- */
-@keyframes pulseSlow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-.animate-pulse-slow {
-  animation: pulseSlow 3s ease-in-out infinite;
-}
-
