@@ -1,6 +1,6 @@
 import { callAI, parseJSON, sanitizeInput } from './core.js';
 import { MODES, BUDGET_RATIOS, PLAFONDS, DEFAULT_VALUES } from '../../lib/constants.js';
-import type { Pack, TravelMode } from '../../lib/types.js';
+import type { Pack, TravelMode, Profile } from '../../lib/types.js';
 import type { FlightSearchResult, EventSearchResult, HotelSearchResult } from '../smartSearch.js';
 import type { WeatherData } from '../weather.js';
 
@@ -100,14 +100,15 @@ export function construirePromptPack({
 
   // Profil = « avec qui » (axe distinct du mode et du prix) : oriente le TON et le
   // type d'expériences, sans imposer une ambiance (celle-ci vient du mode).
-  const PROFIL_MODIFIERS: Record<string, string> = {
+  const PROFIL_MODIFIERS: Record<Profile, string> = {
     couple:  'expériences intimes à deux — tables romantiques, moments en tête-à-tête, hébergement pour 2.',
     famille: 'activités adaptées aux enfants, hôtels familiaux, rythme accessible à tous les âges.',
     amis:    'expériences conviviales et partagées, propices à la bonne humeur du groupe.',
     solo:    'expériences favorisant les rencontres et la liberté de mouvement, en toute sécurité.',
   };
-  const profilModifier = profile && PROFIL_MODIFIERS[profile]
-    ? `PROFIL ${profile.toUpperCase()} : privilégie des ${PROFIL_MODIFIERS[profile]}`
+  const modifierProfil = profile ? PROFIL_MODIFIERS[profile as Profile] : undefined;
+  const profilModifier = modifierProfil
+    ? `PROFIL ${profile!.toUpperCase()} : privilégie des ${modifierProfil}`
     : '';
 
   const activityTypes = mode === MODES.PARTY

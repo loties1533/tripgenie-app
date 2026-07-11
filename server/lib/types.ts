@@ -181,7 +181,10 @@ export interface EnregistrementVoyage {
   updated_at: string;
 }
 
+// Ambiance du voyage (ce qu'on veut vivre). Voir la taxonomie dans constants.ts.
 export type TravelMode = 'party' | 'student' | 'group' | 'relax' | 'surprise';
+// Profil = avec qui on voyage (axe distinct de l'ambiance).
+export type Profile = 'solo' | 'couple' | 'amis' | 'famille';
 export type TripStatus = 'draft' | 'confirmed' | 'archived';
 
 export interface User {
