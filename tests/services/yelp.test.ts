@@ -48,16 +48,9 @@ describe('yelpRestaurantSearch — cas nominal', () => {
     expect(results.length).toBeGreaterThan(0);
     results.forEach(r => {
       expect(r).toHaveProperty('name');
-      expect(r).toHaveProperty('emoji');
       expect(r).toHaveProperty('category');
       expect(r).toHaveProperty('booking_url');
     });
-  });
-
-  it('emoji est 🍽️', async () => {
-    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_YELP_RESPONSE });
-    const results = await yelpRestaurantSearch('Ibiza', 'relax');
-    results.forEach(r => expect(r.emoji).toBe('🍽️'));
   });
 
   it('Bearer token dans le header Authorization', async () => {
@@ -121,7 +114,7 @@ describe('Foursquare → Yelp fallback chain', () => {
   it('si Foursquare vide ([]) → Yelp est utilisé', async () => {
     // Simule la logique de ai.ts : FSQ vide → appel Yelp
     const fsqEmpty: any[] = [];
-    const yelpFilled = [{ name: 'Test', emoji: '🍽️', category: 'Restaurant', description: '', duration: '1h', price: 30, booking_url: 'https://yelp.com', price_range: '$$' }];
+    const yelpFilled = [{ name: 'Test', category: 'Restaurant', description: '', duration: '1h', price: 30, booking_url: 'https://yelp.com', price_range: '$$' }];
 
     const result = fsqEmpty.length > 0 ? fsqEmpty : yelpFilled;
     expect(result).toHaveLength(1);
@@ -129,7 +122,7 @@ describe('Foursquare → Yelp fallback chain', () => {
   });
 
   it('si Foursquare a des résultats → Yelp n\'est PAS appelé', async () => {
-    const fsqFilled = [{ name: 'FSQ', emoji: '🍽️', category: 'Fine Dining', description: '', duration: '1h30', price: 80, booking_url: 'https://thefork.fr', price_range: '$$$' }];
+    const fsqFilled = [{ name: 'FSQ', category: 'Fine Dining', description: '', duration: '1h30', price: 80, booking_url: 'https://thefork.fr', price_range: '$$$' }];
     const result = fsqFilled.length > 0 ? fsqFilled : [];
     expect(result[0].name).toBe('FSQ');
   });

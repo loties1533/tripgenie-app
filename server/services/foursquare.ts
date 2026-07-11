@@ -81,11 +81,10 @@ export async function foursquareRestaurantSearch(
     return donneesFoursquare.results.map(p => ({
       name:        p.name,
       category:    p.categories[0]?.name ?? 'Restaurant',
-      emoji:       '🍽️',
       description: [
         p.categories[0]?.name ?? 'Restaurant',
         p.location?.locality,
-        p.rating ? `⭐ ${p.rating}/10` : null,   // affiché seulement si dispo (premium)
+        p.rating ? `note ${p.rating}/10` : null,   // affiché seulement si dispo (premium)
       ].filter(Boolean).join(' · '),
       duration:    '1h30',
       price:       prixNumerique(p.price),

@@ -304,50 +304,42 @@ describe('transformerActivites — mapping activités → Pack[\'activities\']',
   it('catégorie Nightlife pour type club', () => {
     const acts = transformerActivites([{ name: 'Pacha', type: 'club', desc: 'legendary' }], 'Ibiza');
     expect(acts[0].category).toBe('Nightlife');
-    expect(acts[0].emoji).toBe('🎉');
   });
 
   it('catégorie Gastronomie pour type restaurant', () => {
     const acts = transformerActivites([{ name: 'Nobu', type: 'restaurant-étoilé', desc: 'Michelin' }], 'Ibiza');
     expect(acts[0].category).toBe('Gastronomie');
-    expect(acts[0].emoji).toBe('🍽');
   });
 
   it('catégorie Nautique pour type bateau', () => {
     const acts = transformerActivites([{ name: 'Yacht privé', type: 'bateau', desc: 'exclusif' }], 'Ibiza');
     expect(acts[0].category).toBe('Nautique');
-    expect(acts[0].emoji).toBe('⛵');
   });
 
   it('catégorie Culture pour type culture', () => {
     const acts = transformerActivites([{ name: 'Musée Dali', type: 'culture', desc: 'art' }], 'Figueres');
     expect(acts[0].category).toBe('Culture');
-    expect(acts[0].emoji).toBe('🏛');
   });
 
   it('catégorie Bien-être pour un yoga (repli sur le nom)', () => {
     // type générique 'activité' → on retombe sur le nom « Yoga »
     const acts = transformerActivites([{ name: 'Yoga Paros - Naoussa', type: 'activité', desc: 'zen' }], 'Paros');
     expect(acts[0].category).toBe('Bien-être');
-    expect(acts[0].emoji).toBe('💆');
   });
 
   it('catégorie Nature pour un sentier de randonnée (repli sur le nom)', () => {
     const acts = transformerActivites([{ name: 'Sentier côtier Paros-Naxos', type: 'activité', desc: 'rando' }], 'Paros');
     expect(acts[0].category).toBe('Nature');
-    expect(acts[0].emoji).toBe('🥾');
   });
 
   it('catégorie Plage pour des criques (repli sur le nom)', () => {
     const acts = transformerActivites([{ name: 'Criques privées Antiparos', type: 'activité', desc: 'baignade' }], 'Paros');
     expect(acts[0].category).toBe('Plage');
-    expect(acts[0].emoji).toBe('🏖');
   });
 
   it('catégorie neutre « Expérience » quand rien ne matche (plus de faux « Culture »)', () => {
     const acts = transformerActivites([{ name: 'Atelier mystère', type: 'activité', desc: 'surprise' }], 'Paros');
     expect(acts[0].category).toBe('Expérience');
-    expect(acts[0].emoji).toBe('🎯');
   });
 
   it('lien Google Maps universel pour un restaurant', () => {

@@ -63,7 +63,6 @@ vi.mock('../server/services/claude/index.js', () => ({
     activities: [{
       name:        'Tour Eiffel',
       category:    'Culture',
-      emoji:       '🗼',
       description: 'Iconique',
       duration:    '2h',
       price:       '25€',

@@ -63,16 +63,9 @@ describe('foursquareRestaurantSearch — cas nominal', () => {
     results.forEach(r => {
       expect(r).toHaveProperty('name');
       expect(r).toHaveProperty('category');
-      expect(r).toHaveProperty('emoji');
       expect(r).toHaveProperty('price');
       expect(r).toHaveProperty('booking_url');
     });
-  });
-
-  it('emoji est 🍽️ pour les restaurants', async () => {
-    mockFetch.mockResolvedValueOnce({ ok: true, json: async () => MOCK_FSQ_RESPONSE });
-    const results = await foursquareRestaurantSearch('Ibiza', 'party');
-    results.forEach(r => expect(r.emoji).toBe('🍽️'));
   });
 
   it('booking_url pointe vers Google Maps (universel, bonne ville partout)', async () => {

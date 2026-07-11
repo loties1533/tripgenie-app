@@ -360,17 +360,17 @@ export function transformerVols(
 
 // 5. transformerActivites — mapping activités LLM → Pack['activities']
 
-// Source UNIQUE catégorie + emoji : ils ne peuvent plus diverger.
+// Classement d'une activité par mot-clé → catégorie affichée.
 // L'ordre compte (premier mot-clé trouvé gagne) ; le défaut neutre « Expérience »
 // évite d'étiqueter à tort « Culture » tout ce qui n'entre dans aucune case.
-const CATEGORIES_ACTIVITE: { keys: string[]; category: string; emoji: string }[] = [
-  { keys: ['club', 'bar', 'nightlife', 'soirée', 'discothèque'],       category: 'Nightlife',   emoji: '🎉' },
-  { keys: ['restaurant', 'food', 'gastronomie', 'resto', 'table'],     category: 'Gastronomie', emoji: '🍽' },
-  { keys: ['bateau', 'yacht', 'boat', 'croisière', 'voile', 'nautique'], category: 'Nautique',  emoji: '⛵' },
-  { keys: ['plage', 'beach', 'crique', 'baignade'],                    category: 'Plage',       emoji: '🏖' },
-  { keys: ['spa', 'massage', 'yoga', 'bien-être', 'wellness', 'détente', 'thermes'], category: 'Bien-être', emoji: '💆' },
-  { keys: ['rando', 'sentier', 'nature', 'trek', 'hike', 'parc', 'montagne'],        category: 'Nature',    emoji: '🥾' },
-  { keys: ['culture', 'musée', 'monument', 'histoire', 'art', 'patrimoine', 'église'], category: 'Culture', emoji: '🏛' },
+const CATEGORIES_ACTIVITE: { keys: string[]; category: string }[] = [
+  { keys: ['club', 'bar', 'nightlife', 'soirée', 'discothèque'],       category: 'Nightlife' },
+  { keys: ['restaurant', 'food', 'gastronomie', 'resto', 'table'],     category: 'Gastronomie' },
+  { keys: ['bateau', 'yacht', 'boat', 'croisière', 'voile', 'nautique'], category: 'Nautique' },
+  { keys: ['plage', 'beach', 'crique', 'baignade'],                    category: 'Plage' },
+  { keys: ['spa', 'massage', 'yoga', 'bien-être', 'wellness', 'détente', 'thermes'], category: 'Bien-être' },
+  { keys: ['rando', 'sentier', 'nature', 'trek', 'hike', 'parc', 'montagne'],        category: 'Nature' },
+  { keys: ['culture', 'musée', 'monument', 'histoire', 'art', 'patrimoine', 'église'], category: 'Culture' },
 ];
 
 export function transformerActivites(
@@ -388,7 +388,6 @@ export function transformerActivites(
       CATEGORIES_ACTIVITE.find(c => c.keys.some(k => typeStr.includes(k))) ??
       CATEGORIES_ACTIVITE.find(c => c.keys.some(k => nameStr.includes(k)));
     const category = match?.category ?? 'Expérience';
-    const emoji    = match?.emoji ?? '🎯';
 
     const requete = encodeURIComponent(`${name} ${dest}`);
     // Lien universel Google Maps : ouvre la fiche du lieu DANS LA BONNE VILLE,
@@ -399,7 +398,6 @@ export function transformerActivites(
     return {
       name,
       category,
-      emoji,
       description: a.desc ?? 'Incontournable',
       duration:    '2-3h',
       price:       'Variable',

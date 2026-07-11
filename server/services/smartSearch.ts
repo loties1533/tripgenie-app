@@ -174,7 +174,7 @@ ${contexteWeb}
 
 Extrais les 2 meilleurs hôtels avec leur VRAI nom (ex: "Nobu Hotel Ibiza Bay", "Hard Rock Hotel Ibiza").
 Le point fort "hl" rédigé EN FRANÇAIS.
-⚠️ Si tu ne trouves aucun vrai nom d'hôtel dans ce texte, retourne exactement [].
+Si tu ne trouves aucun vrai nom d'hôtel dans ce texte, retourne exactement [].
 Ne jamais inventer ou mettre un placeholder. Retourne UNIQUEMENT un tableau JSON :
 [
   {

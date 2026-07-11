@@ -68,7 +68,6 @@ export interface JourneeItineraire {
 export interface Activite {
   name: string;
   category: string;
-  emoji: string;
   description: string;
   duration: string;
   price: string | number;

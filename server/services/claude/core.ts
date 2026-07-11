@@ -11,7 +11,7 @@ console.log(`AI Provider: ${
   process.env.AI_PROVIDER === 'ollama'     ? 'Ollama'     :
   process.env.AI_PROVIDER === 'openrouter' ? 'OpenRouter' :
   process.env.AI_PROVIDER === 'gemini'     ? 'Gemini'     :
-  CLE_ANTHROPIC                            ? 'Claude'     : '⚠️ AUCUN'
+  CLE_ANTHROPIC                            ? 'Claude'     : 'AUCUN'
 }`);
 
 export function sanitizeInput(str: unknown): string {
@@ -125,9 +125,9 @@ export async function callAI(
     try { return await callOpenRouter(systemPrompt, userPrompt); } catch (e) { erreursProviders.push(`OpenRouter: ${(e as Error).message}`); }
   }
 
-  // ⚠️ MODE SURVIE — toutes les IA ont échoué → données génériques activées
-  console.error('AI FAILURES LOG:', JSON.stringify(erreursProviders, null, 2));
-  console.error(`REPLI GÉNÉRIQUE ACTIVÉ — contexte: ${context}. Aucun provider IA disponible.`);
+  // MODE SECOURS — aucun fournisseur IA disponible → données génériques
+  console.error('Échecs fournisseurs IA :', JSON.stringify(erreursProviders, null, 2));
+  console.error(`Repli générique activé — contexte : ${context}. Aucun fournisseur IA disponible.`);
   if (context === 'onboarding')   return JSON.stringify(Mocks.MOCK_ONBOARDING);
   if (context === 'destinations') return JSON.stringify(Mocks.MOCK_DESTINATIONS);
   if (context === 'pack')         return JSON.stringify(Mocks.MOCK_PACK);
