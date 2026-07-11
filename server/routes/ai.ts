@@ -26,6 +26,21 @@ import { peutEditerVoyage } from '../lib/tripAccess.js';
 
 const router = express.Router();
 
+// Vol calculé pour le scoring et la réponse (données réelles ou estimées) —
+// distinct de FlightSearchResult (brut de recherche) et de TronconVol (affichage).
+interface TronconCalcule {
+  from: string; to: string; airline: string;
+  departure_time: string; arrival_time: string;
+  duration_min: number; stops: number;
+}
+interface VolCalcule {
+  id: string;
+  price: number;
+  price_per_person: number;
+  outbound: TronconCalcule;
+  return: TronconCalcule;
+}
+
 const schemaMode = z.enum(MODES_LIST as [TravelMode, ...TravelMode[]]);
 
 // Normalisation des modes : accepte les synonymes FR (fête→party, détente→relax…) et la casse,
@@ -244,8 +259,7 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
     const restaurants      = await promesseRestaurants;
 
     const volIA = resVols.status === 'fulfilled' ? resVols.value : null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let flights: any[] = [];
+    let flights: VolCalcule[] = [];
 
     if (volIA) {
       flights = [{
