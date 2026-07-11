@@ -159,17 +159,18 @@ export function scorerPack(
     originalite:     scoreOriginalite(destination),
   };
 
-  // Socle « qualité globale » = moyenne des sous-scores cœur. Sert de base au mode
-  // surprise (poids { global: 0.60, originalite: 0.40 }) : sans ça, `global` valait 0
-  // au moment du calcul et surprise plafonnait à 40/100.
+  // Socle « qualité globale » = moyenne des sous-scores cœur. Le mode surprise
+  // s'appuie dessus (poids { global: 0.60, originalite: 0.40 }) ; sans ce socle,
+  // `global` vaudrait 0 et surprise plafonnerait à 40/100.
   scores.global = (scores.vol + scores.hotel + scores.events + scores.activities + scores.prix) / 5;
 
-  scores.global = Object.entries(poidsMode).reduce((total, [key, weight]) => {
-    return total + (scores[key as ScoreKey] ?? 0) * weight;
+  // Score final = moyenne pondérée des sous-scores selon le mode.
+  const total = Object.entries(poidsMode).reduce((somme, [cle, poids]) => {
+    return somme + (scores[cle as ScoreKey] ?? 0) * poids;
   }, 0);
 
   return {
-    total:   Math.round(scores.global * 100) / 100,
+    total:   Math.round(total * 100) / 100,
     details: scores,
   };
 }
