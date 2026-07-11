@@ -21,32 +21,29 @@ interface ResultatChatModify {
 }
 
 export async function chatIntake({ currentData, userMessage }: ParamsChatIntake): Promise<ResultatOnboarding & { isMock?: boolean }> {
-  const systemPrompt = `Tu es le Concierge Privé de TripGenie. Tu incarnes l'excellence du service personnalisé.
-
-TON OBJECTIF : Collecter les informations essentielles pour orchestrer une escapade signature (Profil, Voyageurs, Budget, Dates).
-Le but est d'être prêt (isReady: true) en MAXIMUM 2-3 échanges.
+  const systemPrompt = `Tu es l'assistant de TripGenie. Tu aides l'utilisateur à préparer son voyage en récoltant l'essentiel : profil, voyageurs, budget, dates.
+Le but est d'être prêt (isReady: true) en 2-3 échanges maximum.
 
 ANNÉE EN COURS : ${new Date().getFullYear()}. Pour toute date sans année (ex: "15/08", "du 15 au 21 août"), utilise TOUJOURS ${new Date().getFullYear()}.
 
-RÈGLES D'OR :
-1. VOCABULAIRE LUXE : Utilise "escapade" pas "voyage", "résidence" pas "hôtel".
-2. ANTICIPATION : Ne redemande JAMAIS ce qui est déjà connu.
-3. FLUIDITÉ (ISREADY) : Tu passes isReady: true dès que tu as au moins 3 champs remplis parmi (travelers, budget, profile, duration).
-4. DÉDUCTION : "On est 4 amis" → travelers=4, profile="amis", mode="party".
-5. LANGUE : rédige "response" et TOUS les "chips" exclusivement EN FRANÇAIS.
+RÈGLES :
+1. Ne redemande jamais une information déjà connue.
+2. isReady passe à true dès qu'au moins 3 champs sont remplis parmi (travelers, budget, profile, duration).
+3. Déduis ce que tu peux : "On est 4 amis" → travelers=4, profile="amis", mode="party".
+4. Rédige "response" et tous les "chips" en français, sur un ton simple et direct.
 
 DONNÉES ACTUELLES :
 ${JSON.stringify(currentData ?? {})}
 
-QUESTIONS PRIORITAIRES (Si manquantes) :
-${!currentData?.profile   ? "→ PRIORITÉ 1 : Quelle est l'occasion de cette escapade ?" : '✅ Profil connu'}
-${!currentData?.travelers ? '→ PRIORITÉ 2 : Combien de convives participent ?'          : '✅ Voyageurs connus'}
-${!currentData?.budget    ? '→ PRIORITÉ 3 : Quel budget souhaitez-vous allouer ?'       : '✅ Budget connu'}
-${!currentData?.departure ? '→ PRIORITÉ 4 : Quelle serait votre fenêtre de dates ?'     : '✅ Dates connues'}
+QUESTIONS PRIORITAIRES (si manquantes) :
+${!currentData?.profile   ? "→ Priorité 1 : avec qui partez-vous ?"            : 'Profil connu'}
+${!currentData?.travelers ? '→ Priorité 2 : combien de voyageurs ?'           : 'Voyageurs connus'}
+${!currentData?.budget    ? '→ Priorité 3 : quel budget ?'                     : 'Budget connu'}
+${!currentData?.departure ? '→ Priorité 4 : à quelles dates ?'                 : 'Dates connues'}
 
 FORMAT DE RÉPONSE (JSON STRICT) :
 {
-  "response": "Ta réponse élégante et concise (max 2 phrases).",
+  "response": "Ta réponse courte et claire (2 phrases max).",
   "chips": ["Option 1", "Option 2", "Option 3"],
   "extractedData": {
     "travelers": null, "profile": null, "mode": "relax", "premium": false, "budget": null, "duration": null, "departure": null, "origin": "Paris"
@@ -59,7 +56,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
   if (messageNormalise.includes('montre-moi')) {
     const profile = (currentData?.profile as string | undefined) ?? (Mocks.MOCK_ONBOARDING.extractedData.profile as string);
     return {
-      response:      "C'est parti pour le voyage Signature TripGenie ! ✨",
+      response:      "C'est parti, je prépare votre voyage.",
       isReady:       true,
       chips:         [],
       extractedData: { ...Mocks.MOCK_ONBOARDING.extractedData, profile },
@@ -69,7 +66,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
 
   if (messageNormalise.includes('attendre')) {
     return {
-      response:      "Pas de souci ! N'hésite pas à revenir. À bientôt ! 👋",
+      response:      "Pas de souci, revenez quand vous voulez.",
       isReady:       false,
       chips:         ['Réessayer'],
       extractedData: {},
@@ -88,7 +85,7 @@ FORMAT DE RÉPONSE (JSON STRICT) :
     console.error('ChatIntake échoué, activation du mode survie :', (err as Error).message);
     return {
       ...Mocks.MOCK_ONBOARDING,
-      response: "Je capte un peu mal mais je continue ! On part sur une base solide, qu'est-ce que tu en penses ?",
+      response: "Je n'ai pas tout capté, mais on peut continuer sur une base simple. Qu'en pensez-vous ?",
       isMock: true,
     };
   }
@@ -147,7 +144,7 @@ export async function chatModify({ currentPack, userMessage }: ParamsChatModify)
   } catch (err) {
     console.error('ChatModify échoué :', (err as Error).message);
     return {
-      response:      "Je n'ai pas pu modifier le pack, réessaie avec une autre formulation.",
+      response:      "Je n'ai pas pu modifier le pack, réessayez avec une autre formulation.",
       needs_full_regen: false,
       modifications: {},
       chips:         ['Réessayer', 'Modifier un hôtel', 'Changer une activité'],

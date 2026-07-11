@@ -102,7 +102,7 @@ vi.mock('../server/services/smartSearch.js', () => ({
 }));
 
 vi.mock('../server/services/weather.js', () => ({
-  getRealWeather: vi.fn().mockResolvedValue({ temp: '20°C', cond: 'Ensoleillé' })
+  getRealWeather: vi.fn().mockResolvedValue({ temp: '20°C', conditions: 'Ensoleillé' })
 }));
 
 vi.mock('../server/services/photo.js', () => ({

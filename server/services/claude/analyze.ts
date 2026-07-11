@@ -136,7 +136,7 @@ export async function suggestDestinations({
       BUDGET TOTAL : ${budget}€ pour ${travelers ?? 2} personne(s) = ${budgetParPersonne}€/personne.
 
       ${trancheBudget}
-      ${premium ? '⚠️ GAMME PREMIUM demandée : oriente vers des destinations au standing élevé (adresses réputées, exclusivité), en cohérence avec la vibe et le budget.' : ''}
+      ${premium ? 'GAMME PREMIUM demandée : oriente vers des destinations au standing élevé (adresses réputées, exclusivité), en cohérence avec la vibe et le budget.' : ''}
       NIVEAU / VIBE DE RÉFÉRENCE pour le mode ${mode} (exemples NON exhaustifs, juste pour caler le bon standing — tu PEUX et DOIS proposer d'autres lieux équivalents, ne recopie pas cette liste bêtement) : ${exemplesMode.join(', ')}.
       STRATÉGIE : propose des destinations RECONNUES pour ce mode, au niveau des exemples ci-dessus, cohérentes avec le budget et les intérêts. Varie d'une génération à l'autre : ne retombe pas toujours sur les 2 mêmes évidences.
 
@@ -148,7 +148,7 @@ export async function suggestDestinations({
 
       FORMAT JSON STRICT :
       {"destinations": [{"city": "Nom", "country": "Pays", "tagline": "Accroche courte", "reason": "Raison MAX 8 mots", "budget_estimate": "~${budgetParPersonne}€/pers", "match_score": 95}]}
-      ⚠️ "tagline", "reason" ET "country" DOIVENT être EN FRANÇAIS (ex : "Chypre", "Espagne", "États-Unis"). Seul "city" garde son nom d'origine.`,
+      "tagline", "reason" ET "country" DOIVENT être EN FRANÇAIS (ex : "Chypre", "Espagne", "États-Unis"). Seul "city" garde son nom d'origine.`,
       undefined,
       'destinations'
     );

@@ -46,8 +46,8 @@ describe('scorerPack — prix par personne (fix 28/05)', () => {
       hotel:      BASE_HOTEL,
       events:     [],
       activities: [
-        { name: 'Sky Club Ibiza', category: 'nightclub', emoji: '🎉', description: '', duration: '4h', price: 50 },
-        { name: 'Ushuaia Beach', category: 'beach club',  emoji: '🌊', description: '', duration: '5h', price: 80 },
+        { name: 'Sky Club Ibiza', category: 'nightclub', description: '', duration: '4h', price: 50 },
+        { name: 'Ushuaia Beach', category: 'beach club', description: '', duration: '5h', price: 80 },
       ],
       totalPrice: 5000
     };
@@ -59,13 +59,13 @@ describe('scorerPack — prix par personne (fix 28/05)', () => {
 
   it('plus il y a d\'activités nightlife, meilleur le score party', () => {
     const baseActivities = [
-      { name: 'Beach Club', category: 'beach club', emoji: '🌊', description: '', duration: '4h', price: 60 },
+      { name: 'Beach Club', category: 'beach club', description: '', duration: '4h', price: 60 },
     ];
     const richActivities = [
-      { name: 'Beach Club',    category: 'beach club',    emoji: '🌊', description: '', duration: '4h', price: 60 },
-      { name: 'Nightclub VIP', category: 'nightclub',     emoji: '🎉', description: '', duration: '5h', price: 80 },
-      { name: 'Bar Rooftop',   category: 'bar',           emoji: '🍸', description: '', duration: '3h', price: 40 },
-      { name: 'Concert',       category: 'concert',       emoji: '🎵', description: '', duration: '3h', price: 70 },
+      { name: 'Beach Club',    category: 'beach club', description: '', duration: '4h', price: 60 },
+      { name: 'Nightclub VIP', category: 'nightclub', description: '', duration: '5h', price: 80 },
+      { name: 'Bar Rooftop',   category: 'bar', description: '', duration: '3h', price: 40 },
+      { name: 'Concert',       category: 'concert', description: '', duration: '3h', price: 70 },
     ];
     const packBase = { vol: BASE_VOL, hotel: BASE_HOTEL, events: [], activities: baseActivities,  totalPrice: 3000 };
     const packRich = { vol: BASE_VOL, hotel: BASE_HOTEL, events: [], activities: richActivities, totalPrice: 3000 };
@@ -76,12 +76,12 @@ describe('scorerPack — prix par personne (fix 28/05)', () => {
 
   it('activités non-nightlife n\'améliorent pas le score party', () => {
     const actMusee = [
-      { name: 'Musée du Louvre',   category: 'culture',  emoji: '🏛', description: '', duration: '3h', price: 20 },
-      { name: 'Visite Cathédrale', category: 'histoire', emoji: '⛪', description: '', duration: '1h', price: 0 },
+      { name: 'Musée du Louvre',   category: 'culture', description: '', duration: '3h', price: 20 },
+      { name: 'Visite Cathédrale', category: 'histoire', description: '', duration: '1h', price: 0 },
     ];
     const actNight = [
-      { name: 'Discothèque VIP', category: 'nightclub', emoji: '🎉', description: '', duration: '5h', price: 80 },
-      { name: 'Bar Cocktails',   category: 'bar',       emoji: '🍸', description: '', duration: '3h', price: 40 },
+      { name: 'Discothèque VIP', category: 'nightclub', description: '', duration: '5h', price: 80 },
+      { name: 'Bar Cocktails',   category: 'bar', description: '', duration: '3h', price: 40 },
     ];
     const packMusee = { vol: BASE_VOL, hotel: BASE_HOTEL, events: [], activities: actMusee, totalPrice: 3000 };
     const packNight = { vol: BASE_VOL, hotel: BASE_HOTEL, events: [], activities: actNight, totalPrice: 3000 };
@@ -102,7 +102,7 @@ describe('scorerPack — régression modes non-party', () => {
       hotel:      { stars: 5, price_per_night: 600, rating: 9.5 },
       events:     [],
       activities: [
-        { name: 'Nightclub', category: 'nightclub', emoji: '🎉', description: '', duration: '4h', price: 100 }
+        { name: 'Nightclub', category: 'nightclub', description: '', duration: '4h', price: 100 }
       ],
       totalPrice: 10000
     };
@@ -111,7 +111,7 @@ describe('scorerPack — régression modes non-party', () => {
       hotel:      { stars: 5, price_per_night: 600, rating: 9.5 },
       events:     [],
       activities: [
-        { name: 'Spa Cinq Mondes', category: 'wellness', emoji: '🧖', description: '', duration: '2h', price: 200 }
+        { name: 'Spa Cinq Mondes', category: 'wellness', description: '', duration: '2h', price: 200 }
       ],
       totalPrice: 10000
     };

@@ -68,7 +68,6 @@ export interface JourneeItineraire {
 export interface Activite {
   name: string;
   category: string;
-  emoji: string;
   description: string;
   duration: string;
   price: string | number;
@@ -129,11 +128,6 @@ export interface ConseilVoyage {
   content: string;
 }
 
-export interface ExpressionLocale {
-  phrase: string;
-  translation: string;
-}
-
 export interface Pack {
   destination: string;
   country: string;
@@ -148,7 +142,6 @@ export interface Pack {
   events: Evenement[];
   budget_breakdown: RepartitionBudget;
   tips?: ConseilVoyage[];
-  local_phrases?: ExpressionLocale[];
   score?: ResultatScore;
   photo_url?: string;
   isMock?: boolean;

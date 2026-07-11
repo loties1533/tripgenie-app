@@ -83,8 +83,7 @@ export async function yelpRestaurantSearch(
     return donneesYelp.businesses.map(b => ({
       name:        b.name,
       category:    b.categories[0]?.title ?? 'Restaurant',
-      emoji:       '🍽️',
-      description: `${b.categories[0]?.title ?? 'Restaurant'} · ${b.price ?? '$$'} · ⭐ ${b.rating}/5`,
+      description: `${b.categories[0]?.title ?? 'Restaurant'} · ${b.price ?? '$$'} · note ${b.rating}/5`,
       duration:    '1h30',
       price:       prixDepuisSymbole(b.price),
       price_range: b.price ?? '$$',

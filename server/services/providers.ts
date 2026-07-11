@@ -37,19 +37,15 @@ export async function callClaude(systemPrompt: string, userPrompt: string): Prom
   return data.content[0].text;
 }
 
+// Modèles gratuits OpenRouter, essayés dans l'ordre (repli si l'un est indisponible).
+// On ne garde que des modèles assez gros : les plus petits tronquent le JSON.
 const MODELES_GRATUITS = [
   'openai/gpt-oss-20b:free',
   'google/gemma-3-27b-it:free',
-  'google/gemma-4-26b-a4b-it:free',
   'mistralai/mistral-7b-instruct:free',
   'google/gemma-3-12b-it:free',
   'microsoft/phi-3-medium-128k-instruct:free',
   'qwen/qwen-2-7b-instruct:free',
-  // 'nvidia/nemotron-nano-9b-v2:free',   ❌ trop petit — tronque le JSON à ~338 chars
-  // 'google/gemma-3-4b-it:free',          ❌ trop petit
-  // 'meta-llama/llama-3.2-3b-instruct:free', ❌ trop petit
-  // 'liquid/lfm-2.5-1.2b-instruct:free', ❌ trop petit
-  // 'z-ai/glm-4.5-air:free',             ❌ limite ~1240 chars output
 ];
 
 interface ReponseOpenRouter {

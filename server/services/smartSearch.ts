@@ -43,8 +43,8 @@ export interface EventSearchResult {
 
 export interface HotelSearchResult {
   name: string;
-  loc: string;
-  hl: string;
+  quartier: string;
+  point_fort: string;
   stars: number;
   price_per_night: number;
   booking_url: string | null;
@@ -173,14 +173,14 @@ Voici des résultats web pour des hôtels à ${location} :
 ${contexteWeb}
 
 Extrais les 2 meilleurs hôtels avec leur VRAI nom (ex: "Nobu Hotel Ibiza Bay", "Hard Rock Hotel Ibiza").
-Le point fort "hl" rédigé EN FRANÇAIS.
-⚠️ Si tu ne trouves aucun vrai nom d'hôtel dans ce texte, retourne exactement [].
+Le point fort "point_fort" rédigé EN FRANÇAIS.
+Si tu ne trouves aucun vrai nom d'hôtel dans ce texte, retourne exactement [].
 Ne jamais inventer ou mettre un placeholder. Retourne UNIQUEMENT un tableau JSON :
 [
   {
     "name": "Vrai nom de l'hôtel",
-    "loc": "Quartier",
-    "hl": "Point fort en français",
+    "quartier": "Quartier",
+    "point_fort": "Point fort en français",
     "stars": 4,
     "price_per_night": 150,
     "booking_url": null

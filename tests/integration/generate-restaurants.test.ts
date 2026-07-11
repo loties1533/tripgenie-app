@@ -72,19 +72,19 @@ const BASE_PACK = {
   flights:          [],
   hotels:           [{ name: 'Ushuaia Hotel', location: 'Playa d\'en Bossa', stars: 5, price_per_night: '300€' }],
   itinerary:        [],
-  activities:       [{ name: 'Plage Salines', category: 'nature', emoji: '🏖', description: 'Magnifique.', duration: '3h', price: 0 }],
+  activities:       [{ name: 'Plage Salines', category: 'nature', description: 'Magnifique.', duration: '3h', price: 0 }],
   events:           [],
   budget_breakdown: { total: '12000€' },
   weather:          null
 };
 
 const FSQ_RESTAURANTS = [
-  { name: 'El Chiringuito', category: 'Fine Dining', emoji: '🍽️', description: 'Top resto.', duration: '1h30', price: 65, booking_url: 'https://thefork.fr/recherche?q=El+Chiringuito', price_range: '$$$' },
-  { name: 'Lio Restaurant',  category: 'Spanish',    emoji: '🍽️', description: 'Vue marina.', duration: '2h',   price: 80, booking_url: 'https://thefork.fr/recherche?q=Lio+Restaurant',  price_range: '$$$' }
+  { name: 'El Chiringuito', category: 'Fine Dining', description: 'Top resto.', duration: '1h30', price: 65, booking_url: 'https://thefork.fr/recherche?q=El+Chiringuito', price_range: '$$$' },
+  { name: 'Lio Restaurant',  category: 'Spanish', description: 'Vue marina.', duration: '2h',   price: 80, booking_url: 'https://thefork.fr/recherche?q=Lio+Restaurant',  price_range: '$$$' }
 ];
 
 const YELP_RESTAURANTS = [
-  { name: 'Nobu Ibiza', category: 'Japanese', emoji: '🍽️', description: 'Célèbre.', duration: '1h30', price: 90, booking_url: 'https://yelp.com/biz/nobu-ibiza', price_range: '$$$$' }
+  { name: 'Nobu Ibiza', category: 'Japanese', description: 'Célèbre.', duration: '1h30', price: 90, booking_url: 'https://yelp.com/biz/nobu-ibiza', price_range: '$$$$' }
 ];
 
 beforeEach(() => {

@@ -23,8 +23,6 @@ import type { Prisma } from '@prisma/client';
 import { MODES, MODES_LIST, DEFAULT_VALUES } from '../lib/constants.js';
 import type { TravelMode } from '../lib/types.js';
 import { peutEditerVoyage } from '../lib/tripAccess.js';
-import type { FlightSearchResult, EventSearchResult, HotelSearchResult } from '../services/smartSearch.js';
-import type { WeatherData } from '../services/weather.js';
 
 const router = express.Router();
 
@@ -205,19 +203,6 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
       new Promise<T>((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
     ]);
 
-    let resultatsRecherche: [
-      PromiseSettledResult<FlightSearchResult | null>,
-      PromiseSettledResult<EventSearchResult[]>,
-      PromiseSettledResult<HotelSearchResult[]>,
-      PromiseSettledResult<WeatherData | null>,
-      PromiseSettledResult<string | null>
-    ] = [] as unknown as [
-      PromiseSettledResult<FlightSearchResult | null>,
-      PromiseSettledResult<EventSearchResult[]>,
-      PromiseSettledResult<HotelSearchResult[]>,
-      PromiseSettledResult<WeatherData | null>,
-      PromiseSettledResult<string | null>
-    ];
     // Photo et météo : rapides → séparées du batch Tavily pour ne pas être
     // tuées par le timeout de 25s si Tavily est lent
     const promessePhoto   = getDestinationPhoto(destination).catch(() => null);
@@ -245,14 +230,12 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
         return [];
       });
 
-    // Timeout individuel 20s par service : si events timeout, vols + hôtels sont préservés
-    // (avant : timeout global 25s qui jetait TOUT si un seul service était lent)
-    resultatsRecherche = await Promise.allSettled([
+    // Timeout individuel par service : si un service (ex. événements) timeout,
+    // vols + hôtels sont préservés (avant : un timeout global jetait TOUT).
+    const [resVols, resEvenements, resHotels] = await Promise.allSettled([
       avecTimeout(smartFlightSearch({ origin, destination, departure, return_date }), 30000),
       avecTimeout(smartEventsSearch({ location: destination, dateFrom: departure, dateTo: return_date || departure, mode }), 30000),
       avecTimeout(smartHotelSearch({ location: destination, mode }), 30000),
-      Promise.resolve(null),  // placeholder météo (fetchée séparément)
-      Promise.resolve(null),  // placeholder photo (fetchée séparément)
     ]);
 
     // On attend photo, météo et Yelp indépendamment du timeout Tavily
@@ -260,7 +243,7 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
     const meteoDestination = await promesseMeteo;
     const restaurants      = await promesseRestaurants;
 
-    const volIA = resultatsRecherche[0].status === 'fulfilled' ? resultatsRecherche[0].value : null;
+    const volIA = resVols.status === 'fulfilled' ? resVols.value : null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let flights: any[] = [];
 
@@ -283,9 +266,9 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
       }];
     }
 
-    const events     = resultatsRecherche[1].status === 'fulfilled' ? resultatsRecherche[1].value : [];
-    const realHotels = resultatsRecherche[2].status === 'fulfilled' ? resultatsRecherche[2].value : [];
-    if (resultatsRecherche[1].status === 'rejected') console.warn('Repli API événements :', resultatsRecherche[1].reason);
+    const events     = resEvenements.status === 'fulfilled' ? resEvenements.value : [];
+    const realHotels = resHotels.status === 'fulfilled' ? resHotels.value : [];
+    if (resEvenements.status === 'rejected') console.warn('Repli API événements :', resEvenements.reason);
 
     const pack = await assemblerPack({
       destination,
@@ -316,17 +299,18 @@ router.post('/generate', aiGenerateLimiter, optionalAuth, validateBody(schemaGen
       console.log(`Restaurants: ${restaurants.length} lieux ajoutés aux activités`);
     }
 
-    // ---- Scoring réel via scoring.js ----
+    // ---- Scoring déterministe (services/scoring.js) ----
     const meilleurVol = flights[0] ?? null;
     const donneesHotel = pack.hotels?.[0] || null;
-    
+
+    // Faute de vol/hôtel réel, on estime à partir du budget pour ne pas fausser le score.
     const resultatScore = scorerPack(
       {
-        vol: meilleurVol 
-          ? { price: meilleurVol.price, duration_min: meilleurVol.outbound?.duration_min, stops: meilleurVol.outbound?.stops } 
-          : { price: budget * 0.25, duration_min: 180, stops: 0 }, // Simulation intelligente pour le score
-        hotel: donneesHotel 
-          ? { stars: donneesHotel.stars || 4, price_per_night: parseInt(donneesHotel.price_per_night?.replace('€','') || '150'), rating: 8.5 } 
+        vol: meilleurVol
+          ? { price: meilleurVol.price, duration_min: meilleurVol.outbound?.duration_min, stops: meilleurVol.outbound?.stops }
+          : { price: budget * 0.25, duration_min: 180, stops: 0 },
+        hotel: donneesHotel
+          ? { stars: donneesHotel.stars || 4, price_per_night: parseInt(donneesHotel.price_per_night?.replace('€','') || '150'), rating: 8.5 }
           : { stars: 4, price_per_night: 150, rating: 8 },
         events,
         activities: pack.activities ?? [],
