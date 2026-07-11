@@ -80,11 +80,11 @@ export default function PackSkeleton() {
         {/* Logo animé */}
         <div
           className="w-16 h-16 mx-auto mb-10 rounded-full border border-gold/30 flex items-center justify-center">
-          <Logo size={30} className="text-gold" />
+          <Logo size={30} className="text-gold-dark" />
         </div>
 
         {/* Badge */}
-        <p className="text-[10px] uppercase tracking-[0.4em] text-gold font-semibold mb-6">
+        <p className="text-[10px] uppercase tracking-[0.4em] text-gold-dark font-semibold mb-6">
           TripGenie — Génération en cours
         </p>
 
@@ -122,7 +122,7 @@ export default function PackSkeleton() {
         <div className="flex justify-center gap-2 mt-8">
           {LOADING_SLIDES.map((_, i) => (
             <span key={i}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === current ? 'bg-gold w-4' : 'bg-white/20'}`}
+              className={`w-1.5 h-1.5 rounded-sm transition-all duration-500 ${i === current ? 'bg-gold w-4' : 'bg-white/20'}`}
             />
           ))}
         </div>

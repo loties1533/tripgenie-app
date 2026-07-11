@@ -20,29 +20,23 @@ function ChangeView({ center, zoom }: { center: [number, number], zoom: number }
   return null
 }
 
-// Custom icon generator
-const createCustomIcon = (emoji: string, color = '#D4AF37') => L.divIcon({
+// Marqueur : point plein coloré, bordure blanche (pas d'emoji, pas de halo)
+const createCustomIcon = (color: string) => L.divIcon({
   html: `
     <div style="
-      background: white;
-      width: 35px;
-      height: 35px;
+      background: ${color};
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 0 15px ${color}66, inset 0 0 5px rgba(0,0,0,0.1);
-      border: 2px solid ${color};
+      border: 2px solid white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.35);
       cursor: pointer;
       transition: transform 0.2s;
-    " class="marker-hover">
-      ${emoji}
-    </div>
+    " class="marker-hover"></div>
   `,
   className: 'custom-div-icon',
-  iconSize: [35, 35],
-  iconAnchor: [17, 35],
+  iconSize: [18, 18],
+  iconAnchor: [9, 9],
 })
 
 export default function TripMap({ destination, hotels = [], focusedLocation = null }: { destination: string, hotels?: any[], focusedLocation?: [number, number] | null }) {
@@ -74,7 +68,6 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
               coords: [parseFloat(hData[0].lat), parseFloat(hData[0].lon)] as [number, number],
               name: hotel.name,
               type: 'hotel',
-              emoji: hotel.emoji || '🏨'
             })
           }
         }
@@ -96,7 +89,7 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
 
   if (loading) {
     return (
-      <div className="w-full h-[400px] bg-ink/20 animate-pulse rounded-md flex items-center justify-center border border-white/5">
+      <div className="w-full h-[400px] bg-ink/20 animate-pulse rounded-sm flex items-center justify-center border border-white/5">
         <p className="text-muted text-sm">Chargement de la carte...</p>
       </div>
     )
@@ -105,7 +98,7 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
   if (!center) return null
 
   return (
-    <div className="w-full h-[400px] rounded-md overflow-hidden border border-white/10 relative z-0">
+    <div className="w-full h-[400px] rounded-sm overflow-hidden border border-white/10 relative z-0">
       <style>{`
         .leaflet-popup-content-wrapper {
           background: rgba(28, 28, 30, 0.8) !important;
@@ -133,22 +126,22 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
         />
         
-        {/* Main City  Marker */}
-        <Marker position={center} icon={createCustomIcon('✨', '#D4AF37')}>
+        {/* Marqueur ville */}
+        <Marker position={center} icon={createCustomIcon('#E3A72C')}>
           <Popup>
             <div className="p-1">
-              <p className="font-bold text-gold text-sm">✨ {destination}</p>
-              <p className="text-[10px] opacity-70">Ta destination de rêve</p>
+              <p className="font-bold text-sm">{destination}</p>
+              <p className="text-[10px] opacity-70">Destination</p>
             </div>
           </Popup>
         </Marker>
 
-        {/* Hotel Markers */}
+        {/* Marqueurs hôtels */}
         {markers.map(m => (
-          <Marker key={m.id} position={m.coords} icon={createCustomIcon(m.emoji, '#86efac')}>
+          <Marker key={m.id} position={m.coords} icon={createCustomIcon('#5A7A5E')}>
             <Popup>
               <div className="p-1">
-                <p className="font-bold text-sm">{m.emoji} {m.name}</p>
+                <p className="font-bold text-sm">{m.name}</p>
                 <p className="text-[10px] text-sage">Hébergement sélectionné</p>
               </div>
             </Popup>
