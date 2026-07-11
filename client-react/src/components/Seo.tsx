@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 
-const SITE_URL = 'https://tripgenie.onrender.com'
+const SITE_URL = 'https://tripgenie-api.onrender.com'
 const DEFAULT_TITLE = 'TripGenie — Voyages sur-mesure par IA'
 
 type SeoProps = {

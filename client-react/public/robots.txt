@@ -6,4 +6,4 @@ Disallow: /trip/
 Disallow: /preferences
 Disallow: /api/
 
-Sitemap: https://tripgenie.onrender.com/sitemap.xml
+Sitemap: https://tripgenie-api.onrender.com/sitemap.xml
