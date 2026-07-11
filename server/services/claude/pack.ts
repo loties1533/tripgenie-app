@@ -1,6 +1,6 @@
 import { callAI, parseJSON, sanitizeInput } from './core.js';
 import { MODES, BUDGET_RATIOS, PLAFONDS, DEFAULT_VALUES } from '../../lib/constants.js';
-import type { Pack, TravelMode } from '../../lib/types.js';
+import type { Pack, TravelMode, Profile } from '../../lib/types.js';
 import type { FlightSearchResult, EventSearchResult, HotelSearchResult } from '../smartSearch.js';
 import type { WeatherData } from '../weather.js';
 
@@ -76,38 +76,39 @@ export function construirePromptPack({
   events?: EventSearchResult[];
 }): string {
   const budgetTone = budgetPerPers >= 2000
-    ? 'Budget premium : penthouses, villas privées, tables Michelin, accès VIP.'
+    ? 'Budget élevé : hôtels haut de gamme, bonnes tables, prestations soignées.'
     : budgetPerPers >= 1000
-    ? 'Budget confortable : hôtels 4★ soignés, restaurants gastronomiques.'
+    ? 'Budget confortable : hôtels 4★, restaurants de qualité.'
     : budgetPerPers >= 500
-    ? 'Budget moyen : bon rapport qualité/prix, quelques coups de cœur premium.'
-    : 'Petit budget : adresses locales authentiques, astuces insider.';
+    ? 'Budget moyen : bon rapport qualité/prix.'
+    : 'Petit budget : adresses locales abordables.';
 
   const modePersona = mode === MODES.PARTY
-    ? "Tu es l'expert nightlife. Chaque journée monte en puissance vers une soirée mémorable."
+    ? 'Mode fête : concentre-toi sur la vie nocturne réelle (clubs, bars, soirées).'
     : mode === MODES.RELAX
-    ? 'Tu es un maître du slow travel. Rythme doux, expériences intimes, pas de rush.'
+    ? 'Mode détente : rythme calme, nature, expériences posées.'
     : mode === MODES.GROUP
-    ? 'Tu orchestres des expériences fédératrices, accessibles à tous les membres du groupe.'
+    ? 'Mode groupe : activités qui conviennent à plusieurs personnes.'
     : mode === MODES.STUDENT
-    ? 'Tu connais tous les bons plans : max de saveurs pour min de budget.'
-    : 'Tu combines intelligemment les envies du groupe avec la richesse locale.';
+    ? 'Mode étudiant : adresses abordables et connues.'
+    : 'Combine les centres d\'intérêt du voyageur avec les incontournables locaux.';
 
-  // Niveau de prix (axe orthogonal au mode) : monte en gamme SANS écraser la vibe.
+  // Niveau de prix (axe orthogonal au mode) : monte en gamme sans changer le mode.
   const premiumModifier = premium
-    ? "⚠️ GAMME PREMIUM : privilégie systématiquement le haut de gamme — hôtels 5★ ou boutique-hôtels de caractère, tables réputées, expériences exclusives et privatisées — tout en respectant la vibe ci-dessus."
+    ? 'Gamme premium : privilégie le haut de gamme (hôtels 5★ ou boutique-hôtels, bonnes tables), tout en respectant le mode ci-dessus.'
     : '';
 
   // Profil = « avec qui » (axe distinct du mode et du prix) : oriente le TON et le
   // type d'expériences, sans imposer une ambiance (celle-ci vient du mode).
-  const PROFIL_MODIFIERS: Record<string, string> = {
+  const PROFIL_MODIFIERS: Record<Profile, string> = {
     couple:  'expériences intimes à deux — tables romantiques, moments en tête-à-tête, hébergement pour 2.',
     famille: 'activités adaptées aux enfants, hôtels familiaux, rythme accessible à tous les âges.',
     amis:    'expériences conviviales et partagées, propices à la bonne humeur du groupe.',
     solo:    'expériences favorisant les rencontres et la liberté de mouvement, en toute sécurité.',
   };
-  const profilModifier = profile && PROFIL_MODIFIERS[profile]
-    ? `⚠️ PROFIL ${profile.toUpperCase()} : privilégie des ${PROFIL_MODIFIERS[profile]}`
+  const modifierProfil = profile ? PROFIL_MODIFIERS[profile as Profile] : undefined;
+  const profilModifier = modifierProfil
+    ? `PROFIL ${profile!.toUpperCase()} : privilégie des ${modifierProfil}`
     : '';
 
   const activityTypes = mode === MODES.PARTY
@@ -119,12 +120,12 @@ export function construirePromptPack({
     : 'restaurant|activité-phare|visite-emblématique|bateau|spa|expérience-locale';
 
   const activityInstruction = mode === MODES.PARTY
-    ? '⚠️ MODE PARTY — OBLIGATOIRE : 6 vrais lieux nightlife (boîtes, beach clubs, bars, festivals, restos lounge). AUCUN musée ni site culturel. Exemples réels : Pacha, Ushuaïa, Hi Ibiza, Amnesia, Destino.'
+    ? 'MODE PARTY — OBLIGATOIRE : 6 vrais lieux nightlife (boîtes, beach clubs, bars, festivals, restos lounge). AUCUN musée ni site culturel. Exemples réels : Pacha, Ushuaïa, Hi Ibiza, Amnesia, Destino.'
     : mode === MODES.STUDENT
-    ? '⚠️ MODE STUDENT — OBLIGATOIRE : 6 adresses connues et accessibles (bars étudiants, marchés, street food, activités outdoor gratuites ou pas chères). Noms réels uniquement.'
+    ? 'MODE STUDENT — OBLIGATOIRE : 6 adresses connues et accessibles (bars étudiants, marchés, street food, activités outdoor gratuites ou pas chères). Noms réels uniquement.'
     : mode === MODES.RELAX
-    ? '⚠️ MODE RELAX — OBLIGATOIRE : 6 adresses zen et authentiques (spas, plages calmes, restos vue mer, activités nature). Noms réels uniquement.'
-    : '⚠️ OBLIGATOIRE : 6 adresses incontournables, réelles et variées adaptées au groupe. Noms exacts uniquement, pas de descriptions génériques.';
+    ? 'MODE RELAX — OBLIGATOIRE : 6 adresses zen et authentiques (spas, plages calmes, restos vue mer, activités nature). Noms réels uniquement.'
+    : 'OBLIGATOIRE : 6 adresses incontournables, réelles et variées adaptées au groupe. Noms exacts uniquement, pas de descriptions génériques.';
 
   const realVenuesContext = events?.length
     ? `\nÉVÉNEMENTS RÉELS :\n${events.slice(0, 4).map(e => `- ${e.title} @ ${e.venue}`).join('\n')}`
@@ -132,10 +133,10 @@ export function construirePromptPack({
 
   // Centres d'intérêt du voyageur : orientent le choix des activités (en plus du mode).
   const interetsContext = interests?.length
-    ? `\n⚠️ CENTRES D'INTÉRÊT DU VOYAGEUR (à privilégier fortement dans le choix des activités, tout en respectant le mode) : ${interests.join(', ')}.`
+    ? `\nCENTRES D'INTÉRÊT DU VOYAGEUR (à privilégier fortement dans le choix des activités, tout en respectant le mode) : ${interests.join(', ')}.`
     : '';
 
-  return `Tu es le concierge privé de TripGenie. Destination : ${dest}. Ville de départ : ${originCity}.
+  return `Tu prépares un pack de voyage TripGenie. Destination : ${dest}. Ville de départ : ${originCity}.
     VOYAGEURS : ${travelers} personne(s). PROFIL : ${profile ?? mode}. VIBE : ${mode}. BUDGET : ${budgetPerPers}€/pers. DURÉE : ${nights} nuits.
 
     ${modePersona}
@@ -146,10 +147,11 @@ export function construirePromptPack({
     ${realVenuesContext}
 
     Génère ce JSON COMPACT (itinerary = 3 jours, activities = 6) :
-    {"country":"Pays","airport_code":"IBZ","origin_airport_code":"BOD","tagline":"5-7 mots accrocheurs","overview":"1 phrase","weather":{"temp":"22°C","cond":"Soleil","tip":"Conseil"},"hotels":[{"name":"Vrai hôtel","loc":"Quartier","hl":"Point fort"},{"name":"Alternative","loc":"Quartier","hl":"Point fort"}],"itinerary":[{"day":1,"title":"Titre","am":"Activité réelle","pm":"Club/resto réel"},{"day":2,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"},{"day":3,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"}],"activities":[{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"}],"tip1":"Conseil","tip2":"Adresse food","phrase":"Mot ou expression local(e)","phrase_tr":"Traduction française"}
-    ⚠️ LANGUE : rédige TOUS les textes EN FRANÇAIS (tagline, overview, cond, tip, hl, title, am, pm, desc, tip1, tip2, phrase_tr). Seuls les noms propres de lieux/hôtels/clubs restent dans leur langue d'origine.
-    ⚠️ VRAIS noms uniquement. Pas de "Gastronomie locale" ou "Découverte de ${dest}".
-    ⚠️ airport_code = code IATA de l'aéroport de ${dest}. origin_airport_code = code IATA de l'aéroport de ${originCity} (ville de départ).`;
+    {"country":"Pays","airport_code":"IBZ","origin_airport_code":"BOD","tagline":"description factuelle courte (6-10 mots, sans superlatif ni langage publicitaire)","overview":"1 phrase","weather":{"temp":"22°C","cond":"Soleil"},"hotels":[{"name":"Vrai hôtel","loc":"Quartier","hl":"Point fort"},{"name":"Alternative","loc":"Quartier","hl":"Point fort"}],"itinerary":[{"day":1,"title":"Titre","am":"Activité réelle","pm":"Club/resto réel"},{"day":2,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"},{"day":3,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"}],"activities":[{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"}],"tip1":"Conseil","tip2":"Adresse food"}
+    TAGLINE : factuelle, pas de mots comme « rêve », « légendaire », « VIP », « incontournable », « électrisant », « capitale mondiale ».
+    LANGUE : rédige TOUS les textes EN FRANÇAIS (tagline, overview, cond, hl, title, am, pm, desc, tip1, tip2). Seuls les noms propres de lieux/hôtels/clubs restent dans leur langue d'origine.
+    VRAIS noms uniquement. Pas de "Gastronomie locale" ou "Découverte de ${dest}".
+    airport_code = code IATA de l'aéroport de ${dest}. origin_airport_code = code IATA de l'aéroport de ${originCity} (ville de départ).`;
 }
 
 // 3. parserReponsePack — parsing JSON + fallback structuré
@@ -505,18 +507,18 @@ export async function assemblerPack({
         venue:       e.venue || 'Centre ville',
         description: e.description || '',
       }))
-    : [{ title: `Soirée à ${dest}`, category: 'Nightlife', start: 'Pendant votre séjour', venue: 'Centre ville', description: 'Animation locale garantie' }];
+    : [{ title: `Soirée à ${dest}`, category: 'Nightlife', start: 'Pendant votre séjour', venue: 'Centre ville', description: 'Animation locale' }];
 
   // ── 6. Assemblage du Pack final ───────────────────────────────────────────
   return {
     destination: dest,
     country:     texteIA.country  ?? 'Destination',
-    tagline:     texteIA.tagline  ?? `${dest}, votre prochaine aventure`,
-    overview:    texteIA.overview ?? `Découvrez ${dest} sous son meilleur jour.`,
+    tagline:     texteIA.tagline  ?? `Séjour à ${dest}`,
+    overview:    texteIA.overview ?? `À la découverte de ${dest}.`,
     photo_url:   realPhoto ?? undefined,
     weather: realWeather
-      ? { avg_temp: realWeather.temp, conditions: realWeather.cond, tip: texteIA.weather?.tip ?? 'Prévoyez des couches', humidity: realWeather.humidity, wind: realWeather.wind }
-      : { avg_temp: texteIA.weather?.temp ?? '20°C', conditions: texteIA.weather?.cond ?? 'Ensoleillé', tip: texteIA.weather?.tip ?? 'Prévoyez des couches' },
+      ? { avg_temp: realWeather.temp, conditions: realWeather.cond }
+      : { avg_temp: texteIA.weather?.temp ?? '20°C', conditions: texteIA.weather?.cond ?? 'Ensoleillé' },
     summary: { total_budget: `${budget}€`, nights, activities_count: (texteIA.activities ?? []).length },
     flights: transformerVols(flights, airportCode, originCode, originCity, dest, budget, travelers, departure, return_date),
     hotels: (realHotels?.length ? realHotels : texteIA.hotels ?? []).map((h, i) => ({
@@ -530,15 +532,14 @@ export async function assemblerPack({
       price_per_night: (h as { price_per_night?: number }).price_per_night
         ? `${(h as { price_per_night: number }).price_per_night}€`
         : `${Math.round(hebergementBrut / nights / Math.max(1, Math.ceil(travelers / 2)))}€`,
-      highlights:      (h as { hl?: string; highlights?: string }).hl ?? (h as { highlights?: string }).highlights ?? 'Excellent choix',
-      emoji:           i === 0 ? '🏨' : '🏩',
+      highlights:      (h as { hl?: string; highlights?: string }).hl ?? (h as { highlights?: string }).highlights ?? 'Bon emplacement',
       // Lien Booking pré-rempli : ville + check-in/out + voyageurs + nb chambres.
       booking_url:     construireUrlHotel(h.name ?? `Hôtel ${i + 1}`, dest, { checkin: departure, checkout: return_date, travelers }),
     })),
     itinerary: (texteIA.itinerary ?? []).map(d => ({
       day:      d.day,
       title:    d.title ?? 'Journée découverte',
-      subtitle: mode === MODES.PARTY ? 'Ambiance & Vie nocturne' : premium ? 'Prestige & Exclusivité' : 'Exploration',
+      subtitle: mode === MODES.PARTY ? 'Vie nocturne' : 'Découverte',
       items: [
         // Heures indicatives (matin/soir). On n'affiche PLUS de prix/durée inventés :
         // l'IA ne fournit que l'activité (am/pm), donc tout chiffre serait du faux.
@@ -560,9 +561,6 @@ export async function assemblerPack({
     tips: [
       { title: 'Conseil pratique', content: texteIA.tip1 ?? "Réservez à l'avance" },
       { title: 'Sur place',        content: texteIA.tip2 ?? 'Explorez les quartiers locaux' },
-    ],
-    local_phrases: [
-      { phrase: texteIA.phrase ?? 'Santé !', translation: texteIA.phrase_tr ?? 'À votre santé !' },
     ],
   };
 }

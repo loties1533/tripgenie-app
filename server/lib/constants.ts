@@ -1,5 +1,23 @@
-import type { TravelMode, TripStatus } from './types.js';
+import type { TravelMode, Profile, TripStatus } from './types.js';
 
+// ─────────────────────────────────────────────────────────────
+// Taxonomie d'une demande de voyage : 4 axes indépendants.
+// On les garde séparés parce qu'ils répondent à des questions différentes ;
+// les mélanger, c'est ce qui rend le code dur à suivre.
+//
+//   1. Ambiance (MODES)    → ce qu'on veut vivre : fête, détente…
+//   2. Profil   (PROFILES) → avec qui on part : solo, couple, amis, famille
+//   3. Confort  (premium)  → le standing : classique / premium (voir PLAFONDS)
+//   4. Contraintes         → budget (€), nombre de voyageurs, dates
+//
+// Dettes connues (des modes portent encore deux axes à la fois) — à revoir
+// d'un bloc plus tard, pas à la va-vite :
+//   - 'student' est en fait un signal de BUDGET, pas une ambiance (doublon avec le budget).
+//   - 'group' recoupe le profil (amis/famille) et le nombre de voyageurs.
+//   - dans routes/ai.ts, le mot « couple » (un profil) force le mode 'relax'.
+// ─────────────────────────────────────────────────────────────
+
+// Axe 1 — Ambiance : ce que le voyageur veut vivre.
 export const MODES = {
   PARTY:    'party',
   STUDENT:  'student',
@@ -10,6 +28,18 @@ export const MODES = {
 
 export type ModeKey = keyof typeof MODES;
 export const MODES_LIST: TravelMode[] = Object.values(MODES) as TravelMode[];
+
+// Axe 2 — Profil : avec qui on voyage. Oriente le ton et la logistique
+// (chambres, activités adaptées) sans imposer d'ambiance : un couple peut
+// très bien vouloir la fête.
+export const PROFILES = {
+  SOLO:    'solo',
+  COUPLE:  'couple',
+  AMIS:    'amis',
+  FAMILLE: 'famille',
+} as const;
+
+export const PROFILES_LIST: Profile[] = Object.values(PROFILES) as Profile[];
 
 export interface RatioBudget {
   vols: number;

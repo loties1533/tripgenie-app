@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import Logo from '../ui/Logo'
 
 // Images et textes qui défilent pendant le chargement
@@ -60,14 +59,11 @@ export default function PackSkeleton() {
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-ink">
 
       {/* Background image qui change */}
-      <AnimatePresence mode="wait">
-        <motion.div
+      
+        <div
           key={current}
           className="absolute inset-0"
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.2 }}>
+>
           <img
             src={slide.img}
             alt="loading"
@@ -76,56 +72,45 @@ export default function PackSkeleton() {
           {/* Overlay noir profond */}
           <div className="absolute inset-0 bg-ink/70" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/60" />
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      
 
       {/* Contenu centré */}
       <div className="relative z-10 text-center px-8 max-w-2xl mx-auto">
         {/* Logo animé */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+        <div
           className="w-16 h-16 mx-auto mb-10 rounded-full border border-gold/30 flex items-center justify-center">
-          <Logo size={30} className="text-gold" />
-        </motion.div>
+          <Logo size={30} className="text-gold-dark" />
+        </div>
 
         {/* Badge */}
-        <p className="text-[10px] uppercase tracking-[0.4em] text-gold font-semibold mb-6">
+        <p className="text-[10px] uppercase tracking-[0.4em] text-gold-dark font-semibold mb-6">
           TripGenie — Génération en cours
         </p>
 
         {/* Texte principal qui change */}
-        <AnimatePresence mode="wait">
-          <motion.h2
+        
+          <h2
             key={current + 'text'}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.6 }}
-            className="font-display text-3xl sm:text-4xl text-white font-bold mb-4 leading-snug">
+            className="text-3xl sm:text-4xl text-white font-bold mb-4 leading-snug">
             {slide.text}
-          </motion.h2>
-        </AnimatePresence>
+          </h2>
+        
 
-        <AnimatePresence mode="wait">
-          <motion.p
+        
+          <p
             key={current + 'sub'}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
             className="text-parchment/50 text-sm font-light italic tracking-wide">
             {slide.sub}
-          </motion.p>
-        </AnimatePresence>
+          </p>
+        
 
         {/* Barre de progression */}
         <div className="mt-12 w-full max-w-xs mx-auto">
-          <div className="h-px w-full bg-ink/10 dark:bg-white/10 rounded-full overflow-hidden">
-            <motion.div
+          <div className="h-px w-full bg-ink/10 rounded-full overflow-hidden">
+            <div
               className="h-full bg-gradient-to-r from-gold-dark via-gold to-gold-light rounded-full"
               style={{ width: `${progress}%` }}
-              transition={{ ease: 'linear' }}
             />
           </div>
           <p className="text-[10px] text-white/30 mt-3 tracking-widest uppercase">
@@ -137,7 +122,7 @@ export default function PackSkeleton() {
         <div className="flex justify-center gap-2 mt-8">
           {LOADING_SLIDES.map((_, i) => (
             <span key={i}
-              className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${i === current ? 'bg-gold w-4' : 'bg-white/20'}`}
+              className={`w-1.5 h-1.5 rounded-sm transition-all duration-500 ${i === current ? 'bg-gold w-4' : 'bg-white/20'}`}
             />
           ))}
         </div>
@@ -145,7 +130,7 @@ export default function PackSkeleton() {
 
       {/* Quote en bas */}
       <div className="absolute bottom-10 left-0 right-0 text-center z-10">
-        <p className="text-white/20 text-xs font-serif italic tracking-wider">
+        <p className="text-white/20 text-xs italic tracking-wider">
           "Les plus beaux voyages commencent par une envie."
         </p>
       </div>

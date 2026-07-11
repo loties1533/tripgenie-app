@@ -58,7 +58,7 @@ export const MOCK_PACK: Partial<Pack> & { isMock: boolean } = {
   tagline: "L'île Blanche : Entre Rythme Effréné et Calme Azur",
   overview:
     "Ibiza n'est pas qu'une île de fête. C'est un joyau des Baléares où les eaux cristallines rencontrent une architecture bohème-chic.",
-  weather: { avg_temp: '26°C', conditions: 'Soleil radieux', tip: "N'oubliez pas vos lunettes de soleil." },
+  weather: { avg_temp: '26°C', conditions: 'Soleil radieux' },
   summary: { total_budget: '8000€', nights: 7, activities_count: 12 },
   activities: [
     { name: 'Plage de Pampelonne', category: 'Plage', emoji: '🏖', description: 'Le spot mythique.', duration: '4h', price: 'Gratuit', best_time: 'Journée' },
@@ -70,8 +70,8 @@ export const MOCK_PACK: Partial<Pack> & { isMock: boolean } = {
     { from: 'NCE', from_city: 'Nice', to: 'BOD', to_city: 'Bordeaux', departure_time: '18:30', arrival_time: '20:15', duration: '1h45', stops: 'Direct', airline: 'Air France', price_per_person: '145€', type: 'return' },
   ],
   hotels: [
-    { name: 'Hôtel Byblos', location: 'Centre', stars: 5, price_per_night: '850€', highlights: 'La légende de Saint-Tropez.', emoji: '🏨', match_reason: 'Le summum du luxe festif' },
-    { name: 'Hôtel de Paris', location: 'Port', stars: 5, price_per_night: '550€', highlights: 'Rooftop avec piscine transparente.', emoji: '🏩', match_reason: 'Design moderne et vue mer' },
+    { name: 'Hôtel Byblos', location: 'Centre', stars: 5, price_per_night: '850€', highlights: 'Établissement emblématique du centre.', match_reason: 'Central et bien noté' },
+    { name: 'Hôtel de Paris', location: 'Port', stars: 5, price_per_night: '550€', highlights: 'Rooftop avec piscine et vue mer.', match_reason: 'Vue mer, proche du port' },
   ],
   itinerary: [
     {

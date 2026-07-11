@@ -10,7 +10,7 @@ export function Skeleton({ className }: { className?: string }) {
 
 export function SkeletonCard() {
   return (
-    <div className="glass rounded-2xl p-5 space-y-3">
+    <div className="glass rounded-sm p-5 space-y-3">
       <Skeleton className="h-5 w-2/3" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-4/5" />
@@ -26,7 +26,7 @@ export function SkeletonCard() {
 export function TabBar({ tabs, active, onChange }: { tabs: any[], active: string, onChange: (id: string) => void }) {
   return (
     <div className="overflow-x-auto scroll-hide -mx-1">
-      <div className="flex gap-1 p-1 bg-parchment-dark dark:bg-ink rounded-xl min-w-max mx-1">
+      <div className="flex gap-1 p-1 bg-parchment-dark rounded-sm min-w-max mx-1">
         {tabs.map(t => (
           <button key={t.id} onClick={() => onChange(t.id)}
             className={clsx('tab-btn flex items-center justify-center gap-1.5 whitespace-nowrap', active === t.id && 'active')}>
@@ -44,32 +44,32 @@ export function TabBar({ tabs, active, onChange }: { tabs: any[], active: string
 export function SectionTitle({ children, sub }: { children: React.ReactNode, sub?: string }) {
   return (
     <div className="mb-4">
-      <h3 className="font-display text-xl font-semibold text-ink dark:text-parchment">{children}</h3>
+      <h3 className="text-xl font-semibold text-ink">{children}</h3>
       {sub && <p className="text-sm text-muted mt-0.5">{sub}</p>}
     </div>
   )
 }
 
-// Mode badge — palette unique (couleur distincte par mode, lisible en clair ET sombre)
-const MODE_LABELS = {
-  party:   { label: 'Fête',      emoji: '🥂', cls: 'bg-rose-500/15 text-rose-600 dark:text-rose-400' },
-  student: { label: 'Étudiant',  emoji: '🎒', cls: 'bg-sky-500/15 text-sky-600 dark:text-sky-400' },
-  group:   { label: 'Groupe',    emoji: '👥', cls: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
-  relax:   { label: 'Détente',   emoji: '🌿', cls: 'bg-teal-500/15 text-teal-600 dark:text-teal-400' },
-  surprise:{ label: 'Surprise',  emoji: '🎁', cls: 'bg-violet-500/15 text-violet-600 dark:text-violet-400' },
+// Libellé lisible pour chaque mode de voyage
+const MODE_LABELS: Record<string, string> = {
+  party:    'Fête',
+  student:  'Étudiant',
+  group:    'Groupe',
+  relax:    'Détente',
+  surprise: 'Surprise',
 }
 
-// premium : niveau de prix (axe indépendant du mode) → petit badge doré en plus.
+// premium : niveau de prix (axe indépendant du mode) → badge accent en plus.
 export function ModeBadge({ mode, premium }: { mode: string; premium?: boolean }) {
-  const infoMode = MODE_LABELS[mode as keyof typeof MODE_LABELS] || { label: mode, emoji: '✈️', cls: 'bg-muted/10 text-muted' }
+  const label = MODE_LABELS[mode] ?? mode
   return (
-    <span className="inline-flex items-center gap-1">
-      <span className={clsx('inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold', infoMode.cls)}>
-        {infoMode.emoji} {infoMode.label}
+    <span className="inline-flex items-center gap-1.5">
+      <span className="inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-semibold bg-parchment-dark text-ink-light border border-gray-300">
+        {label}
       </span>
       {premium && (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400">
-          💎 Premium
+        <span className="inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-semibold bg-gold/10 text-gold-dark">
+          Premium
         </span>
       )}
     </span>

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import React from 'react'
 import { PageLayout } from '../components/layout'
@@ -29,8 +28,8 @@ function BarreScore({ score }: { score: number }) {
   const color = pourcentage >= 80 ? 'bg-emerald-400' : pourcentage >= 60 ? 'bg-gold' : 'bg-coral'
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1 rounded-full bg-ink/10 dark:bg-white/10 overflow-hidden">
-        <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${pourcentage}%` }} />
+      <div className="flex-1 h-1 rounded-sm bg-ink/10 overflow-hidden">
+        <div className={`h-full rounded-sm ${color} transition-all duration-700`} style={{ width: `${pourcentage}%` }} />
       </div>
       <span className={`text-xs font-bold ${color.replace('bg-', 'text-')}`}>{pourcentage}%</span>
     </div>
@@ -64,9 +63,8 @@ export default function Trips() {
       <PageLayout>
       <Seo title="Mes voyages" path="/trips" noindex />
         <div className="text-center py-24">
-          <p className="text-5xl mb-4">🔒</p>
-          <h2 className="font-display text-2xl font-bold text-ink dark:text-parchment mb-2">Connexion requise</h2>
-          <p className="text-muted mb-6">Connecte-toi pour accéder à tes voyages sauvegardés.</p>
+          <h2 className="text-2xl font-bold text-ink mb-2">Connexion requise</h2>
+          <p className="text-muted mb-6">Connectez-vous pour accéder à vos voyages sauvegardés.</p>
           <Link to="/login" className="btn-primary">Se connecter</Link>
         </div>
       </PageLayout>
@@ -86,7 +84,7 @@ export default function Trips() {
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display text-3xl font-bold text-ink dark:text-parchment">Mes Voyages</h1>
+            <h1 className="text-3xl font-bold text-ink">Mes Voyages</h1>
             <p className="text-sm text-muted mt-1">
               {trips.length > 0 ? `${trips.length} itinéraire${trips.length > 1 ? 's' : ''} sauvegardé${trips.length > 1 ? 's' : ''}` : 'Aucun voyage pour l\'instant'}
             </p>
@@ -95,19 +93,19 @@ export default function Trips() {
           <div className="flex items-center gap-3">
             {trips.length > 0 && (
               <div className="flex gap-3">
-                <div className="glass-premium px-4 py-2.5 rounded-xl text-center">
+                <div className="glass-premium px-4 py-2.5 rounded-sm text-center">
                   <p className="text-[10px] text-muted uppercase tracking-wider font-semibold">Voyages</p>
-                  <p className="text-xl font-bold text-gold font-display">{trips.length}</p>
+                  <p className="text-xl font-bold text-gold-dark">{trips.length}</p>
                 </div>
-                <div className="glass-premium px-4 py-2.5 rounded-xl text-center">
+                <div className="glass-premium px-4 py-2.5 rounded-sm text-center">
                   <p className="text-[10px] text-muted uppercase tracking-wider font-semibold">Score moy.</p>
-                  <p className="text-xl font-bold text-gold font-display">{scoreMoyen}%</p>
+                  <p className="text-xl font-bold text-gold-dark">{scoreMoyen}%</p>
                 </div>
               </div>
             )}
             <Link to="/"
-              className="flex items-center gap-2 bg-gold hover:bg-gold/80 text-white px-4 py-2.5 rounded-xl
-                         text-sm font-bold transition-all shadow-glow-gold active:scale-95">
+              className="flex items-center gap-2 bg-gold hover:bg-gold/80 text-ink px-4 py-2.5 rounded-sm
+                         text-sm font-bold transition-all active:scale-95">
               + Nouveau
             </Link>
           </div>
@@ -122,8 +120,7 @@ export default function Trips() {
 
         {/* ── Error ── */}
         {error && (
-          <div className="text-center py-20 glass rounded-3xl border border-red-500/20">
-            <p className="text-4xl mb-3">⚠️</p>
+          <div className="text-center py-20 glass rounded-sm border border-red-500/20">
             <p className="text-muted mb-4">Impossible de charger vos voyages.</p>
             <button onClick={() => window.location.reload()} className="btn-primary">Réessayer</button>
           </div>
@@ -131,13 +128,12 @@ export default function Trips() {
 
         {/* ── Empty ── */}
         {!isLoading && trips.length === 0 && (
-          <div className="text-center py-24 glass-premium rounded-3xl shadow-glow-gold">
-            <p className="text-6xl mb-5">✈️</p>
-            <h3 className="font-display text-2xl font-bold text-ink dark:text-parchment mb-2">
+          <div className="text-center py-24 glass-premium rounded-sm">
+            <h3 className="text-2xl font-bold text-ink mb-2">
               Votre carnet est vide
             </h3>
             <p className="text-muted mb-8 max-w-sm mx-auto">
-              Laissez TripGenie vous concocter un itinéraire sur-mesure.
+              Décrivez votre prochain voyage, on s'occupe du reste.
             </p>
             <Link to="/" className="btn-primary px-8">Créer un voyage</Link>
           </div>
@@ -147,33 +143,26 @@ export default function Trips() {
         {trips.length > 0 && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {trips.map((trip, i) => (
-              <motion.div key={trip.id}
+              <div key={trip.id}
                 role="button"
                 tabIndex={0}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07, duration: 0.4, ease: 'easeOut' }}
                 onClick={() => navigate(`/trip/${trip.id}`)}
                 onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && navigate(`/trip/${trip.id}`)}
-                className="glass-premium rounded-2xl p-5 cursor-pointer
-                           hover:shadow-glow-gold hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-gold/60
+                className="glass-premium rounded-sm p-5 cursor-pointer
+                           focus:outline-none focus:ring-2 focus:ring-gold/60
                            transition-all duration-300 group relative overflow-hidden border border-transparent hover:border-gold/20"
               >
-                {/* Fond déco */}
-                <div className="absolute top-0 right-0 w-28 h-28 bg-gold/5 rounded-full -mr-14 -mt-14
-                                group-hover:bg-gold/10 transition-colors pointer-events-none" />
-
                 {/* Destination + supprimer */}
                 <div className="flex items-start justify-between mb-3 relative z-10">
                   <div className="min-w-0">
-                    <h3 className="font-display text-lg font-bold text-ink dark:text-parchment
-                                   truncate group-hover:text-gold transition-colors leading-tight">
+                    <h3 className="text-lg font-bold text-ink
+                                   truncate group-hover:text-gold-dark transition-colors leading-tight">
                       {trip.destination}
                     </h3>
                     <p className="text-xs text-muted mt-0.5">
-                      📅 {new Date(trip.departure).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                      {new Date(trip.departure).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}
                       {trip.return_date && trip.return_date !== trip.departure ? ` → ${new Date(trip.return_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })}` : ''}
-                      {' · '}👥 {trip.travelers || 2} pers.
+                      {' · '}{trip.travelers || 2} pers.
                     </p>
                   </div>
                   <button
@@ -191,13 +180,15 @@ export default function Trips() {
                 <div className="mb-4 relative z-10 flex items-center gap-2 flex-wrap">
                   <ModeBadge mode={trip.mode} premium={trip.premium} />
                   {trip.status === 'confirmed' && (
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full border bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
-                      🟢 Confirmé
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-sm border bg-sage/10 text-sage border-sage/20">
+                      <span className="w-2 h-2 rounded-full bg-sage" />
+                      Confirmé
                     </span>
                   )}
                   {trip.status === 'archived' && (
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full border bg-ink/5 text-muted border-ink/10 dark:bg-white/5 dark:border-white/10">
-                      ⬛ Archivé
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-sm border bg-ink/5 text-muted border-ink/10">
+                      <span className="w-2 h-2 rounded-full bg-ink/40" />
+                      Archivé
                     </span>
                   )}
                 </div>
@@ -214,16 +205,16 @@ export default function Trips() {
                 <div className="flex items-center justify-between border-t border-gold/10 pt-3 relative z-10">
                   <div>
                     <p className="text-[10px] text-muted uppercase tracking-widest font-semibold">Budget</p>
-                    <p className="text-base font-bold text-ink dark:text-parchment font-display">
+                    <p className="text-base font-bold text-ink">
                       {trip.budget || '—'}
                     </p>
                   </div>
-                  <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center text-gold
-                                  group-hover:bg-gold group-hover:text-white transition-all duration-300">
+                  <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center text-gold-dark
+                                  group-hover:bg-gold group-hover:text-ink transition-all duration-300">
                     →
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

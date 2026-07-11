@@ -1,9 +1,6 @@
 export interface Meteo {
   avg_temp: string;   // ex : "22°C"
   conditions: string; // ex : "Ensoleillé"
-  tip: string;        // conseil vestimentaire
-  humidity?: number;  // ex : 65 (%)
-  wind?: string;      // ex : "15 km/h"
 }
 
 export type TypeVol = 'outbound' | 'return';
@@ -41,7 +38,6 @@ export interface Hotel {
   stars: number;
   price_per_night: string; // ex : "150€"
   highlights: string;
-  emoji: string;
   match_reason?: string;
   booking_url?: string; // lien Booking pré-rempli (ville + dates + voyageurs)
   links?: HotelLinks;
@@ -185,7 +181,10 @@ export interface EnregistrementVoyage {
   updated_at: string;
 }
 
+// Ambiance du voyage (ce qu'on veut vivre). Voir la taxonomie dans constants.ts.
 export type TravelMode = 'party' | 'student' | 'group' | 'relax' | 'surprise';
+// Profil = avec qui on voyage (axe distinct de l'ambiance).
+export type Profile = 'solo' | 'couple' | 'amis' | 'famille';
 export type TripStatus = 'draft' | 'confirmed' | 'archived';
 
 export interface User {

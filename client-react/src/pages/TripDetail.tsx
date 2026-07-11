@@ -1,6 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { PageLayout } from '../components/layout'
 import Seo from '../components/Seo'
@@ -73,8 +72,7 @@ export default function TripDetail() {
       <PageLayout>
       <Seo title="Votre voyage" noindex />
         <div className="text-center py-24">
-          <p className="text-5xl mb-4">🔍</p>
-          <h2 className="font-display text-2xl font-bold text-ink dark:text-parchment mb-2">
+          <h2 className="text-2xl font-bold text-ink mb-2">
             Voyage introuvable
           </h2>
           <p className="text-muted mb-6">Ce lien de partage est invalide ou expiré.</p>
@@ -90,7 +88,7 @@ export default function TripDetail() {
       <Seo title="Votre voyage" noindex />
       {data?.trip && (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-5 items-start">
+          <div className="flex gap-5 items-start">
 
             {/* ── Left : Pack ── */}
             <div className="flex-1 min-w-0">
@@ -98,7 +96,7 @@ export default function TripDetail() {
               {/* Barre d'actions */}
               <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <p className="text-sm text-muted truncate max-w-[200px] sm:max-w-none">
-                  <span className="font-semibold text-ink dark:text-parchment">
+                  <span className="font-semibold text-ink">
                     {data.trip.destination}
                   </span>
                   {' · '}{data.trip.travelers} pers.
@@ -109,13 +107,13 @@ export default function TripDetail() {
                   {/* Bouton Modifier : visible partout, mais sur mobile ouvre la bottom sheet */}
                   <button
                     onClick={() => setChatOpen(v => !v)}
-                    className={`text-sm px-4 py-2 rounded-xl font-bold transition-all border flex items-center gap-1.5 ${
+                    className={`text-sm px-4 py-2 rounded-sm font-bold transition-all border flex items-center gap-1.5 ${
                       chatOpen
-                        ? 'bg-gold text-white border-gold shadow-glow-gold'
-                        : 'border-gold/30 text-gold hover:bg-gold/10'
+                        ? 'bg-gold text-ink border-gold'
+                        : 'border-gold/30 text-gold-dark hover:bg-gold/10'
                     }`}
                   >
-                    ✏️ {chatOpen ? 'Fermer' : 'Modifier'}
+                    {chatOpen ? 'Fermer' : 'Modifier'}
                   </button>
                 </div>
               </div>
@@ -125,20 +123,21 @@ export default function TripDetail() {
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
                   <span className="text-[10px] uppercase tracking-widest text-muted font-semibold">Statut :</span>
                   {[
-                    { key: 'draft',     label: '🟡 Brouillon',  desc: 'Pack généré, non validé' },
-                    { key: 'confirmed', label: '🟢 Confirmé',   desc: 'Je pars !' },
-                    { key: 'archived',  label: '⬛ Archivé',    desc: 'Voyage terminé' },
+                    { key: 'draft',     label: 'Brouillon', dot: 'bg-amber-400', desc: 'Pack généré, non validé' },
+                    { key: 'confirmed', label: 'Confirmé',  dot: 'bg-sage',      desc: 'Je pars !' },
+                    { key: 'archived',  label: 'Archivé',   dot: 'bg-ink/40',    desc: 'Voyage terminé' },
                   ].map(s => (
                     <button key={s.key}
                       onClick={() => gererStatut(s.key)}
                       disabled={statutEnChargement || status === s.key}
                       title={s.desc}
-                      className={`text-xs px-3 py-1.5 rounded-full border font-semibold transition-all ${
+                      className={`text-xs px-3 py-1.5 rounded-sm border font-semibold transition-all inline-flex items-center gap-1.5 ${
                         status === s.key
-                          ? 'bg-gold text-white border-gold'
-                          : 'border-gold/20 text-muted hover:border-gold/50 hover:text-ink dark:hover:text-parchment'
+                          ? 'bg-gold text-ink border-gold'
+                          : 'border-gold/20 text-muted hover:border-gold/50 hover:text-ink'
                       } disabled:opacity-50`}
                     >
+                      <span className={`w-2 h-2 rounded-full ${status === s.key ? 'bg-white' : s.dot}`} />
                       {s.label}
                     </button>
                   ))}
@@ -149,29 +148,25 @@ export default function TripDetail() {
             </div>
 
             {/* ── Right : Chat modifier (desktop uniquement lg+) ── */}
-            <AnimatePresence>
+            
               {chatOpen && (
-                <motion.div
+                <div
                   key="modify-panel"
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 24 }}
-                  transition={{ duration: 0.25 }}
                   className="hidden lg:flex flex-col flex-shrink-0 sticky top-20"
                   style={{ width: 340, height: 'calc(100vh - 6rem)' }}
                 >
-                  <div className="glass-premium rounded-2xl overflow-hidden h-full flex flex-col border border-gold/20 shadow-glow-gold">
+                  <div className="glass-premium rounded-sm overflow-hidden h-full flex flex-col border border-gold/20">
 
                     {/* Header du panel */}
                     <div className="px-4 py-3 border-b border-gold/10 flex items-center justify-between
                                     bg-gradient-to-r from-gold/5 to-transparent">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-light to-gold-dark
-                                        flex items-center justify-center shadow-glow-gold">
+                        <div className="w-8 h-8 rounded-full bg-gold-dark
+                                        flex items-center justify-center">
                           <Logo size={17} className="text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-ink dark:text-parchment leading-none">
+                          <p className="text-sm font-bold text-ink leading-none">
                             Modifier le pack
                           </p>
                           <p className="text-[11px] text-muted mt-0.5">{data.trip.destination}</p>
@@ -180,7 +175,7 @@ export default function TripDetail() {
                       <button
                         onClick={() => setChatOpen(false)}
                         className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center
-                                   text-muted hover:text-ink dark:hover:text-parchment transition-colors text-base"
+                                   text-muted hover:text-ink transition-colors text-base"
                       >
                         ×
                       </button>
@@ -191,13 +186,13 @@ export default function TripDetail() {
                       <p className="text-[10px] uppercase tracking-widest text-muted font-semibold mb-1.5">Pack actuel</p>
                       <div className="space-y-0.5 text-xs text-muted">
                         {data.trip.pack_data?.flights?.[0] && (
-                          <p>✈️ {data.trip.pack_data.flights[0].airline || 'Vol'} · {data.trip.pack_data.flights[0].price_per_person || '–'}/pers</p>
+                          <p>Vol · {data.trip.pack_data.flights[0].airline || 'Vol'} · {data.trip.pack_data.flights[0].price_per_person || '–'}/pers</p>
                         )}
                         {data.trip.pack_data?.hotels?.[0] && (
-                          <p>🏨 {data.trip.pack_data.hotels[0].name} · {data.trip.pack_data.hotels[0].price_per_night || '–'}/nuit</p>
+                          <p>Hôtel · {data.trip.pack_data.hotels[0].name} · {data.trip.pack_data.hotels[0].price_per_night || '–'}/nuit</p>
                         )}
                         {data.trip.pack_data?.summary && (
-                          <p>📅 {data.trip.pack_data.summary.nights} nuits · {data.trip.pack_data.summary.activities_count || '–'} activités</p>
+                          <p>Séjour · {data.trip.pack_data.summary.nights} nuits · {data.trip.pack_data.summary.activities_count || '–'} activités</p>
                         )}
                       </div>
                     </div>
@@ -205,54 +200,46 @@ export default function TripDetail() {
                     {/* Chat */}
                     <ModifyChat tripId={id} mode={data.trip.mode} />
                   </div>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
+            
 
-          </motion.div>
+          </div>
 
           {/* ── Mobile : Bottom sheet (< lg uniquement) ── */}
-          <AnimatePresence>
+          
             {chatOpen && (
               <>
                 {/* Overlay sombre */}
-                <motion.div
+                <div
                   key="mobile-overlay"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
                   className="fixed inset-0 z-40 bg-black/60 lg:hidden"
                   onClick={() => setChatOpen(false)}
                 />
 
                 {/* Sheet qui monte du bas */}
-                <motion.div
+                <div
                   key="mobile-chat-sheet"
-                  initial={{ y: '100%' }}
-                  animate={{ y: 0 }}
-                  exit={{ y: '100%' }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-                  className="fixed bottom-0 left-0 right-0 z-50 lg:hidden rounded-t-3xl overflow-hidden"
+                  className="fixed bottom-0 left-0 right-0 z-50 lg:hidden rounded-t-sm overflow-hidden"
                   style={{ height: '88vh' }}
                 >
-                  <div className="glass-premium h-full flex flex-col border-t border-x border-gold/20 shadow-glow-gold rounded-t-3xl">
+                  <div className="glass-premium h-full flex flex-col border-t border-x border-gold/20 rounded-t-sm">
 
                     {/* Barre de glissement */}
                     <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-                      <div className="w-10 h-1 rounded-full bg-white/20" />
+                      <div className="w-10 h-1 rounded-sm bg-white/20" />
                     </div>
 
                     {/* Header */}
                     <div className="px-4 py-3 border-b border-gold/10 flex items-center justify-between
                                     bg-gradient-to-r from-gold/5 to-transparent flex-shrink-0">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gold-light to-gold-dark
-                                        flex items-center justify-center shadow-glow-gold">
+                        <div className="w-8 h-8 rounded-full bg-gold-dark
+                                        flex items-center justify-center">
                           <Logo size={17} className="text-white" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-ink dark:text-parchment leading-none">
+                          <p className="text-sm font-bold text-ink leading-none">
                             Modifier le pack
                           </p>
                           <p className="text-[11px] text-muted mt-0.5">{data.trip.destination}</p>
@@ -261,7 +248,7 @@ export default function TripDetail() {
                       <button
                         onClick={() => setChatOpen(false)}
                         className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center
-                                   text-muted hover:text-ink dark:hover:text-parchment transition-colors text-lg"
+                                   text-muted hover:text-ink transition-colors text-lg"
                       >
                         ×
                       </button>
@@ -272,13 +259,13 @@ export default function TripDetail() {
                       <p className="text-[10px] uppercase tracking-widest text-muted font-semibold mb-1.5">Pack actuel</p>
                       <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted">
                         {data.trip.pack_data?.flights?.[0] && (
-                          <span>✈️ {data.trip.pack_data.flights[0].airline || 'Vol'} · {data.trip.pack_data.flights[0].price_per_person || '–'}/pers</span>
+                          <span>Vol · {data.trip.pack_data.flights[0].airline || 'Vol'} · {data.trip.pack_data.flights[0].price_per_person || '–'}/pers</span>
                         )}
                         {data.trip.pack_data?.hotels?.[0] && (
-                          <span>🏨 {data.trip.pack_data.hotels[0].name} · {data.trip.pack_data.hotels[0].price_per_night || '–'}/nuit</span>
+                          <span>Hôtel · {data.trip.pack_data.hotels[0].name} · {data.trip.pack_data.hotels[0].price_per_night || '–'}/nuit</span>
                         )}
                         {data.trip.pack_data?.summary && (
-                          <span>📅 {data.trip.pack_data.summary.nights} nuits · {data.trip.pack_data.summary.activities_count || '–'} activités</span>
+                          <span>Séjour · {data.trip.pack_data.summary.nights} nuits · {data.trip.pack_data.summary.activities_count || '–'} activités</span>
                         )}
                       </div>
                     </div>
@@ -288,31 +275,30 @@ export default function TripDetail() {
                       <ModifyChat tripId={id} mode={data.trip.mode} />
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </>
             )}
-          </AnimatePresence>
+          
 
           {/* ── Mobile FAB flottant (< lg) — visible quand chat fermé ── */}
-          <AnimatePresence>
+          
             {!chatOpen && (
-              <motion.button
+              <button
                 key="mobile-fab"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                 onClick={() => setChatOpen(true)}
                 className="fixed bottom-20 right-4 z-40 lg:hidden w-14 h-14 rounded-full
-                           bg-gradient-to-br from-gold-light to-gold-dark text-white text-2xl
-                           shadow-xl shadow-gold/40 flex items-center justify-center
+                           bg-gold hover:bg-gold-dark text-ink
+                           shadow-sm flex items-center justify-center
                            active:scale-95 transition-transform"
                 aria-label="Modifier le pack"
               >
-                ✏️
-              </motion.button>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
+              </button>
             )}
-          </AnimatePresence>
+          
         </>
       )}
     </PageLayout>
