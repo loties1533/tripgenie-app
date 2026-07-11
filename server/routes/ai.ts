@@ -43,16 +43,18 @@ interface VolCalcule {
 
 const schemaMode = z.enum(MODES_LIST as [TravelMode, ...TravelMode[]]);
 
-// Normalisation des modes : accepte les synonymes FR (fête→party, détente→relax…) et la casse,
-// pour ne pas planter quand le LLM renvoie le mot français saisi par l'utilisateur.
-// NB : « luxe » n'est plus un mode (c'est le niveau de prix `premium`, axe distinct) →
-// on le rabat sur 'relax' (vibe la plus proche) pour ne pas perdre la saisie.
+// Normalisation du mode : on accepte les synonymes français d'une même orientation
+// (fête→party, détente→relax…) et la casse, pour ne pas planter quand le LLM renvoie
+// le mot saisi par l'utilisateur.
+// On ne mappe QUE des synonymes de la même orientation. Un mot qui appartient à un
+// autre critère n'a rien à faire ici : « couple », « amis », « famille » relèvent du
+// profil (avec qui on part), « luxe » du niveau de prix (premium). Les rabattre sur un
+// mode mélangeait deux critères ; on les laisse donc à leur critère respectif.
 const MODE_ALIASES: Record<string, string> = {
-  luxe: 'relax', luxueux: 'relax',
-  fete: 'party', 'fête': 'party', party: 'party', 'soirée': 'party', soiree: 'party', amis: 'party',
-  detente: 'relax', 'détente': 'relax', relax: 'relax', calme: 'relax', repos: 'relax', couple: 'relax', romantique: 'relax',
-  etudiant: 'student', 'étudiant': 'student', student: 'student', budget: 'student',
-  groupe: 'group', group: 'group', famille: 'group', family: 'group',
+  fete: 'party', 'fête': 'party', party: 'party', 'soirée': 'party', soiree: 'party',
+  detente: 'relax', 'détente': 'relax', relax: 'relax', calme: 'relax', repos: 'relax',
+  etudiant: 'student', 'étudiant': 'student', student: 'student',
+  groupe: 'group', group: 'group',
   surprise: 'surprise',
 };
 function canonicalMode(v: unknown): string | undefined {
