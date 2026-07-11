@@ -66,7 +66,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
         {
           role: 'assistant',
           text: donneesReponse.response
-            || (aDesModifs ? 'Modification effectuée ✓' : "Je n'ai pas réussi à appliquer ce changement — tu peux reformuler ?"),
+            || (aDesModifs ? 'Modification effectuée' : "Je n'ai pas réussi à appliquer ce changement — pouvez-vous reformuler ?"),
         },
       ])
     } catch {
@@ -89,14 +89,14 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {m.role === 'assistant' && (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+              <div className="w-6 h-6 rounded-full bg-gold-dark flex items-center justify-center mr-2 mt-1 flex-shrink-0">
                 <Logo size={13} className="text-white" />
               </div>
             )}
-            <div className={`max-w-[82%] px-3.5 py-2.5 rounded-md text-sm leading-relaxed ${
+            <div className={`max-w-[82%] px-3.5 py-2.5 rounded-sm text-sm leading-relaxed ${
               m.role === 'user'
-                ? 'bg-gold text-white rounded-br-sm'
-                : 'glass text-ink rounded-bl-sm border border-gold/10'
+                ? 'bg-gold text-ink'
+                : 'glass text-ink border border-gold/10'
             }`}>
               {m.text}
             </div>
@@ -105,13 +105,13 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
 
         {chargement && (
           <div className="flex justify-start">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+            <div className="w-6 h-6 rounded-full bg-gold-dark flex items-center justify-center mr-2 mt-1 flex-shrink-0">
               <Logo size={13} className="text-white" />
             </div>
-            <div className="glass px-4 py-3 rounded-md rounded-bl-sm border border-gold/10">
+            <div className="glass px-4 py-3 rounded-sm border border-gold/10">
               <span className="flex gap-1.5 items-center">
                 {[0, 150, 300].map(delay => (
-                  <span key={delay} className="w-1.5 h-1.5 rounded-full bg-gold animate-bounce"
+                  <span key={delay} className="w-1.5 h-1.5 rounded-sm bg-gold animate-bounce"
                     style={{ animationDelay: `${delay}ms` }} />
                 ))}
               </span>
@@ -126,7 +126,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
         <div className="px-4 pb-2 flex flex-wrap gap-2">
           {SUGGESTIONS.map(s => (
             <button key={s} onClick={() => envoyer(s)}
-              className="text-[11px] px-3 py-1.5 rounded-full border border-gold/30 text-gold hover:bg-gold/10 transition-colors">
+              className="text-[11px] px-3 py-1.5 rounded-sm border border-gold/30 text-gold-dark hover:bg-gold/10 transition-colors">
               {s}
             </button>
           ))}
@@ -141,15 +141,15 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && envoyer()}
             placeholder="Remplace l'hôtel par..."
-            className="flex-1 bg-ink/5 border border-gold/20 rounded-md px-3.5 py-2.5 text-sm
+            className="flex-1 bg-ink/5 border border-gold/20 rounded-sm px-3.5 py-2.5 text-sm
                        text-ink placeholder:text-muted
                        focus:outline-none focus:border-gold/50 transition-colors"
           />
           <button
             onClick={() => envoyer()}
             disabled={chargement || !input.trim()}
-            className="bg-gold hover:bg-gold/80 disabled:opacity-30 text-white
-                       w-10 h-10 rounded-md font-bold transition-all flex items-center justify-center"
+            className="bg-gold hover:bg-gold/80 disabled:opacity-30 text-ink
+                       w-10 h-10 rounded-sm font-bold transition-all flex items-center justify-center"
           >
             ↑
           </button>

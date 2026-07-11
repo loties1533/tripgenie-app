@@ -23,7 +23,7 @@ export function Header() {
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group" onClick={() => setMenuOpen(false)}>
-          <Logo size={40} className="text-gold transition-transform group-hover:scale-105" />
+          <Logo size={40} className="text-gold-dark" />
           <div className="flex flex-col">
             <span className="font-bold text-ink text-xl leading-none tracking-tight">TripGenie</span>
             <span className="hidden sm:block text-[10px] text-gold-dark font-bold uppercase tracking-widest mt-1">Voyages sur-mesure</span>
@@ -31,9 +31,9 @@ export function Header() {
         </Link>
 
         {/* Nav — Desktop */}
-        <nav className="hidden sm:flex items-center bg-parchment-dark/50 p-1 rounded-md border border-gold/10">
+        <nav className="hidden sm:flex items-center bg-parchment-dark/50 p-1 rounded-sm border border-gold/10">
           <Link to="/"
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all
+            className={`px-4 py-1.5 rounded-sm text-sm font-medium transition-all
               ${emplacement.pathname === '/'
                 ? 'text-ink bg-white shadow-sm'
                 : 'text-muted hover:text-ink'
@@ -41,16 +41,16 @@ export function Header() {
             Accueil
           </Link>
           <Link to="/trips"
-            className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all flex items-center gap-2
+            className={`px-4 py-1.5 rounded-sm text-sm font-bold transition-all flex items-center gap-2
               ${emplacement.pathname === '/trips'
-                ? 'text-white bg-gold'
-                : 'text-gold hover:bg-gold/10'
+                ? 'text-ink bg-gold'
+                : 'text-ink hover:bg-gold/10'
               }`}>
             Mes voyages
           </Link>
           {user && (
             <Link to="/preferences"
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all
+              className={`px-4 py-1.5 rounded-sm text-sm font-medium transition-all
                 ${emplacement.pathname === '/preferences'
                   ? 'text-ink bg-white shadow-sm'
                   : 'text-muted hover:text-ink'
@@ -70,7 +70,7 @@ export function Header() {
                   <span className="text-[10px] text-muted mt-0.5">Membre</span>
                 </div>
                 <button onClick={gererDeconnexion}
-                  className="w-9 h-9 rounded-md bg-coral/10 text-coral border border-coral/20 
+                  className="w-9 h-9 rounded-sm bg-coral/10 text-coral border border-coral/20 
                              hover:bg-coral hover:text-white transition-all flex items-center justify-center group">
                   <IconeDeconnexion />
                 </button>
@@ -83,8 +83,8 @@ export function Header() {
           {/* Hamburger — Mobile only */}
           <button
             onClick={() => setMenuOpen(o => !o)}
-            className="sm:hidden w-9 h-9 rounded-md bg-parchment-dark border border-gold/10
-                       flex items-center justify-center text-muted hover:text-gold transition-colors"
+            className="sm:hidden w-9 h-9 rounded-sm bg-parchment-dark border border-gold/10
+                       flex items-center justify-center text-muted hover:text-gold-dark transition-colors"
             aria-label="Menu"
           >
             <span className="text-lg">{menuOpen ? '✕' : '☰'}</span>
@@ -100,16 +100,16 @@ export function Header() {
           >
             <nav className="flex flex-col gap-1 p-4">
               <Link to="/" onClick={() => setMenuOpen(false)}
-                className={`px-4 py-3 rounded-md text-sm font-medium transition-all ${emplacement.pathname === '/' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink'}`}>
+                className={`px-4 py-3 rounded-sm text-sm font-medium transition-all ${emplacement.pathname === '/' ? 'bg-gold/10 text-gold-dark' : 'text-muted hover:text-ink'}`}>
                 Accueil
               </Link>
               <Link to="/trips" onClick={() => setMenuOpen(false)}
-                className={`px-4 py-3 rounded-md text-sm font-bold transition-all flex items-center gap-2 ${emplacement.pathname === '/trips' ? 'bg-gold text-white' : 'text-gold hover:bg-gold/10'}`}>
+                className={`px-4 py-3 rounded-sm text-sm font-bold transition-all flex items-center gap-2 ${emplacement.pathname === '/trips' ? 'bg-gold text-ink' : 'text-ink hover:bg-gold/10'}`}>
                 Mes voyages
               </Link>
               {user && (
                 <Link to="/preferences" onClick={() => setMenuOpen(false)}
-                  className={`px-4 py-3 rounded-md text-sm font-medium transition-all flex items-center gap-2 ${emplacement.pathname === '/preferences' ? 'bg-gold/10 text-gold' : 'text-muted hover:text-ink'}`}>
+                  className={`px-4 py-3 rounded-sm text-sm font-medium transition-all flex items-center gap-2 ${emplacement.pathname === '/preferences' ? 'bg-gold/10 text-gold-dark' : 'text-muted hover:text-ink'}`}>
                   Préférences
                 </Link>
               )}
@@ -118,12 +118,12 @@ export function Header() {
                 ? <>
                     <div className="px-4 py-2 text-xs text-muted">Connecté en tant que <span className="font-semibold text-ink">{user.name}</span></div>
                     <button onClick={gererDeconnexion}
-                      className="px-4 py-3 rounded-md text-sm font-medium text-coral hover:bg-coral/10 transition-all text-left">
-                      🚪 Déconnexion
+                      className="px-4 py-3 rounded-sm text-sm font-medium text-coral hover:bg-coral/10 transition-all text-left">
+                      Déconnexion
                     </button>
                   </>
                 : <Link to="/login" onClick={() => setMenuOpen(false)}
-                    className="px-4 py-3 rounded-md text-sm font-bold bg-gold text-white text-center transition-all">
+                    className="px-4 py-3 rounded-sm text-sm font-bold bg-gold text-ink text-center transition-all">
                     Connexion
                   </Link>
               }
@@ -153,61 +153,17 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      {/* Footer Premium */}
-      <footer className="relative mt-24 border-t border-gold/10 overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-ink" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-ink/80 to-ink" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[1px] bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
-
-        <div className="relative max-w-5xl mx-auto px-6 py-12">
-          {/* Top footer */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-12">
-            {/* Brand */}
-            <div>
-              <div className="flex items-center gap-3 mb-5">
-                <Logo size={32} className="text-gold" />
-                <span className="font-bold text-white text-lg">TripGenie</span>
-              </div>
-              <p className="text-white/40 text-sm leading-relaxed font-light">
-                L'intelligence artificielle au service de vos voyages, pensés dans le moindre détail.
-              </p>
-            </div>
-
-            {/* Destinations */}
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-5">Destinations</p>
-              <ul className="space-y-2.5">
-                {['Ibiza', 'Mykonos', 'Amalfi', 'Bali', 'Maldives', 'Bangkok'].map(d => (
-                  <li key={d}>
-                    <span className="text-white/40 text-sm">{d}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Expériences */}
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-5">Styles de voyage</p>
-              <ul className="space-y-2.5">
-                {['Fête', 'Détente', 'En groupe', 'Étudiant', 'Surprise'].map(e => (
-                  <li key={e}>
-                    <span className="text-white/40 text-sm">{e}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* Footer */}
+      <footer className="mt-24 border-t border-gray-200 bg-parchment-dark">
+        <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <Logo size={28} className="text-gold-dark" />
+            <span className="font-bold text-ink">TripGenie</span>
           </div>
-
-          {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8" />
-
-          {/* Bottom footer */}
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-white/20 text-xs font-light tracking-wider">
-              © 2026 TripGenie — Tous droits réservés
-            </p>
-          </div>
+          <p className="text-muted text-sm text-center sm:text-left max-w-md">
+            Décrivez votre voyage, on s'occupe des détails : destinations, vols, hébergement et budget.
+          </p>
+          <p className="text-muted text-xs">© 2026 TripGenie</p>
         </div>
       </footer>
     </div>

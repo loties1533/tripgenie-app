@@ -24,21 +24,21 @@ function computeReturnDate(departure: string, durationDays: number): string {
 // Formatage du récap
 function buildRecapMessage(data: Record<string, unknown>): string {
   const profileMap: Record<string, string> = {
-    couple:  'Duo Romantique 💑',
-    amis:    'Entre Amis 🥂',
-    famille: 'En Famille 👨‍👩‍👧',
-    solo:    'Solo & Liberté 🌍',
+    couple:  'En couple',
+    amis:    'Entre amis',
+    famille: 'En famille',
+    solo:    'En solo',
   }
   const modeMap: Record<string, string> = {
-    party:    'Fête 🎉',
-    student:  'Étudiant 🎓',
-    group:    'Groupe 👥',
-    relax:    'Détente 🌿',
-    surprise: 'Surprise 🎁',
+    party:    'Fête',
+    student:  'Étudiant',
+    group:    'Groupe',
+    relax:    'Détente',
+    surprise: 'Surprise',
   }
   const profile   = profileMap[data.profile as string] || (data.profile as string) || '—'
   const style     = modeMap[data.mode as string] || (data.mode as string) || '—'
-  const gamme     = data.premium ? ' · Premium 💎' : ''
+  const gamme     = data.premium ? ' · Premium' : ''
   const travelers = data.travelers
     ? `${data.travelers} personne${(data.travelers as number) > 1 ? 's' : ''}`
     : '—'
@@ -47,7 +47,7 @@ function buildRecapMessage(data: Record<string, unknown>): string {
     ? `${Number(data.budget).toLocaleString('fr-FR')}€`
     : '—'
   // FIX 5 : departure manquant = avertissement visible, pas '—' silencieux
-  const departure = (data.departure as string) || '⚠️ date non définie'
+  const departure = (data.departure as string) || 'date non précisée'
   const duration  = data.duration
     ? `${data.duration} jour${(data.duration as number) > 1 ? 's' : ''}`
     : '—'
@@ -62,10 +62,10 @@ const QUIZ_STEPS = [
     key:      'occasion',
     question: "Quelle est l'occasion de ce voyage ?",
     chips: [
-      { label: 'Duo Romantique 💑',    data: { profile: 'couple'  } },
-      { label: 'Entre Amis 🥂',       data: { profile: 'amis'    } },
-      { label: 'En Famille 👨‍👩‍👧',     data: { profile: 'famille' } },
-      { label: 'Solo & Liberté 🌍',   data: { profile: 'solo'    } },
+      { label: 'En couple',  data: { profile: 'couple'  } },
+      { label: 'Entre amis', data: { profile: 'amis'    } },
+      { label: 'En famille', data: { profile: 'famille' } },
+      { label: 'En solo',    data: { profile: 'solo'    } },
     ]
   },
   {
@@ -74,11 +74,11 @@ const QUIZ_STEPS = [
     key:      'style',
     question: 'Quelle ambiance pour ce voyage ?',
     chips: [
-      { label: '🎉 Fête',     data: { mode: 'party'    } },
-      { label: '🎓 Étudiant', data: { mode: 'student'  } },
-      { label: '👥 Groupe',   data: { mode: 'group'    } },
-      { label: '🌿 Détente',  data: { mode: 'relax'    } },
-      { label: '🎁 Surprise', data: { mode: 'surprise' } },
+      { label: 'Fête',     data: { mode: 'party'    } },
+      { label: 'Étudiant', data: { mode: 'student'  } },
+      { label: 'Groupe',   data: { mode: 'group'    } },
+      { label: 'Détente',  data: { mode: 'relax'    } },
+      { label: 'Surprise', data: { mode: 'surprise' } },
     ]
   },
   {
@@ -87,8 +87,8 @@ const QUIZ_STEPS = [
     key:      'premium',
     question: 'Quel standing pour ce voyage ?',
     chips: [
-      { label: '✨ Classique', data: { premium: false } },
-      { label: '💎 Premium',   data: { premium: true  } },
+      { label: 'Classique', data: { premium: false } },
+      { label: 'Premium',   data: { premium: true  } },
     ]
   },
   {
@@ -99,7 +99,7 @@ const QUIZ_STEPS = [
       { label: '3-4 personnes',     data: { travelers: 4 } },
       { label: '5-8 personnes',     data: { travelers: 6 } },
       // Au-delà de 8 : on laisse saisir le nombre EXACT (input inline), pas un preset flou.
-      { label: '✏️ Nombre exact...', data: null            },
+      { label: 'Nombre exact…', data: null            },
     ]
   },
   {
@@ -109,7 +109,7 @@ const QUIZ_STEPS = [
       { label: 'Dès 1 500€',         data: { budget: 1500  } },
       { label: 'Environ 5 000€',     data: { budget: 5000  } },
       { label: '10 000€ et +',       data: { budget: 15000 } },
-      { label: '✏️ Montant précis...', data: null },
+      { label: 'Montant précis…', data: null },
     ]
   },
   {
@@ -121,7 +121,7 @@ const QUIZ_STEPS = [
     chips: [
       { label: 'Ce week-end',        data: () => ({ departure: ajouterJours(3) }) },
       { label: 'La semaine prochaine', data: () => ({ departure: ajouterJours(7) }) },
-      { label: '📅 Date précise...', data: null },
+      { label: 'Date précise…', data: null },
     ]
   },
   {
@@ -157,7 +157,7 @@ function Message({ msg, onChipClick }: { msg: any; onChipClick?: (label: string)
     >
       {isBot && (
         <div className="w-7 h-7 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-1">
-          <Logo size={15} className="text-gold" />
+          <Logo size={15} className="text-gold-dark" />
         </div>
       )}
       <div className={`max-w-[78%] flex flex-col gap-2 ${isBot ? 'items-start' : 'items-end'}`}>
@@ -223,17 +223,17 @@ function InlineInput({
       {mode === 'date' ? (
         <>
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] uppercase tracking-widest text-gold font-semibold">Date de départ</label>
+            <label className="text-[10px] uppercase tracking-widest text-gold-dark font-semibold">Date de départ</label>
             <input
               type="date"
               min={today}
               value={dateRange.departure}
               onChange={e => setDateRange({ ...dateRange, departure: e.target.value })}
-              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-md px-3 py-2 text-sm text-ink outline-none transition-colors w-44"
+              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-sm px-3 py-2 text-sm text-ink outline-none transition-colors w-44"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] uppercase tracking-widest text-gold font-semibold">
+            <label className="text-[10px] uppercase tracking-widest text-gold-dark font-semibold">
               Date de retour <span className="text-muted normal-case">(optionnel)</span>
             </label>
             <input
@@ -241,13 +241,13 @@ function InlineInput({
               min={dateRange.departure || today}
               value={dateRange.return_date}
               onChange={e => setDateRange({ ...dateRange, return_date: e.target.value })}
-              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-md px-3 py-2 text-sm text-ink outline-none transition-colors w-44"
+              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-sm px-3 py-2 text-sm text-ink outline-none transition-colors w-44"
             />
           </div>
         </>
       ) : mode === 'travelers' ? (
         <div className="flex flex-col gap-1">
-          <label className="text-[10px] uppercase tracking-widest text-gold font-semibold">Nombre de voyageurs</label>
+          <label className="text-[10px] uppercase tracking-widest text-gold-dark font-semibold">Nombre de voyageurs</label>
           <input
             type="number"
             min={1}
@@ -257,12 +257,12 @@ function InlineInput({
             onChange={e => setTravelersCount(
               e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1)
             )}
-            className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-md px-3 py-2 text-sm text-ink outline-none transition-colors w-32"
+            className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-sm px-3 py-2 text-sm text-ink outline-none transition-colors w-32"
           />
         </div>
       ) : (
         <div className="flex flex-col gap-1">
-          <label className="text-[10px] uppercase tracking-widest text-gold font-semibold">Budget total (€)</label>
+          <label className="text-[10px] uppercase tracking-widest text-gold-dark font-semibold">Budget total (€)</label>
           <div className="flex items-center gap-2">
             <input
               type="number"
@@ -274,20 +274,20 @@ function InlineInput({
               onChange={e => setBudgetAmount(
                 e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1)
               )}
-              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-md px-3 py-2 text-sm text-ink outline-none transition-colors w-32"
+              className="bg-ink/5 border border-gold/30 focus:border-gold/70 rounded-sm px-3 py-2 text-sm text-ink outline-none transition-colors w-32"
             />
-            <span className="text-gold text-sm font-semibold">€</span>
+            <span className="text-gold-dark text-sm font-semibold">€</span>
           </div>
         </div>
       )}
       <div className="flex gap-2 mt-1">
         <button onClick={onConfirm} disabled={!canConfirm}
           className="chip text-sm hover:border-gold/60 hover:bg-gold/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-          Confirmer ✓
+          Confirmer
         </button>
         <button onClick={onCancel}
           className="chip text-sm opacity-60 hover:opacity-100 transition-all">
-          ← Retour
+          Retour
         </button>
       </div>
     </div>
@@ -418,7 +418,7 @@ export default function ChatWidget() {
   const inputRef   = useRef<HTMLTextAreaElement>(null)
   const initRef    = useRef<boolean>(false)
   // FIX 11 : ref de montage — empêche setField sur composant démonté.
-  // ⚠️ On REMET à true à chaque (re)montage : en React.StrictMode (dev), le cycle
+  // Note : on REMET à true à chaque (re)montage : en React.StrictMode (dev), le cycle
   // mount→unmount→remount laisserait sinon mountedRef à false → le guard bloquerait
   // setField('concepts') et les cartes n'apparaîtraient jamais ("ça charge, rien n'arrive").
   const mountedRef = useRef(true)
@@ -520,7 +520,7 @@ export default function ChatWidget() {
       setAwaitingConfirm(true)
       setTimeout(() => addMessage({
         role: 'bot',
-        text: "⚠️ Il manque la date de départ. Cliquez sur ✏️ Modifier pour la renseigner.",
+        text: "Il manque la date de départ. Cliquez sur « Modifier » pour la renseigner.",
       }), 100)
       return
     }
@@ -667,8 +667,8 @@ export default function ChatWidget() {
         {isMockMode && (
           <div
             className="mx-4 mt-2 px-3 py-1.5 bg-amber-50 border border-amber-200
-                       rounded-md text-xs text-amber-700 flex items-center gap-1.5">
-            <span>⚡</span> Mode démonstration actif (quotas IA saturés)
+                       rounded-sm text-xs text-amber-700">
+            Mode démonstration — résultats d'exemple
           </div>
         )}
       
@@ -725,11 +725,11 @@ export default function ChatWidget() {
                 className="flex flex-wrap gap-2 pl-9">
                 <button onClick={handleModify}
                   className="chip text-sm hover:border-gold/60 hover:bg-gold/10 transition-all">
-                  ✏️ Modifier
+                  Modifier
                 </button>
                 <button onClick={handleConfirm} disabled={isTyping}
                   className="chip text-sm hover:border-gold/60 hover:bg-gold/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
-                  C'est parfait →
+                  C'est parfait
                 </button>
               </div>
             ) : (
@@ -743,7 +743,7 @@ export default function ChatWidget() {
             <div className="flex gap-2 justify-start"
 >
               <div className="w-7 h-7 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0 mt-1">
-                <Logo size={15} className="text-gold" />
+                <Logo size={15} className="text-gold-dark" />
               </div>
               <div className="bubble-bot"><TypingDots /></div>
             </div>
@@ -754,7 +754,7 @@ export default function ChatWidget() {
       {/* Input texte libre (mode freeform uniquement) */}
       {!quizMode && (
         <div className="px-4 pb-4 pt-2">
-          <div className="flex gap-2 items-end bg-white/60 backdrop-blur-md border border-gold/20 rounded-md p-1 shadow-inner">
+          <div className="flex gap-2 items-end bg-white/60 backdrop-blur-md border border-gold/20 rounded-sm p-1 shadow-inner">
             <textarea
               ref={inputRef}
               value={input}
@@ -774,11 +774,11 @@ export default function ChatWidget() {
             <button
               onClick={sendMessage}
               disabled={!input.trim() || sending}
-              className="w-11 h-11 rounded-md bg-gold text-white flex items-center justify-center
+              className="w-11 h-11 rounded-sm bg-gold text-ink flex items-center justify-center
                          disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gold-dark
                          transition-all duration-200 flex-shrink-0 hover:shadow-none">
               {sending
-                ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ? <span className="w-4 h-4 border-2 border-ink/30 border-t-ink rounded-full animate-spin" />
                 : <SendIcon />}
             </button>
           </div>

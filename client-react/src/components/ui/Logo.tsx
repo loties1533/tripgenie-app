@@ -1,6 +1,6 @@
 // Logo TripGenie — boussole + monogramme T (voyage + marque).
 // Emblème vectoriel unique, réutilisé partout (header, footer, chat, chargement).
-// La couleur suit `currentColor` : on la pilote via une classe Tailwind (ex. text-gold).
+// La couleur suit `currentColor` : on la pilote via une classe Tailwind (ex. text-gold-dark).
 export default function Logo({ size = 40, className = '' }: { size?: number; className?: string }) {
   return (
     <svg

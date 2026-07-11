@@ -7,11 +7,11 @@ import { useAuthStore } from '../store'
 import { getPreferences, savePreferences } from '../lib/api'
 
 const MODES = [
-  { value: 'party',    label: '🎉 Fête' },
-  { value: 'student',  label: '🎓 Étudiant' },
-  { value: 'group',    label: '👥 Groupe' },
-  { value: 'relax',    label: '🌿 Détente' },
-  { value: 'surprise', label: '🎁 Surprise' },
+  { value: 'party',    label: 'Fête' },
+  { value: 'student',  label: 'Étudiant' },
+  { value: 'group',    label: 'Groupe' },
+  { value: 'relax',    label: 'Détente' },
+  { value: 'surprise', label: 'Surprise' },
 ]
 const INTERESTS  = ['gastronomie', 'culture', 'nightlife', 'nature', 'shopping', 'sport', 'plage', 'histoire']
 
@@ -68,7 +68,7 @@ export default function PreferencesPage() {
   }
 
   const classeInput = `w-full bg-white border border-parchment-dark
-    rounded-md px-4 py-3 text-sm text-ink placeholder:text-muted
+    rounded-sm px-4 py-3 text-sm text-ink placeholder:text-muted
     focus:outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/10 transition-all`
 
   return (
@@ -76,16 +76,15 @@ export default function PreferencesPage() {
       <Seo title="Préférences" path="/preferences" noindex />
       <div className="max-w-lg mx-auto py-12">
         <div
-          className="glass rounded-md p-8 border border-gold/20 shadow-card-lg">
+          className="glass rounded-sm p-8 border border-gold/20 shadow-card-lg">
 
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-ink">Mes préférences</h1>
-            <p className="text-sm text-muted mt-1">Elles pré-remplissent chaque nouveau voyage.</p>
           </div>
 
           {chargement
             ? <div className="py-12 flex justify-center">
-                <span className="w-6 h-6 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                <span className="w-6 h-6 border-2 border-gold/30 border-t-gold-dark rounded-full animate-spin" />
               </div>
             : <div className="space-y-5">
                 {/* Ville de départ */}
@@ -101,9 +100,9 @@ export default function PreferencesPage() {
                   <div className="grid grid-cols-3 gap-2">
                     {MODES.map(m => (
                       <button key={m.value} onClick={() => setMode(m.value)}
-                        className={`py-2.5 rounded-md text-sm font-medium border transition-all
+                        className={`py-2.5 rounded-sm text-sm font-medium border transition-all
                           ${mode === m.value
-                            ? 'bg-gold text-white border-gold'
+                            ? 'bg-gold text-ink border-gold'
                             : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40'}`}>
                         {m.label}
                       </button>
@@ -113,16 +112,16 @@ export default function PreferencesPage() {
 
                 {/* Niveau de prix (axe indépendant du mode) */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Gamme par défaut</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-muted mb-2">Niveau de confort par défaut</label>
                   <div className="grid grid-cols-2 gap-2">
                     {[
-                      { value: false, label: '✨ Classique' },
-                      { value: true,  label: '💎 Premium' },
+                      { value: false, label: 'Classique' },
+                      { value: true,  label: 'Premium' },
                     ].map(n => (
                       <button key={String(n.value)} onClick={() => setPremium(n.value)}
-                        className={`py-2.5 rounded-md text-sm font-medium border transition-all
+                        className={`py-2.5 rounded-sm text-sm font-medium border transition-all
                           ${premium === n.value
-                            ? 'bg-gold text-white border-gold'
+                            ? 'bg-gold text-ink border-gold'
                             : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40'}`}>
                         {n.label}
                       </button>
@@ -136,7 +135,7 @@ export default function PreferencesPage() {
                   <div className="flex flex-wrap gap-2">
                     {INTERESTS.map(i => (
                       <button key={i} onClick={() => basculerInteret(i)}
-                        className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all capitalize
+                        className={`px-3 py-1.5 rounded-sm text-sm font-medium border transition-all capitalize
                           ${interests.includes(i)
                             ? 'bg-sage/30 border-sage text-sage'
                             : 'bg-ink/5 border-ink/10 text-muted hover:border-gold/40'}`}>
@@ -149,7 +148,7 @@ export default function PreferencesPage() {
                 <button onClick={enregistrer} disabled={enregistrement}
                   className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
                   {enregistrement
-                    ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ? <span className="w-4 h-4 border-2 border-ink/30 border-t-ink rounded-full animate-spin" />
                     : 'Enregistrer mes préférences'}
                 </button>
               </div>

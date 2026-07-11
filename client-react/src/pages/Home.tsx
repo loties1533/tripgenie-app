@@ -39,11 +39,11 @@ function PhotoVille({ city, photo }: { city: string; photo?: string }) {
 
 /* ─────────────── Hero compact (visible uniquement sans pack) ─────────────── */
 const HERO_SLIDES = [
-  { img: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1920&q=90', city: "Côte d'Azur", label: "L'Excellence méditerranéenne" },
-  { img: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1920&q=90', city: 'Maldives', label: "L'île de tous les rêves" },
-  { img: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1920&q=90', city: 'Amalfi', label: "L'élégance italienne" },
-  { img: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?auto=format&fit=crop&w=1920&q=90', city: 'Mykonos', label: 'La fête en blanc et or' },
-  { img: 'https://images.unsplash.com/photo-1499856844078-53e0f0c4ee5c?auto=format&fit=crop&w=1920&q=90', city: 'Paris', label: "L'éternel raffinement" },
+  { img: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1920&q=90', city: "Côte d'Azur" },
+  { img: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1920&q=90', city: 'Maldives' },
+  { img: 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1920&q=90', city: 'Amalfi' },
+  { img: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?auto=format&fit=crop&w=1920&q=90', city: 'Mykonos' },
+  { img: 'https://images.unsplash.com/photo-1499856844078-53e0f0c4ee5c?auto=format&fit=crop&w=1920&q=90', city: 'Paris' },
 ]
 
 function Hero() {
@@ -85,17 +85,8 @@ function Hero() {
           className="text-4xl sm:text-6xl lg:text-[5.5rem] font-bold text-white leading-[1.0] mb-5 drop-shadow-2xl">
           Votre voyage,
           <br />
-          <span className="font-light">généré sur-mesure.</span>
+          <span className="font-light">on s'occupe du reste.</span>
         </h1>
-
-        <div>
-          <button
-            onClick={() => document.getElementById('chat-section')?.scrollIntoView({ behavior: 'smooth' })}
-            className="flex items-center gap-2 mx-auto text-parchment/70 hover:text-gold text-sm tracking-widest uppercase transition-colors animate-bounce-slow">
-            <span>Commencer</span>
-            <span className="text-lg">↓</span>
-          </button>
-        </div>
       </div>
     </section>
   )
@@ -112,13 +103,13 @@ function ChatSection() {
       {/* Pitch d'intro — explique le concept 2 valeurs sûres + 1 pépite */}
       <div className="relative mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
-          { n: '1', t: 'Décrivez votre voyage', d: 'En une phrase, ou laissez-vous guider par le chat.' },
-          { n: '2', t: 'Recevez 3 destinations', d: '2 valeurs sûres + 1 pépite plus confidentielle, selon votre budget.' },
-          { n: '3', t: 'On génère tout', d: 'Vols, hôtels, activités, budget : votre pack complet sur-mesure.' },
+          { n: '1', t: 'Dites ce que vous cherchez', d: 'En une phrase, ou en répondant à quelques questions.' },
+          { n: '2', t: 'Trois destinations vous sont proposées', d: 'Deux valeurs sûres et une plus surprenante, dans votre budget.' },
+          { n: '3', t: 'Le pack se construit autour', d: 'Vols, hébergement, activités et budget, réunis au même endroit.' },
         ].map(e => (
-          <div key={e.n} className="glass rounded-md p-4 border border-gold/10">
+          <div key={e.n} className="glass rounded-sm p-4 border border-gold/10">
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="w-6 h-6 rounded-full bg-gold/15 text-gold text-xs font-bold flex items-center justify-center flex-shrink-0">{e.n}</span>
+              <span className="w-6 h-6 rounded-full bg-gold/15 text-gold-dark text-xs font-bold flex items-center justify-center flex-shrink-0">{e.n}</span>
               <p className="text-sm font-semibold text-ink leading-tight">{e.t}</p>
             </div>
             <p className="text-xs text-muted leading-relaxed">{e.d}</p>
@@ -126,25 +117,22 @@ function ChatSection() {
         ))}
       </div>
 
-      <div className="relative glass-premium rounded-md overflow-hidden shadow-sm border-t border-gold/30"
+      <div className="relative glass-premium rounded-sm overflow-hidden shadow-sm border-t border-gold/30"
            style={{ minHeight: 460 }}>
         <div className="flex items-center justify-between px-5 sm:px-8 py-4 border-b border-gold/10
                         bg-gradient-to-b from-white/40 to-transparent">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-gold-light to-gold-dark flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-gold-dark flex items-center justify-center">
               <Logo size={20} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-bold text-ink leading-none tracking-wide">Assistant TripGenie</p>
-              <p className="text-[10px] uppercase tracking-widest text-gold mt-1 flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-gold animate-pulse" />
-                En ligne
-              </p>
+              <p className="text-sm font-bold text-ink leading-none">Assistant TripGenie</p>
+              <p className="text-xs text-muted mt-1">Là pour préparer votre voyage</p>
             </div>
           </div>
           <button onClick={resetChat}
-            className="text-xs font-semibold uppercase tracking-wider text-muted hover:text-gold transition-colors
-                       px-3 py-1.5 rounded-full border border-transparent hover:border-gold/20 hover:bg-gold/5">
+            className="text-xs font-semibold uppercase tracking-wider text-muted hover:text-gold-dark transition-colors
+                       px-3 py-1.5 rounded-sm border border-transparent hover:border-gold/20 hover:bg-gold/5">
             Nouveau
           </button>
         </div>
@@ -207,7 +195,7 @@ function ConceptsVoyage() {
       }
     } catch (err: any) {
       setLoading(false)
-      addMessage({ role: 'bot', text: err?.message || 'Erreur lors de la création du pack. Réessaie !' })
+      addMessage({ role: 'bot', text: err?.message || 'Erreur lors de la création du pack. Réessayez.' })
     }
   }
 
@@ -216,8 +204,8 @@ function ConceptsVoyage() {
       className="relative z-20 max-w-6xl mx-auto -mt-20 px-4 pb-20">
 
       <div className="text-center mb-8">
-        <h2 className="text-3xl text-ink font-bold mb-2">Vos Concepts de Voyage</h2>
-        <p className="text-muted">Choisissez la toile de fond de votre prochaine aventure.</p>
+        <h2 className="text-3xl text-ink font-bold mb-2">Trois destinations pour vous</h2>
+        <p className="text-muted">Choisissez celle qui vous parle, le pack se construit autour.</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-5">
@@ -227,27 +215,27 @@ function ConceptsVoyage() {
             tabIndex={0}
             onClick={() => gererSelection(c)}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && gererSelection(c)}
-            className="group cursor-pointer relative h-[320px] sm:h-[420px] rounded-md overflow-hidden
+            className="group cursor-pointer relative h-[320px] sm:h-[420px] rounded-sm overflow-hidden
                        shadow-sm border border-gold/20 hover:border-gold/60 focus:outline-none focus:ring-2 focus:ring-gold/60
-                       transition-all duration-500 hover:-translate-y-2">
+                       transition-colors duration-300">
             <div className="absolute inset-0 bg-ink">
               <PhotoVille city={c.city} photo={c.photo} />
               <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
             </div>
             <div className="absolute inset-0 p-6 flex flex-col justify-end">
-              <span className="text-gold font-bold tracking-widest uppercase text-[10px] mb-1">{c.country}</span>
+              <span className="text-white/70 font-bold tracking-widest uppercase text-[10px] mb-1">{c.country}</span>
               <h3 className="text-3xl text-white font-bold mb-1 leading-none">{c.city}</h3>
-              <p className="text-parchment/80 italic text-base mb-4 line-clamp-2">{c.tagline || c.reason}</p>
+              <p className="text-white/80 text-base mb-4 line-clamp-2">{c.tagline || c.reason}</p>
               <div className="flex items-center justify-between pt-4 border-t border-white/20">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-muted">Budget estimé</p>
-                  <p className="text-gold font-bold text-base">
+                  <p className="text-[10px] uppercase tracking-wider text-white/60">Budget estimé</p>
+                  <p className="text-white font-bold text-base">
                     {c.budget_estimate || (chatData.budget && chatData.travelers
                       ? `~${Math.round((chatData.budget as number) / (chatData.travelers as number)).toLocaleString('fr-FR')}€/pers`
                       : 'Sur devis')}
                   </p>
                 </div>
-                <div className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-gold transition-colors" aria-hidden="true">
+                <div className="w-9 h-9 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-gold group-hover:text-ink transition-colors" aria-hidden="true">
                   ↗
                 </div>
               </div>
@@ -258,28 +246,6 @@ function ConceptsVoyage() {
     </section>
   )
 }
-
-/* ─────────────── Features (accueil vide) ─────────────── */
-const FEATURES = [
-  {
-    img:   'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80',
-    label: 'Hébergements', title: 'Des adresses triées sur le volet',
-    desc:  'Hôtels de charme, villas et appartements sélectionnés selon vos envies et votre budget.',
-    badge: 'Sélection',
-  },
-  {
-    img:   'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80',
-    label: 'Gastronomie', title: 'Les meilleures tables',
-    desc:  'Des bonnes adresses locales aux restaurants réputés, selon la destination et l\'ambiance.',
-    badge: 'Bonnes adresses',
-  },
-  {
-    img:   'https://images.unsplash.com/photo-1563784462029-e9cc28281850?auto=format&fit=crop&w=800&q=80',
-    label: 'Vie nocturne', title: 'Les meilleures soirées',
-    desc:  'Clubs, bars et soirées incontournables pour vivre la ville après le coucher du soleil.',
-    badge: 'Sorties',
-  },
-]
 
 /* ═══════════════════════════════════════════════════════
    HOME PAGE
@@ -326,15 +292,11 @@ export default function Home() {
             id="pack-results"
           >
             {/* Bandeau de contexte */}
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <p className="flex items-center gap-2 text-sm text-muted">
-                <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
-                Pack généré — connectez-vous pour le sauvegarder
-              </p>
+            <div className="flex justify-end mb-4">
               <button
                 onClick={() => { clearPack(); resetChat() }}
-                className="text-xs font-semibold uppercase tracking-wider text-muted hover:text-gold
-                           px-3 py-1.5 rounded-full border border-gold/20 hover:border-gold/50 hover:bg-gold/5 transition-all"
+                className="text-xs font-semibold uppercase tracking-wider text-muted hover:text-gold-dark
+                           px-3 py-1.5 rounded-sm border border-gold/20 hover:border-gold/50 hover:bg-gold/5 transition-all"
               >
                 ↻ Recommencer
               </button>
@@ -354,44 +316,12 @@ export default function Home() {
               <GenerationLoader destination={destination} />
             )}
 
-            {/* Features */}
-            {!concepts && !isLoading && (
-              <div
-                className="mt-20 pb-24">
-                <div className="text-center mb-10">
-                  <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-2">Notre Savoir-Faire</p>
-                  <h2 className="text-3xl text-ink font-bold">L'Art de Voyager Autrement</h2>
-                </div>
-                <div className="grid sm:grid-cols-3 gap-4">
-                  {FEATURES.map((f, i) => (
-                    <div key={i}
-                      className="group relative h-[260px] sm:h-[340px] rounded-md overflow-hidden ring-1 ring-gold/20 shadow-sm shadow-black/50">
-                      <img src={f.img} alt={f.title}
-                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/25 to-transparent" />
-                      <div className="absolute top-4 left-4">
-                        <span className="text-[9px] uppercase tracking-widest font-bold text-gold bg-ink/60 backdrop-blur-sm px-3 py-1 rounded-full border border-gold/20">
-                          {f.badge}
-                        </span>
-                      </div>
-                      <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                        <p className="text-[9px] uppercase tracking-widest text-gold/80 font-semibold mb-1">{f.label}</p>
-                        <h3 className="text-xl text-white font-bold mb-1 leading-tight">{f.title}</h3>
-                        <p className="text-white/60 text-sm leading-relaxed font-light">{f.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Contenu éditorial — accueil vide (présentation + SEO) */}
+            {/* Présentation — accueil vide (présentation + SEO) */}
             {!concepts && !isLoading && (
               <section
-                className="max-w-5xl mx-auto pb-28">
+                className="max-w-5xl mx-auto mt-20 pb-28">
 
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <p className="text-[10px] uppercase tracking-widest text-gold font-semibold mb-2">Comment ça marche</p>
                   <h2 className="text-3xl text-ink font-bold mb-5">
                     Vous décrivez l'envie, on trouve la destination
                   </h2>
@@ -420,8 +350,8 @@ export default function Home() {
                     },
                   ].map((c, i) => (
                     <div key={i}
-                      className="glass rounded-md p-6 border border-gold/10 flex flex-col">
-                      <span className="w-8 h-8 rounded-full bg-gold/15 text-gold text-sm font-bold flex items-center justify-center mb-4">
+                      className="glass rounded-sm p-6 border border-gold/10 flex flex-col">
+                      <span className="w-8 h-8 rounded-full bg-gold/15 text-gold-dark text-sm font-bold flex items-center justify-center mb-4">
                         {i + 1}
                       </span>
                       <h3 className="text-lg text-ink font-bold mb-2 leading-snug">
