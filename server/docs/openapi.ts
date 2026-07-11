@@ -124,7 +124,7 @@ export const openapiSpec = {
   },
   servers: [
     { url: 'http://localhost:3000', description: 'Développement local' },
-    { url: 'https://tripgenie.onrender.com', description: 'Production (Render)' },
+    { url: 'https://tripgenie-api.onrender.com', description: 'Production (Render)' },
   ],
   tags: [
     { name: 'Auth',          description: 'Inscription, connexion, session' },

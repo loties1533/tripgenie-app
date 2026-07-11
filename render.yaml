@@ -42,4 +42,4 @@ services:
 
       # --- CORS ---
       - key: CLIENT_URL
-        value: https://tripgenie.onrender.com
+        value: https://tripgenie-api.onrender.com
