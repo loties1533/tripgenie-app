@@ -78,8 +78,7 @@ vi.mock('../server/services/claude/index.js', () => ({
       divers:       '0€',
       total:        '2000€'
     },
-    tips:          [],
-    local_phrases: []
+    tips:          []
   })
 }));
 
@@ -98,10 +97,8 @@ vi.mock('../server/services/smartSearch.js', () => ({
 
 vi.mock('../server/services/weather.js', () => ({
   getRealWeather: vi.fn().mockResolvedValue({
-    temp:     '20°C',
-    cond:     'Ensoleillé',
-    humidity: '50%',
-    wind:     '10km/h'
+    temp:       '20°C',
+    conditions: 'Ensoleillé'
   })
 }));
 

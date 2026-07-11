@@ -128,11 +128,6 @@ export interface ConseilVoyage {
   content: string;
 }
 
-export interface ExpressionLocale {
-  phrase: string;
-  translation: string;
-}
-
 export interface Pack {
   destination: string;
   country: string;
@@ -147,7 +142,6 @@ export interface Pack {
   events: Evenement[];
   budget_breakdown: RepartitionBudget;
   tips?: ConseilVoyage[];
-  local_phrases?: ExpressionLocale[];
   score?: ResultatScore;
   photo_url?: string;
   isMock?: boolean;

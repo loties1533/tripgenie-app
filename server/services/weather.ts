@@ -1,8 +1,6 @@
 export interface WeatherData {
   temp: string;
-  cond: string;
-  humidity: number;
-  wind: string;
+  conditions: string;
 }
 
 interface ResultatGeo {
@@ -65,15 +63,11 @@ async function getMeteoPrevision(lat: number, lon: number, date: string): Promis
   const maxT = data.daily?.temperature_2m_max?.[0] ?? 20;
   const minT = data.daily?.temperature_2m_min?.[0] ?? 15;
   const avgT = Math.round((maxT + minT) / 2);
-  const wind = data.daily?.windspeed_10m_max?.[0] ?? 10;
   const code = data.daily?.weathercode?.[0] ?? 0;
-  const hum  = data.hourly?.relativehumidity_2m?.[12] ?? 60;
 
   return {
-    temp:     `${avgT}°C`,
-    cond:     codeMeteoEnTexte(code),
-    humidity: Math.round(hum),
-    wind:     `${Math.round(wind)} km/h`,
+    temp:       `${avgT}°C`,
+    conditions: codeMeteoEnTexte(code),
   };
 }
 
@@ -96,13 +90,11 @@ async function getMeteoClimat(lat: number, lon: number, date: string): Promise<W
 
   const avgT = Math.round(temps.reduce((a, b) => a + b, 0) / temps.length);
   const avgP = precs.length ? precs.reduce((a, b) => a + b, 0) / precs.length : 0;
-  const cond = avgP > 3 ? 'Pluies fréquentes' : avgP > 1 ? 'Quelques averses' : avgT > 25 ? 'Chaud et ensoleillé' : avgT > 15 ? 'Doux et agréable' : 'Frais';
+  const conditions = avgP > 3 ? 'Pluies fréquentes' : avgP > 1 ? 'Quelques averses' : avgT > 25 ? 'Chaud et ensoleillé' : avgT > 15 ? 'Doux et agréable' : 'Frais';
 
   return {
-    temp:     `${avgT}°C`,
-    cond,
-    humidity: 65,
-    wind:     '15 km/h',
+    temp:       `${avgT}°C`,
+    conditions,
   };
 }
 

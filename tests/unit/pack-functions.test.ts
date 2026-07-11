@@ -302,74 +302,74 @@ describe('transformerActivites — mapping activités → Pack[\'activities\']',
   });
 
   it('catégorie Nightlife pour type club', () => {
-    const acts = transformerActivites([{ name: 'Pacha', type: 'club', desc: 'legendary' }], 'Ibiza');
+    const acts = transformerActivites([{ name: 'Pacha', type: 'club', description: 'legendary' }], 'Ibiza');
     expect(acts[0].category).toBe('Nightlife');
   });
 
   it('catégorie Gastronomie pour type restaurant', () => {
-    const acts = transformerActivites([{ name: 'Nobu', type: 'restaurant-étoilé', desc: 'Michelin' }], 'Ibiza');
+    const acts = transformerActivites([{ name: 'Nobu', type: 'restaurant-étoilé', description: 'Michelin' }], 'Ibiza');
     expect(acts[0].category).toBe('Gastronomie');
   });
 
   it('catégorie Nautique pour type bateau', () => {
-    const acts = transformerActivites([{ name: 'Yacht privé', type: 'bateau', desc: 'exclusif' }], 'Ibiza');
+    const acts = transformerActivites([{ name: 'Yacht privé', type: 'bateau', description: 'exclusif' }], 'Ibiza');
     expect(acts[0].category).toBe('Nautique');
   });
 
   it('catégorie Culture pour type culture', () => {
-    const acts = transformerActivites([{ name: 'Musée Dali', type: 'culture', desc: 'art' }], 'Figueres');
+    const acts = transformerActivites([{ name: 'Musée Dali', type: 'culture', description: 'art' }], 'Figueres');
     expect(acts[0].category).toBe('Culture');
   });
 
   it('catégorie Bien-être pour un yoga (repli sur le nom)', () => {
     // type générique 'activité' → on retombe sur le nom « Yoga »
-    const acts = transformerActivites([{ name: 'Yoga Paros - Naoussa', type: 'activité', desc: 'zen' }], 'Paros');
+    const acts = transformerActivites([{ name: 'Yoga Paros - Naoussa', type: 'activité', description: 'zen' }], 'Paros');
     expect(acts[0].category).toBe('Bien-être');
   });
 
   it('catégorie Nature pour un sentier de randonnée (repli sur le nom)', () => {
-    const acts = transformerActivites([{ name: 'Sentier côtier Paros-Naxos', type: 'activité', desc: 'rando' }], 'Paros');
+    const acts = transformerActivites([{ name: 'Sentier côtier Paros-Naxos', type: 'activité', description: 'rando' }], 'Paros');
     expect(acts[0].category).toBe('Nature');
   });
 
   it('catégorie Plage pour des criques (repli sur le nom)', () => {
-    const acts = transformerActivites([{ name: 'Criques privées Antiparos', type: 'activité', desc: 'baignade' }], 'Paros');
+    const acts = transformerActivites([{ name: 'Criques privées Antiparos', type: 'activité', description: 'baignade' }], 'Paros');
     expect(acts[0].category).toBe('Plage');
   });
 
   it('catégorie neutre « Expérience » quand rien ne matche (plus de faux « Culture »)', () => {
-    const acts = transformerActivites([{ name: 'Atelier mystère', type: 'activité', desc: 'surprise' }], 'Paros');
+    const acts = transformerActivites([{ name: 'Atelier mystère', type: 'activité', description: 'surprise' }], 'Paros');
     expect(acts[0].category).toBe('Expérience');
   });
 
   it('lien Google Maps universel pour un restaurant', () => {
-    const acts = transformerActivites([{ name: 'Nobu', type: 'restaurant', desc: 'test' }], 'Ibiza');
+    const acts = transformerActivites([{ name: 'Nobu', type: 'restaurant', description: 'test' }], 'Ibiza');
     expect(acts[0].booking_url).toContain('google.com/maps');
   });
 
   it('lien Google Maps universel pour un bateau', () => {
-    const acts = transformerActivites([{ name: 'Sailing trip', type: 'bateau', desc: 'test' }], 'Ibiza');
+    const acts = transformerActivites([{ name: 'Sailing trip', type: 'bateau', description: 'test' }], 'Ibiza');
     expect(acts[0].booking_url).toContain('google.com/maps');
   });
 
   it('lien Google Maps universel pour le nightlife', () => {
-    const acts = transformerActivites([{ name: 'Amnesia', type: 'club', desc: 'test' }], 'Ibiza');
+    const acts = transformerActivites([{ name: 'Amnesia', type: 'club', description: 'test' }], 'Ibiza');
     expect(acts[0].booking_url).toContain('google.com/maps');
   });
 
   it('lien Google Maps universel inclut la ville (bonne ville partout)', () => {
-    const acts = transformerActivites([{ name: 'Cathédrale', type: 'monument', desc: 'test' }], 'Paris');
+    const acts = transformerActivites([{ name: 'Cathédrale', type: 'monument', description: 'test' }], 'Paris');
     expect(acts[0].booking_url).toContain('google.com/maps');
     expect(acts[0].booking_url).toContain('Paris');
   });
 
   it('préserve le nom de l\'activité', () => {
-    const acts = transformerActivites([{ name: 'Ushuaïa Beach Club', type: 'beach-club', desc: 'test' }], 'Ibiza');
+    const acts = transformerActivites([{ name: 'Ushuaïa Beach Club', type: 'beach-club', description: 'test' }], 'Ibiza');
     expect(acts[0].name).toBe('Ushuaïa Beach Club');
   });
 
   it('fallback name si absent', () => {
-    const acts = transformerActivites([{ type: 'culture', desc: 'test' }], 'Ibiza');
+    const acts = transformerActivites([{ type: 'culture', description: 'test' }], 'Ibiza');
     expect(acts[0].name).toBe('Activité');
   });
 });

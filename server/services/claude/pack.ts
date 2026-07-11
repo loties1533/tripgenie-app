@@ -31,14 +31,12 @@ export interface ResultatTexteIA {
   origin_airport_code?: string;
   tagline?: string;
   overview?: string;
-  weather?: { temp?: string; cond?: string; tip?: string };
-  hotels?: Array<{ name?: string; loc?: string; hl?: string; stars?: number; price_per_night?: number }>;
-  itinerary?: Array<{ day: number; title?: string; am?: string; pm?: string; plan_b?: string }>;
-  activities?: Array<{ name?: string; desc?: string; type?: string; plan_b?: string }>;
-  tip1?: string;
-  tip2?: string;
-  phrase?: string;
-  phrase_tr?: string;
+  weather?: { temp?: string; conditions?: string };
+  hotels?: Array<{ name?: string; quartier?: string; point_fort?: string; stars?: number; price_per_night?: number }>;
+  itinerary?: Array<{ day: number; title?: string; matin?: string; soir?: string }>;
+  activities?: Array<{ name?: string; description?: string; type?: string }>;
+  conseil1?: string;
+  conseil2?: string;
 }
 
 // 1. calculerNuits — calcul du nombre de nuits du séjour
@@ -147,9 +145,9 @@ export function construirePromptPack({
     ${realVenuesContext}
 
     Génère ce JSON COMPACT (itinerary = 3 jours, activities = 6) :
-    {"country":"Pays","airport_code":"IBZ","origin_airport_code":"BOD","tagline":"description factuelle courte (6-10 mots, sans superlatif ni langage publicitaire)","overview":"1 phrase","weather":{"temp":"22°C","cond":"Soleil"},"hotels":[{"name":"Vrai hôtel","loc":"Quartier","hl":"Point fort"},{"name":"Alternative","loc":"Quartier","hl":"Point fort"}],"itinerary":[{"day":1,"title":"Titre","am":"Activité réelle","pm":"Club/resto réel"},{"day":2,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"},{"day":3,"title":"Titre","am":"Activité réelle","pm":"Soirée réelle"}],"activities":[{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","desc":"50 chars max","type":"${activityTypes}"}],"tip1":"Conseil","tip2":"Adresse food"}
+    {"country":"Pays","airport_code":"IBZ","origin_airport_code":"BOD","tagline":"description factuelle courte (6-10 mots, sans superlatif ni langage publicitaire)","overview":"1 phrase","weather":{"temp":"22°C","conditions":"Soleil"},"hotels":[{"name":"Vrai hôtel","quartier":"Quartier","point_fort":"Point fort"},{"name":"Alternative","quartier":"Quartier","point_fort":"Point fort"}],"itinerary":[{"day":1,"title":"Titre","matin":"Activité réelle","soir":"Club/resto réel"},{"day":2,"title":"Titre","matin":"Activité réelle","soir":"Soirée réelle"},{"day":3,"title":"Titre","matin":"Activité réelle","soir":"Soirée réelle"}],"activities":[{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"}],"conseil1":"Conseil","conseil2":"Adresse food"}
     TAGLINE : factuelle, pas de mots comme « rêve », « légendaire », « VIP », « incontournable », « électrisant », « capitale mondiale ».
-    LANGUE : rédige TOUS les textes EN FRANÇAIS (tagline, overview, cond, hl, title, am, pm, desc, tip1, tip2). Seuls les noms propres de lieux/hôtels/clubs restent dans leur langue d'origine.
+    LANGUE : rédige TOUS les textes EN FRANÇAIS (tagline, overview, conditions, point_fort, title, matin, soir, description, conseil1, conseil2). Seuls les noms propres de lieux/hôtels/clubs restent dans leur langue d'origine.
     VRAIS noms uniquement. Pas de "Gastronomie locale" ou "Découverte de ${dest}".
     airport_code = code IATA de l'aéroport de ${dest}. origin_airport_code = code IATA de l'aéroport de ${originCity} (ville de départ).`;
 }
@@ -160,32 +158,30 @@ export function parserReponsePack(raw: string, dest: string, nights: number): Re
   try {
     return parseJSON(raw) as ResultatTexteIA;
   } catch (err) {
-    console.error('REPLI GÉNÉRIQUE ACTIVÉ — JSON malformé reçu du LLM. Raison:', (err as Error).message);
-    console.error('Réponse brute du LLM (200 premiers chars):', raw.slice(0, 200));
+    console.error('Repli générique activé — JSON malformé reçu du LLM. Raison :', (err as Error).message);
+    console.error('Réponse brute du LLM (200 premiers caractères) :', raw.slice(0, 200));
     return {
       country:  'Destination',
-      tagline:  `Découvrez les secrets de ${dest}`,
+      tagline:  `Séjour à ${dest}`,
       overview: `Un voyage sur-mesure à ${dest}.`,
-      weather:  { temp: '22°C', cond: 'Ensoleillé', tip: 'Tenue légère recommandée' },
+      weather:  { temp: '22°C', conditions: 'Ensoleillé' },
       hotels: [
-        { name: `Grand Hôtel ${dest}`,    loc: 'Centre-ville', hl: 'Vue panoramique' },
-        { name: `Boutique Hôtel ${dest}`, loc: 'Vieille ville', hl: 'Charme local' },
+        { name: `Grand Hôtel ${dest}`,    quartier: 'Centre-ville', point_fort: 'Vue panoramique' },
+        { name: `Boutique Hôtel ${dest}`, quartier: 'Vieille ville', point_fort: 'Charme local' },
       ],
       itinerary: Array.from({ length: Math.min(nights, 3) }).map((_, i) => ({
         day:   i + 1,
-        title: i === 0 ? 'Arrivée & Découverte' : i === 1 ? 'Exploration locale' : 'Détente & Gastronomie',
-        am:    i === 0 ? 'Installation et première balade' : 'Visite des incontournables',
-        pm:    i === 0 ? 'Dîner dans le quartier' : 'Soirée en ville',
+        title: i === 0 ? 'Arrivée et découverte' : i === 1 ? 'Exploration locale' : 'Détente et gastronomie',
+        matin: i === 0 ? 'Installation et première balade' : 'Visite des incontournables',
+        soir:  i === 0 ? 'Dîner dans le quartier' : 'Soirée en ville',
       })),
       activities: [
-        { name: `Découverte de ${dest}`, desc: 'Exploration des quartiers emblématiques.' },
-        { name: 'Gastronomie locale',    desc: 'Les meilleures adresses culinaires.' },
-        { name: 'Expérience culturelle', desc: 'Musées, architecture et vie locale.' },
+        { name: `Découverte de ${dest}`, description: 'Exploration des quartiers emblématiques.' },
+        { name: 'Gastronomie locale',    description: 'Les meilleures adresses culinaires.' },
+        { name: 'Expérience culturelle', description: 'Musées, architecture et vie locale.' },
       ],
-      tip1:      "Réservez vos activités à l'avance.",
-      tip2:      'Goûtez aux spécialités locales.',
-      phrase:    'Bonjour !',
-      phrase_tr: 'Salutation de bienvenue',
+      conseil1:  "Réservez vos activités à l'avance.",
+      conseil2:  'Goûtez aux spécialités locales.',
     };
   }
 }
@@ -398,7 +394,7 @@ export function transformerActivites(
     return {
       name,
       category,
-      description: a.desc ?? 'Incontournable',
+      description: a.description ?? 'Incontournable',
       duration:    '2-3h',
       price:       'Variable',
       best_time:   category === 'Nightlife' ? 'Soir' : 'Journée',
@@ -515,13 +511,13 @@ export async function assemblerPack({
     overview:    texteIA.overview ?? `À la découverte de ${dest}.`,
     photo_url:   realPhoto ?? undefined,
     weather: realWeather
-      ? { avg_temp: realWeather.temp, conditions: realWeather.cond }
-      : { avg_temp: texteIA.weather?.temp ?? '20°C', conditions: texteIA.weather?.cond ?? 'Ensoleillé' },
+      ? { avg_temp: realWeather.temp, conditions: realWeather.conditions }
+      : { avg_temp: texteIA.weather?.temp ?? '20°C', conditions: texteIA.weather?.conditions ?? 'Ensoleillé' },
     summary: { total_budget: `${budget}€`, nights, activities_count: (texteIA.activities ?? []).length },
     flights: transformerVols(flights, airportCode, originCode, originCity, dest, budget, travelers, departure, return_date),
     hotels: (realHotels?.length ? realHotels : texteIA.hotels ?? []).map((h, i) => ({
       name:            h.name ?? `Hôtel ${i + 1}`,
-      location:        (h as { loc?: string }).loc ?? (h as { location?: string }).location ?? 'Centre',
+      location:        (h as { quartier?: string }).quartier ?? (h as { location?: string }).location ?? 'Centre',
       stars:           h.stars ?? (i === 0 && premium ? 5 : 4),
       // Prix par CHAMBRE/nuit (2 pers/chambre), pas le budget total du groupe :
       // sinon à 10 pers on affichait « 2500€/nuit » comme si c'était une chambre.
@@ -530,7 +526,7 @@ export async function assemblerPack({
       price_per_night: (h as { price_per_night?: number }).price_per_night
         ? `${(h as { price_per_night: number }).price_per_night}€`
         : `${Math.round(hebergementBrut / nights / Math.max(1, Math.ceil(travelers / 2)))}€`,
-      highlights:      (h as { hl?: string; highlights?: string }).hl ?? (h as { highlights?: string }).highlights ?? 'Bon emplacement',
+      highlights:      (h as { point_fort?: string; highlights?: string }).point_fort ?? (h as { highlights?: string }).highlights ?? 'Bon emplacement',
       // Lien Booking pré-rempli : ville + check-in/out + voyageurs + nb chambres.
       booking_url:     construireUrlHotel(h.name ?? `Hôtel ${i + 1}`, dest, { checkin: departure, checkout: return_date, travelers }),
     })),
@@ -540,9 +536,9 @@ export async function assemblerPack({
       subtitle: mode === MODES.PARTY ? 'Vie nocturne' : 'Découverte',
       items: [
         // Heures indicatives (matin/soir). On n'affiche PLUS de prix/durée inventés :
-        // l'IA ne fournit que l'activité (am/pm), donc tout chiffre serait du faux.
-        { time: mode === MODES.PARTY ? '14:00' : '10:00', type: 'activity' as const, title: d.am ?? 'Exploration', description: '' },
-        { time: mode === MODES.PARTY ? '22:00' : '20:00', type: mode === MODES.PARTY ? 'event' as const : 'food' as const, title: d.pm ?? 'Soirée', description: '' },
+        // l'IA ne fournit que l'activité (matin/soir), donc tout chiffre serait du faux.
+        { time: mode === MODES.PARTY ? '14:00' : '10:00', type: 'activity' as const, title: d.matin ?? 'Exploration', description: '' },
+        { time: mode === MODES.PARTY ? '22:00' : '20:00', type: mode === MODES.PARTY ? 'event' as const : 'food' as const, title: d.soir ?? 'Soirée', description: '' },
       ],
     })),
     activities: transformerActivites(texteIA.activities, dest),
@@ -557,8 +553,8 @@ export async function assemblerPack({
       total:        budgetBreakdown.total,
     },
     tips: [
-      { title: 'Conseil pratique', content: texteIA.tip1 ?? "Réservez à l'avance" },
-      { title: 'Sur place',        content: texteIA.tip2 ?? 'Explorez les quartiers locaux' },
+      { title: 'Conseil pratique', content: texteIA.conseil1 ?? "Réservez à l'avance" },
+      { title: 'Sur place',        content: texteIA.conseil2 ?? 'Explorez les quartiers locaux' },
     ],
   };
 }
