@@ -76,7 +76,7 @@ export function construirePromptPack({
   const budgetTone = budgetPerPers >= 2000
     ? 'Budget élevé : hôtels haut de gamme, bonnes tables, prestations soignées.'
     : budgetPerPers >= 1000
-    ? 'Budget confortable : hôtels 4★, restaurants de qualité.'
+    ? 'Budget confortable : hôtels 4 étoiles, restaurants de qualité.'
     : budgetPerPers >= 500
     ? 'Budget moyen : bon rapport qualité/prix.'
     : 'Petit budget : adresses locales abordables.';
@@ -93,7 +93,7 @@ export function construirePromptPack({
 
   // Niveau de prix (axe orthogonal au mode) : monte en gamme sans changer le mode.
   const premiumModifier = premium
-    ? 'Gamme premium : privilégie le haut de gamme (hôtels 5★ ou boutique-hôtels, bonnes tables), tout en respectant le mode ci-dessus.'
+    ? 'Gamme premium : privilégie le haut de gamme (hôtels 5 étoiles ou boutique-hôtels, bonnes tables), tout en respectant le mode ci-dessus.'
     : '';
 
   // Profil = « avec qui » (axe distinct du mode et du prix) : oriente le TON et le

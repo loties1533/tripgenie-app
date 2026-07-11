@@ -17,12 +17,7 @@ interface ReponsePrevision {
   daily?: {
     temperature_2m_max?: number[];
     temperature_2m_min?: number[];
-    precipitation_sum?: number[];
-    windspeed_10m_max?: number[];
     weathercode?: number[];
-  };
-  hourly?: {
-    relativehumidity_2m?: number[];
   };
 }
 
@@ -55,7 +50,7 @@ async function geocoderVille(city: string): Promise<ResultatGeo | null> {
 
 // prévision météo réelle (Open-Meteo, ≤ 16 jours)
 async function getMeteoPrevision(lat: number, lon: number, date: string): Promise<WeatherData | null> {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max,weathercode&hourly=relativehumidity_2m&timezone=auto&start_date=${date}&end_date=${date}`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&start_date=${date}&end_date=${date}`;
   const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
   if (!res.ok) return null;
   const data = (await res.json()) as ReponsePrevision;

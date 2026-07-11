@@ -31,7 +31,7 @@ type ScoreKey =
   | 'activities_free' | 'activities' | 'calme'
   | 'global' | 'originalite';
 
-interface ScoreValues extends Record<ScoreKey, number> {}
+type ScoreValues = Record<ScoreKey, number>;
 
 const POIDS_PAR_MODE: Record<TravelMode, PoidsMode> = {
   party:    { activities: 0.35, hotel: 0.25, prix: 0.20, vol: 0.10, events: 0.10 },
