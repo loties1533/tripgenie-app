@@ -58,7 +58,7 @@ export const BUDGET_RATIOS: Record<TravelMode, RatioBudget> = {
   surprise: { vols: 0.28, hebergement: 0.32, activites: 0.18, restauration: 0.13, transports: 0.06 },
 };
 
-// Plafonds de dépenses selon le NIVEAU DE PRIX (axe orthogonal au mode/vibe).
+// Plafonds de dépenses selon le NIVEAU DE PRIX (critère indépendant du mode).
 // Remplace les anciens `mode === 'luxury' ? X : Y` dispersés dans pack.ts :
 // une seule source de vérité pour régler les 2 niveaux Premium / Classique.
 //   maxPpn    = prix max €/nuit/personne pour l'hébergement

@@ -91,12 +91,12 @@ export function construirePromptPack({
     ? 'Mode étudiant : adresses abordables et connues.'
     : 'Combine les centres d\'intérêt du voyageur avec les incontournables locaux.';
 
-  // Niveau de prix (axe orthogonal au mode) : monte en gamme sans changer le mode.
+  // Niveau de prix (indépendant du mode) : monte en gamme sans changer le mode.
   const premiumModifier = premium
     ? 'Gamme premium : privilégie le haut de gamme (hôtels 5 étoiles ou boutique-hôtels, bonnes tables), tout en respectant le mode ci-dessus.'
     : '';
 
-  // Profil = « avec qui » (axe distinct du mode et du prix) : oriente le TON et le
+  // Profil = « avec qui » (critère distinct du mode et du prix) : oriente le TON et le
   // type d'expériences, sans imposer une ambiance (celle-ci vient du mode).
   const PROFIL_MODIFIERS: Record<Profile, string> = {
     couple:  'expériences intimes à deux — tables romantiques, moments en tête-à-tête, hébergement pour 2.',

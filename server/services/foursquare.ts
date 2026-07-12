@@ -16,7 +16,7 @@ const REQUETES_PAR_MODE: Record<TravelMode, string> = {
   surprise: 'restaurant,bistro,fusion',
 };
 
-// Niveau de prix premium (axe orthogonal au mode) → catégories haut de gamme,
+// Niveau de prix premium (indépendant du mode) → catégories haut de gamme,
 // quelle que soit la vibe. (Ancienne requête du mode « luxury ».)
 const REQUETE_PREMIUM = 'fine dining,restaurant,wine bar';
 

@@ -174,9 +174,9 @@ export interface EnregistrementVoyage {
   updated_at: string;
 }
 
-// Ambiance du voyage (ce qu'on veut vivre). Voir la taxonomie dans constants.ts.
+// Orientation du séjour (ce qu'on veut vivre). Voir les 4 critères dans constants.ts.
 export type TravelMode = 'party' | 'student' | 'group' | 'relax' | 'surprise';
-// Profil = avec qui on voyage (axe distinct de l'ambiance).
+// Profil = avec qui on voyage (critère distinct de l'orientation).
 export type Profile = 'solo' | 'couple' | 'amis' | 'famille';
 export type TripStatus = 'draft' | 'confirmed' | 'archived';
 

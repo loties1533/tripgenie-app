@@ -75,7 +75,7 @@ const VIVIER_PAR_MODE: Record<string, string[]> = {
   ],
 };
 
-// Booster PREMIUM (axe prix, orthogonal au mode). Quand `premium` est actif, on
+// Booster PREMIUM (critère prix, indépendant du mode). Quand `premium` est actif, on
 // injecte quelques-unes de ces destinations haut de gamme dans les exemples de
 // référence — quelle que soit la vibe — pour tirer le standing vers le haut.
 // (Ancien vivier « luxury », désormais découplé du mode.)
