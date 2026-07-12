@@ -44,7 +44,7 @@ const schemas = {
       travelers:   { type: 'integer' },
       budget:      { type: 'string', nullable: true },
       mode:        { type: 'string', enum: ['party', 'student', 'group', 'relax', 'surprise'] },
-      premium:     { type: 'boolean', description: 'Niveau de prix haut de gamme (axe orthogonal au mode)' },
+      premium:     { type: 'boolean', description: 'Niveau de prix haut de gamme (indépendant du mode)' },
       pack_data:   { type: 'object', description: 'Pack complet sérialisé (JSONB)', additionalProperties: true },
       score:       { type: 'number', nullable: true },
       status:      { type: 'string', enum: ['draft', 'confirmed', 'archived'] },

@@ -22,6 +22,7 @@ MoSCoW.
 | S4 — CRUD et fonctionnalités | 20 – 24 juin | Parcours complet, diagrammes, recette et corrections | Terminé |
 | S5 — Industrialisation | 25 juin – 1 juillet | Migration Prisma, PostgreSQL en Docker, documentation | Terminé |
 | S6 — Finalisation et mise en production | 2 – 8 juillet | Intégration continue, déploiement, accessibilité, performances | Terminé |
+| S7 — Harmonisation et lisibilité | 9 – 13 juillet | Cohérence visuelle de l'interface, uniformisation des textes, clarté et allègement du code | En cours |
 
 Priorisation MoSCoW : indispensable (authentification, génération, modification,
 score) ; souhaitable (préférences, votes, collaborateurs, données réelles) ;
@@ -55,6 +56,11 @@ documentation technique.
 Sprint 6 — Intégration continue verte à chaque push, déploiement sur Render,
 ajustements d'accessibilité et de performance.
 
+Sprint 7 — Reprise d'ensemble de l'interface (palette de couleurs resserrée,
+arrondis et animations uniformisés, textes revus pour un ton plus sobre) et travail
+de lisibilité côté serveur : messages et clés internes en français, retrait de code
+inutilisé, simplification de la génération et du calcul de score.
+
 ---
 
 ## Rétrospectives
@@ -87,6 +93,12 @@ poursuivi ensuite.
 Sprint 6 — Le MVP est passé en production tout en restant couvert par les tests. Le
 parcours collaborateur était d'abord incomplet (l'accès en lecture manquait), ce qui
 m'a conduit à unifier le contrôle d'accès en lecture et en écriture.
+
+Sprint 7 — Reprendre le front et le back avec du recul a nettement amélioré la
+cohérence de l'ensemble : une charte visuelle et des composants unifiés d'un côté, un
+code serveur plus lisible et plus simple à maintenir de l'autre. J'en retiens
+l'intérêt de fixer tôt quelques conventions (couleurs, nommage) pour éviter que les
+petites incohérences ne s'accumulent.
 
 ---
 

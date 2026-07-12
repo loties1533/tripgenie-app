@@ -76,7 +76,7 @@ export function construirePromptPack({
   const budgetTone = budgetPerPers >= 2000
     ? 'Budget élevé : hôtels haut de gamme, bonnes tables, prestations soignées.'
     : budgetPerPers >= 1000
-    ? 'Budget confortable : hôtels 4★, restaurants de qualité.'
+    ? 'Budget confortable : hôtels 4 étoiles, restaurants de qualité.'
     : budgetPerPers >= 500
     ? 'Budget moyen : bon rapport qualité/prix.'
     : 'Petit budget : adresses locales abordables.';
@@ -91,12 +91,12 @@ export function construirePromptPack({
     ? 'Mode étudiant : adresses abordables et connues.'
     : 'Combine les centres d\'intérêt du voyageur avec les incontournables locaux.';
 
-  // Niveau de prix (axe orthogonal au mode) : monte en gamme sans changer le mode.
+  // Niveau de prix (indépendant du mode) : monte en gamme sans changer le mode.
   const premiumModifier = premium
-    ? 'Gamme premium : privilégie le haut de gamme (hôtels 5★ ou boutique-hôtels, bonnes tables), tout en respectant le mode ci-dessus.'
+    ? 'Gamme premium : privilégie le haut de gamme (hôtels 5 étoiles ou boutique-hôtels, bonnes tables), tout en respectant le mode ci-dessus.'
     : '';
 
-  // Profil = « avec qui » (axe distinct du mode et du prix) : oriente le TON et le
+  // Profil = « avec qui » (critère distinct du mode et du prix) : oriente le TON et le
   // type d'expériences, sans imposer une ambiance (celle-ci vient du mode).
   const PROFIL_MODIFIERS: Record<Profile, string> = {
     couple:  'expériences intimes à deux — tables romantiques, moments en tête-à-tête, hébergement pour 2.',
@@ -146,7 +146,7 @@ export function construirePromptPack({
 
     Génère ce JSON COMPACT (itinerary = 3 jours, activities = 6) :
     {"country":"Pays","airport_code":"IBZ","origin_airport_code":"BOD","tagline":"description factuelle courte (6-10 mots, sans superlatif ni langage publicitaire)","overview":"1 phrase","weather":{"temp":"22°C","conditions":"Soleil"},"hotels":[{"name":"Vrai hôtel","quartier":"Quartier","point_fort":"Point fort"},{"name":"Alternative","quartier":"Quartier","point_fort":"Point fort"}],"itinerary":[{"day":1,"title":"Titre","matin":"Activité réelle","soir":"Club/resto réel"},{"day":2,"title":"Titre","matin":"Activité réelle","soir":"Soirée réelle"},{"day":3,"title":"Titre","matin":"Activité réelle","soir":"Soirée réelle"}],"activities":[{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"},{"name":"LIEU RÉEL","description":"50 chars max","type":"${activityTypes}"}],"conseil1":"Conseil","conseil2":"Adresse food"}
-    TAGLINE : factuelle, pas de mots comme « rêve », « légendaire », « VIP », « incontournable », « électrisant », « capitale mondiale ».
+    STYLE : tagline, overview et conseils factuels, sans superlatif ni langage publicitaire (évite « rêve », « légendaire », « VIP », « incontournable », « électrisant », « capitale mondiale »).
     LANGUE : rédige TOUS les textes EN FRANÇAIS (tagline, overview, conditions, point_fort, title, matin, soir, description, conseil1, conseil2). Seuls les noms propres de lieux/hôtels/clubs restent dans leur langue d'origine.
     VRAIS noms uniquement. Pas de "Gastronomie locale" ou "Découverte de ${dest}".
     airport_code = code IATA de l'aéroport de ${dest}. origin_airport_code = code IATA de l'aéroport de ${originCity} (ville de départ).`;

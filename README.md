@@ -1,6 +1,6 @@
 <div align="center">
 
-# ✈️ TripGenie
+# TripGenie
 
 ### AI-Powered Travel Pack Generator
 
@@ -12,15 +12,15 @@
 [![Express](https://img.shields.io/badge/Express-4-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![Vitest](https://img.shields.io/badge/Vitest-899_tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
+[![Vitest](https://img.shields.io/badge/Vitest-303_tests-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)](https://vitest.dev)
 
-[🚀 Demo Live](https://tripgenie-api.onrender.com) · [📖 API Docs](http://localhost:3000/api/docs) · [🐛 Issues](https://github.com/loties1533/tripgenie-app/issues)
+[Demo Live](https://tripgenie-api.onrender.com) · [API Docs](http://localhost:3000/api/docs) · [Issues](https://github.com/loties1533/tripgenie-app/issues)
 
 ---
 
 </div>
 
-## 🎯 Présentation
+## Présentation
 
 Les comparateurs de voyage (Booking, Kayak, TripAdvisor) retournent **300 résultats bruts**. L'utilisateur doit filtrer, comparer, décider seul.
 
@@ -28,18 +28,18 @@ Les comparateurs de voyage (Booking, Kayak, TripAdvisor) retournent **300 résul
 
 L'utilisateur décrit son voyage en langage naturel → l'app génère un **pack complet clé en main** en moins de 30 secondes :
 
-- ✈️ Vols avec prix et compagnies (Tavily recherche web temps réel)
-- 🏨 Hôtels sélectionnés selon le style de voyage
-- 🍽️ Restaurants réels via Foursquare → Yelp (fallback)
-- 🎉 Événements locaux via PredictHQ → Tavily (fallback)
-- 🗓️ Itinéraire jour par jour
-- 🌤️ Météo prévue (Open-Meteo, sans clé API)
-- 💰 Budget ventilé par poste
-- 📊 Score de qualité du pack (0–1, algorithme déterministe)
+- Vols avec prix et compagnies (Tavily recherche web temps réel)
+- Hôtels sélectionnés selon le style de voyage
+- Restaurants réels via Foursquare → Yelp (fallback)
+- Événements locaux via PredictHQ → Tavily (fallback)
+- Itinéraire jour par jour
+- Météo prévue (Open-Meteo, sans clé API)
+- Budget ventilé par poste
+- Score de qualité du pack (0–1, algorithme déterministe)
 
 ---
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
 ### Onboarding conversationnel
 L'IA pose des questions naturelles pour extraire destination, budget, style, dates — et génère le pack à la fin. Pas de formulaire complexe.
@@ -69,26 +69,26 @@ Interface Swagger disponible sur `/api/docs` — toutes les routes sont testable
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 > **Pipeline IA orchestré côté serveur — pas un agent autonome.** Les étapes sont prédéfinies et s'enchaînent toujours dans le même ordre. Seul le chat de modification (`/api/ai/chat`) est agentique.
 
-> 📐 **Diagrammes en haute définition** — architecture, **MCD (Merise)**, modèle relationnel, séquences et scoring sont disponibles (sources `.mmd` + rendus PNG) dans **[`docs/architecture/`](docs/architecture/)**.
+> **Diagrammes en haute définition** — architecture, **MCD (Merise)**, modèle relationnel, séquences et scoring sont disponibles (sources `.mmd` + rendus PNG) dans **[`docs/architecture/`](docs/architecture/)**.
 
 ### Architecture en couches (3-tier)
 
 ```mermaid
 flowchart TB
-    subgraph PRES["🎨 COUCHE PRÉSENTATION"]
+    subgraph PRES["COUCHE PRÉSENTATION"]
         UI["Frontend React<br/>pages · composants · Zustand"]
         REST["API REST Express<br/>auth · trips · ai · votes · preferences · collaborators · photos"]
     end
-    subgraph LOGIC["⚙️ COUCHE LOGIQUE MÉTIER"]
+    subgraph LOGIC["COUCHE LOGIQUE MÉTIER"]
         Sec["Auth JWT · bcrypt · Validation Zod · Rate-limit"]
         Pipe["Pipeline IA : analyze → search → assemble → score"]
         Svc["Services : scoring · smartSearch · LLM cascade · restaurants"]
     end
-    subgraph PERS["🗄️ COUCHE PERSISTANCE"]
+    subgraph PERS["COUCHE PERSISTANCE"]
         ORM["Prisma ORM"]
         DB[("PostgreSQL — 6 tables (Docker)")]
     end
@@ -96,7 +96,7 @@ flowchart TB
     REST --> Sec --> Pipe --> Svc
     Svc -->|"requêtes typées"| ORM
     ORM --- DB
-    Pipe -.->|"APIs externes"| EXT["🌐 Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash · Claude/Gemini/OpenRouter"]
+    Pipe -.->|"APIs externes"| EXT["Tavily · Foursquare/Yelp · PredictHQ · Open-Meteo · Unsplash · Claude/Gemini/OpenRouter"]
 ```
 
 ### Le pipeline de génération
@@ -106,14 +106,15 @@ POST /api/ai/generate
         │
         ├─ 1. Validation Zod
         │
-        ├─ 2. Promise.allSettled([          ← Parallèle, 30s timeout
-        │       smartFlightSearch(),        ← Tavily : vols réels
-        │       smartEventsSearch(),        ← PredictHQ → Tavily fallback
-        │       smartHotelSearch(),         ← Tavily : hôtels
-        │       getRealWeather(),           ← Open-Meteo (sans clé)
-        │       getDestinationPhoto()       ← Unsplash (proxy backend)
-        │     ])
-        │   + foursquareSearch() → yelpSearch() (fallback)
+        ├─ 2. Recherches parallèles (chacune timeout 30s) :
+        │       Promise.allSettled([
+        │         smartFlightSearch(),      ← Tavily : vols réels
+        │         smartEventsSearch(),      ← PredictHQ → Tavily fallback
+        │         smartHotelSearch()        ← Tavily : hôtels
+        │       ])
+        │       + getRealWeather()          ← Open-Meteo (sans clé), en parallèle
+        │       + getDestinationPhoto()     ← Unsplash (proxy backend), en parallèle
+        │       + foursquareSearch() → yelpSearch() (fallback)
         │
         ├─ 3. assemblePack()               ← LLM + données réelles injectées
         │      Claude → Gemini → OpenRouter (cascade fallback)
@@ -129,7 +130,7 @@ POST /api/ai/generate
 ### Cascade LLM (fallback automatique)
 
 ```
-Claude Haiku  →  Gemini 2.0 Flash  →  OpenRouter (7 modèles gratuits)  →  Mocks statiques
+Claude Haiku  →  Gemini 2.0 Flash  →  OpenRouter (6 modèles gratuits)  →  Mocks statiques
 ```
 
 Claude est le provider principal (JSON fiable) ; si sa clé est absente ou s'il échoue (quota, timeout 45s), le suivant prend le relais automatiquement. `Promise.allSettled` garantit que la génération continue même si un service externe est en panne.
@@ -157,12 +158,12 @@ sequenceDiagram
     A->>A: 3. scoring déterministe (0–1)
     A->>DB: 4. sauvegarde via Prisma (si connecté)
     A-->>F: pack + score
-    F-->>U: pack clé en main 🎉
+    F-->>U: pack clé en main
 ```
 
 ---
 
-## 🗄️ Base de données
+## Base de données
 
 PostgreSQL via l'**ORM Prisma**. Le schéma est défini dans `prisma/schema.prisma`, les requêtes sont **typées de bout en bout**, et PostgreSQL tourne en local dans **Docker**.
 
@@ -245,7 +246,7 @@ erDiagram
     }
 ```
 
-### Modèle Conceptuel de Données — MCD (Merise) 🎁
+### Modèle Conceptuel de Données — MCD (Merise)
 
 En amont du schéma relationnel ci-dessus, le **MCD** décrit les entités métier et leurs associations indépendamment de PostgreSQL. L'association **n-n** `COLLABORER` — porteuse de l'attribut *rôle* — se matérialise par la table d'association `trip_collaborators` (d'où le passage de 5 entités conceptuelles à 6 tables physiques).
 
@@ -264,7 +265,7 @@ const trips = await prisma.trip.findMany({
 
 ---
 
-## 📊 Algorithme de Scoring
+## Algorithme de Scoring
 
 100% déterministe — zéro IA. Même entrée → même sortie. Score float entre 0 et 1.
 
@@ -283,7 +284,7 @@ Le mode `surprise` utilise une pondération à part (score global 60% + original
 
 ---
 
-## 🛠️ Stack Technique
+## Stack Technique
 
 ### Frontend
 | Technologie | Rôle |
@@ -294,7 +295,7 @@ Le mode `surprise` utilise une pondération à part (score global 60% + original
 | Zustand v5 | State management global (auth + trips) |
 | React Query v5 | Cache + fetching automatique |
 | Tailwind CSS | Styles utilitaires |
-| Framer Motion | Animations déclaratives |
+| sonner | Notifications (toasts) |
 | Leaflet | Carte interactive |
 | Recharts | Graphique budget breakdown |
 
@@ -317,7 +318,7 @@ Le mode `surprise` utilise une pondération à part (score global 60% + original
 |---------|------|---------|
 | Anthropic Claude Haiku | LLM principal (JSON fiable, appelé en premier si clé configurée) | Gemini |
 | Google Gemini 2.0 Flash | LLM secondaire (repli, quota gratuit) | OpenRouter |
-| OpenRouter | LLM tertiaire — 7 modèles gratuits | Mocks statiques |
+| OpenRouter | LLM tertiaire — 6 modèles gratuits | Mocks statiques |
 | Tavily | Recherche web temps réel (vols, hôtels) | Données IA |
 | PredictHQ | Événements structurés (concerts, festivals) | Tavily |
 | Foursquare Places | Restaurants réels (1000 req/jour gratuit) | Yelp |
@@ -327,7 +328,7 @@ Le mode `surprise` utilise une pondération à part (score global 60% + original
 
 ---
 
-## 🔒 Sécurité
+## Sécurité
 
 | Menace | Solution |
 |--------|----------|
@@ -356,16 +357,16 @@ sequenceDiagram
     A->>A: bcrypt.compare(motDePasse, hash)
     A->>A: jwt.sign({ id, email })
     A-->>F: 200 + Cookie httpOnly (tg_token)
-    F-->>U: connecté ✅
+    F-->>U: connecté
 ```
 
 ---
 
-## 🧪 Tests
+## Tests
 
 ```bash
 npm test          # fichiers core (~0.8s)
-npm run test:all  # 54 fichiers · 899 tests
+npm run test:all  # 18 fichiers · 303 tests
 ```
 
 ```
@@ -398,7 +399,7 @@ tests/
 
 ---
 
-## 🚀 Installation locale
+## Installation locale
 
 ### Prérequis
 - Node.js ≥ 18
@@ -452,11 +453,11 @@ PREDICTHQ_API_KEY=...
 # Open-Meteo : aucune clé requise
 ```
 
-> ⚠️ Ne jamais committer le `.env` réel. Le `.env.example` ne contient aucune valeur sensible.
+> Ne jamais committer le `.env` réel. Le `.env.example` ne contient aucune valeur sensible.
 
 ---
 
-## 📁 Structure du projet
+## Structure du projet
 
 ```
 tripgenie/
@@ -519,7 +520,7 @@ tripgenie/
 
 ---
 
-## 🌐 Routes API
+## Routes API
 
 Documentation interactive complète → **`/api/docs`** (Swagger UI)
 
@@ -529,7 +530,7 @@ Documentation interactive complète → **`/api/docs`** (Swagger UI)
 | POST | `/api/auth/signup` | — | Création de compte (bcrypt + cookie JWT) |
 | POST | `/api/auth/login` | — | Connexion + cookie httpOnly `tg_token` |
 | POST | `/api/auth/logout` | — | Clear cookie |
-| GET | `/api/auth/me` | ✅ | Profil utilisateur connecté |
+| GET | `/api/auth/me` | Oui | Profil utilisateur connecté |
 
 ### IA
 | Méthode | Route | Auth | Limite |
@@ -543,23 +544,23 @@ Documentation interactive complète → **`/api/docs`** (Swagger UI)
 ### Voyages (CRUD complet)
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
-| GET | `/api/trips` | ✅ | Liste (filtre mode/status, pagination) |
-| POST | `/api/trips` | ✅ | Créer un voyage |
-| GET | `/api/trips/:id` | ✅ | Détail + packs agrégés |
-| PUT | `/api/trips/:id` | ✅ | Modifier (title, status, pack_data…) |
-| DELETE | `/api/trips/:id` | ✅ | Supprimer |
-| GET | `/api/trips/share/:id` | 🌐 public | Partage public d'un voyage |
+| GET | `/api/trips` | Oui | Liste (filtre mode/status, pagination) |
+| POST | `/api/trips` | Oui | Créer un voyage |
+| GET | `/api/trips/:id` | Oui | Détail + packs agrégés |
+| PUT | `/api/trips/:id` | Oui | Modifier (title, status, pack_data…) |
+| DELETE | `/api/trips/:id` | Oui | Supprimer |
+| GET | `/api/trips/share/:id` | public | Partage public d'un voyage |
 
 ### Autres ressources
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
-| GET/PUT | `/api/preferences` | ✅ | Préférences utilisateur |
-| GET/POST | `/api/trips/:id/collaborators` | ✅ | Collaborateurs |
-| DELETE | `/api/trips/:id/collaborators/:uid` | ✅ | Retirer un collaborateur |
-| POST | `/api/votes` | 🌐 public | Voter sur un élément |
-| GET | `/api/votes/:pack_id` | 🌐 public | Récupérer les votes |
-| GET | `/api/photos/:city` | 🌐 public | Photo destination (proxy Unsplash) |
-| GET | `/api/health` | 🌐 public | Healthcheck |
+| GET/PUT | `/api/preferences` | Oui | Préférences utilisateur |
+| GET/POST | `/api/trips/:id/collaborators` | Oui | Collaborateurs |
+| DELETE | `/api/trips/:id/collaborators/:uid` | Oui | Retirer un collaborateur |
+| POST | `/api/votes` | public | Voter sur un élément |
+| GET | `/api/votes/:pack_id` | public | Récupérer les votes |
+| GET | `/api/photos/:city` | public | Photo destination (proxy Unsplash) |
+| GET | `/api/health` | public | Healthcheck |
 
 ---
 

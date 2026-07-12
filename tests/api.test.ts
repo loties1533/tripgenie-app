@@ -404,8 +404,9 @@ describe('🤖 AI — Validation des inputs', () => {
       .post('/api/ai/destinations')
       .send({ budget: 2000, travelers: 2 });
     expect(noMode.status).toBe(200);
-    // Mode en français → normalisé (luxe → relax, « luxe » n'étant plus un mode
-    // mais le niveau de prix premium), toujours accepté sans 400.
+    // « luxe » n'est pas un mode (c'est le niveau de prix premium, un autre axe) :
+    // il n'est plus rabattu sur une orientation → l'endpoint retombe sur le défaut
+    // et répond quand même 200 (aucun blocage sur un mot inconnu).
     const frMode = await request(app)
       .post('/api/ai/destinations')
       .send({ mode: 'luxe', budget: 2000, travelers: 2 });

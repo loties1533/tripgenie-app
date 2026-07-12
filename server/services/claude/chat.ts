@@ -1,6 +1,6 @@
 import * as Mocks from '../mocks.js';
 import { callAI, parseJSON, sanitizeInput, normalizeChips } from './core.js';
-import type { ResultatOnboarding, Pack, TravelMode } from '../../lib/types.js';
+import type { ResultatOnboarding, Pack, TravelMode, Activite } from '../../lib/types.js';
 
 interface ParamsChatIntake {
   currentData?: Record<string, unknown>;
@@ -135,7 +135,7 @@ export async function chatModify({ currentPack, userMessage }: ParamsChatModify)
     // Google Maps universel, comme à la génération initiale (transformerActivites).
     const destinationPack = currentPack?.destination ?? '';
     if (packModifie.modifications?.activities) {
-      packModifie.modifications.activities = packModifie.modifications.activities.map((a: any) => ({
+      packModifie.modifications.activities = packModifie.modifications.activities.map((a: Activite & { title?: string }) => ({
         ...a,
         booking_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((a.name || a.title || '') + ' ' + destinationPack)}`,
       }));

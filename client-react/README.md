@@ -1,6 +1,6 @@
-cli# TripGenie — Frontend React
+# TripGenie — Frontend React
 
-Interface React pour TripGenie. Stack : **Vite + React 18 + TypeScript + Tailwind CSS + Zustand + Framer Motion**.
+Interface React pour TripGenie. Stack : **Vite + React 18 + TypeScript + Tailwind CSS + Zustand + React Query**.
 
 ## Installation
 
@@ -23,7 +23,7 @@ Le frontend tourne sur **http://localhost:3001** et proxifie `/api/*` vers le ba
 src/
 ├── components/
 │   ├── chat/
-│   │   ├── ChatWidget.tsx      ← Chat IA onboarding (Zustand + Framer Motion)
+│   │   ├── ChatWidget.tsx      ← Chat IA onboarding (Zustand)
 │   │   └── ModifyChat.tsx      ← Chat de modification post-génération (agentique)
 │   ├── results/
 │   │   ├── PackResults.tsx     ← Affichage complet du pack voyage

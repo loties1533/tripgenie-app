@@ -14,7 +14,7 @@ const CATEGORIES_YELP_PAR_MODE: Record<TravelMode, string> = {
   surprise: 'restaurants,newamerican,fusion',
 };
 
-// Niveau de prix premium (axe orthogonal au mode) → catégories haut de gamme,
+// Niveau de prix premium (indépendant du mode) → catégories haut de gamme,
 // quelle que soit la vibe. (Ancienne catégorie du mode « luxury ».)
 const CATEGORIES_YELP_PREMIUM = 'restaurants,frenchrestaurants,wine_bars';
 

@@ -1,23 +1,24 @@
 import type { TravelMode, Profile, TripStatus } from './types.js';
 
 // ─────────────────────────────────────────────────────────────
-// Taxonomie d'une demande de voyage : 4 axes indépendants.
+// Une demande de voyage se décrit avec 4 critères indépendants.
 // On les garde séparés parce qu'ils répondent à des questions différentes ;
 // les mélanger, c'est ce qui rend le code dur à suivre.
 //
-//   1. Ambiance (MODES)    → ce qu'on veut vivre : fête, détente…
+//   1. Orientation (MODES)  → l'orientation du séjour : fête, détente, étudiant
+//                             (petit budget), groupe (à plusieurs), surprise
 //   2. Profil   (PROFILES) → avec qui on part : solo, couple, amis, famille
 //   3. Confort  (premium)  → le standing : classique / premium (voir PLAFONDS)
 //   4. Contraintes         → budget (€), nombre de voyageurs, dates
 //
-// Dettes connues (des modes portent encore deux axes à la fois) — à revoir
-// d'un bloc plus tard, pas à la va-vite :
-//   - 'student' est en fait un signal de BUDGET, pas une ambiance (doublon avec le budget).
-//   - 'group' recoupe le profil (amis/famille) et le nombre de voyageurs.
-//   - dans routes/ai.ts, le mot « couple » (un profil) force le mode 'relax'.
+// Dette assumée : deux orientations s'appuient encore sur un autre critère —
+// 'student' penche sur le budget, 'group' sur le profil et le nombre de voyageurs.
+// C'est volontairement laissé en l'état pour le MVP ; la séparation complète
+// (reporter ces comportements sur le budget et le profil) est prévue ensuite.
+// Les alias qui forçaient un profil vers un mode (couple, amis…) ont déjà été retirés.
 // ─────────────────────────────────────────────────────────────
 
-// Axe 1 — Ambiance : ce que le voyageur veut vivre.
+// Critère 1 — Orientation : l'orientation dominante du séjour.
 export const MODES = {
   PARTY:    'party',
   STUDENT:  'student',
@@ -57,7 +58,7 @@ export const BUDGET_RATIOS: Record<TravelMode, RatioBudget> = {
   surprise: { vols: 0.28, hebergement: 0.32, activites: 0.18, restauration: 0.13, transports: 0.06 },
 };
 
-// Plafonds de dépenses selon le NIVEAU DE PRIX (axe orthogonal au mode/vibe).
+// Plafonds de dépenses selon le NIVEAU DE PRIX (critère indépendant du mode).
 // Remplace les anciens `mode === 'luxury' ? X : Y` dispersés dans pack.ts :
 // une seule source de vérité pour régler les 2 niveaux Premium / Classique.
 //   maxPpn    = prix max €/nuit/personne pour l'hébergement
