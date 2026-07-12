@@ -106,14 +106,15 @@ POST /api/ai/generate
         │
         ├─ 1. Validation Zod
         │
-        ├─ 2. Promise.allSettled([          ← Parallèle, 30s timeout
-        │       smartFlightSearch(),        ← Tavily : vols réels
-        │       smartEventsSearch(),        ← PredictHQ → Tavily fallback
-        │       smartHotelSearch(),         ← Tavily : hôtels
-        │       getRealWeather(),           ← Open-Meteo (sans clé)
-        │       getDestinationPhoto()       ← Unsplash (proxy backend)
-        │     ])
-        │   + foursquareSearch() → yelpSearch() (fallback)
+        ├─ 2. Recherches parallèles (chacune timeout 30s) :
+        │       Promise.allSettled([
+        │         smartFlightSearch(),      ← Tavily : vols réels
+        │         smartEventsSearch(),      ← PredictHQ → Tavily fallback
+        │         smartHotelSearch()        ← Tavily : hôtels
+        │       ])
+        │       + getRealWeather()          ← Open-Meteo (sans clé), en parallèle
+        │       + getDestinationPhoto()     ← Unsplash (proxy backend), en parallèle
+        │       + foursquareSearch() → yelpSearch() (fallback)
         │
         ├─ 3. assemblePack()               ← LLM + données réelles injectées
         │      Claude → Gemini → OpenRouter (cascade fallback)
@@ -129,7 +130,7 @@ POST /api/ai/generate
 ### Cascade LLM (fallback automatique)
 
 ```
-Claude Haiku  →  Gemini 2.0 Flash  →  OpenRouter (7 modèles gratuits)  →  Mocks statiques
+Claude Haiku  →  Gemini 2.0 Flash  →  OpenRouter (6 modèles gratuits)  →  Mocks statiques
 ```
 
 Claude est le provider principal (JSON fiable) ; si sa clé est absente ou s'il échoue (quota, timeout 45s), le suivant prend le relais automatiquement. `Promise.allSettled` garantit que la génération continue même si un service externe est en panne.
@@ -294,7 +295,7 @@ Le mode `surprise` utilise une pondération à part (score global 60% + original
 | Zustand v5 | State management global (auth + trips) |
 | React Query v5 | Cache + fetching automatique |
 | Tailwind CSS | Styles utilitaires |
-| Framer Motion | Animations déclaratives |
+| sonner | Notifications (toasts) |
 | Leaflet | Carte interactive |
 | Recharts | Graphique budget breakdown |
 
@@ -317,7 +318,7 @@ Le mode `surprise` utilise une pondération à part (score global 60% + original
 |---------|------|---------|
 | Anthropic Claude Haiku | LLM principal (JSON fiable, appelé en premier si clé configurée) | Gemini |
 | Google Gemini 2.0 Flash | LLM secondaire (repli, quota gratuit) | OpenRouter |
-| OpenRouter | LLM tertiaire — 7 modèles gratuits | Mocks statiques |
+| OpenRouter | LLM tertiaire — 6 modèles gratuits | Mocks statiques |
 | Tavily | Recherche web temps réel (vols, hôtels) | Données IA |
 | PredictHQ | Événements structurés (concerts, festivals) | Tavily |
 | Foursquare Places | Restaurants réels (1000 req/jour gratuit) | Yelp |
