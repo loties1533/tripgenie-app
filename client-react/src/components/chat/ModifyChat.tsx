@@ -55,7 +55,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
       // On ne fusionne QUE si l'IA a réellement renvoyé des changements.
       // Chaque clé présente (activities/hotels/itinerary) remplace la liste
       // correspondante → l'IA doit renvoyer la liste complète et à jour
-      // (cf. prompt chatModify côté serveur), sinon les anciens éléments sont perdus.
+      // (cf. prompt chatModify côté serveur), sinon les anciens éléments sont perdus
       const mods = donneesReponse.modifications
       const aDesModifs = mods && typeof mods === 'object' && Object.keys(mods).length > 0
       if (aDesModifs && pack) {

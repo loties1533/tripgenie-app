@@ -74,6 +74,9 @@ app.use(cors({
 
 // ---- Middlewares de base ----
 app.use(express.json({ limit: '1mb' }));
+
+// Parse automatiquement les cookies envoyés par le navigateur.
+// Permet de récupérer facilement le JWT via req.cookies.
 app.use(cookieParser());
 
 // Logging : format lisible en dev, compact en prod
@@ -119,14 +122,20 @@ app.use(
 // Spec brute (JSON) — utile pour Postman/Insomnia (Import → OpenAPI)
 app.get('/api/docs.json', (req, res) => res.json(openapiSpec));
 
-// ---- Gestion Frontend (Mode Production) ----
+// Gestion Frontend (Mode Production)
+// En production, Express joue deux rôles :
+// 1- répond aux routes API (/api/...)
+// 2- sert également le build React généré par Vite (client-react/dist)
+// une seule application Render héberge à la fois le frontend et le backend
+// En développement, le frontend est lancé par Vite (localhost:3001) et communique avec Express
 if (process.env.NODE_ENV === 'production') {
   console.log('Serveur en mode PRODUCTION - Service des fichiers React statiques');
   
   // Sert les fichiers statiques construits par Vite
   app.use(express.static(path.join(__dirname, '../client-react/dist')));
 
-  // Redirige toutes les requêtes non-API vers l'index.html de React
+// Toute route qui n'est pas une API renvoie index.html
+// React Router prend ensuite le relais côté navigateur pour afficher la bonne page
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) return next();
     res.sendFile(path.join(__dirname, '../client-react/dist/index.html'));

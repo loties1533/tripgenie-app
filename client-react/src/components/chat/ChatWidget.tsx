@@ -148,7 +148,7 @@ function TypingDots() {
   )
 }
 
-// Message bubble
+// Message bulle + chips
 function Message({ msg, onChipClick }: { msg: any; onChipClick?: (label: string) => void }) {
   const isBot = msg.role === 'bot' || msg.role === 'assistant'
   return (
@@ -186,7 +186,7 @@ function StaticChip({ label }: { label: string }) {
   return <span className="chip text-sm opacity-60 cursor-default">{label}</span>
 }
 
-// Composant input inline
+// Composant InlineInput pour saisir date, voyageurs ou budget
 function InlineInput({
   mode,
   dateRange,
@@ -294,9 +294,8 @@ function InlineInput({
   )
 }
 
-// =============================================
+
 // LOGIQUE TEXTE LIBRE (IA parsing)
-// =============================================
 async function traiterMessageIA(value: string, ctx: any) {
   const { addMessage, mergeChatData, setTyping, setReady, setMockMode,
           setField, chatData, turnCount, homeCity } = ctx
@@ -312,7 +311,7 @@ async function traiterMessageIA(value: string, ctx: any) {
     merged.origin = merged.origin || homeCity || 'Paris'
     if (reponse.isReady || forceReady) {
       setReady(true)
-      addMessage({ role: 'bot', text: "Super, j'ai ce qu'il me faut. Je vous trouve les meilleures destinations…" })
+      addMessage({ role: 'bot', text: "C'est noté. Je vous cherche trois destinations…" })
       await suggestDestinations(merged, { addMessage, setTyping, setField, setReady })
     } else {
       addMessage({ role: 'bot', text: reponse.response, chips: reponse.chips || [] })
@@ -327,7 +326,7 @@ async function traiterMessageIA(value: string, ctx: any) {
 async function suggestDestinations(
   chatData: any,
   ctx: any,
-  // FIX 11 : guard montage pour éviter les setField sur composant démonté
+  // FIX 11 : ref de montage — empêche setField sur composant démonté
   guard?: { mounted: { current: boolean } }
 ) {
   const { addMessage, setTyping, setField, setReady } = ctx
@@ -350,7 +349,7 @@ async function suggestDestinations(
     if (destinations.length) {
       setField('concepts', destinations)
     } else {
-      // Échec : on rouvre l'UI quiz (setReady=false) pour permettre un retry.
+      // Échec : l'IA n'a pas renvoyé de destinations → on ne bloque pas l'utilisateur, on lui propose de réessayer
       setReady?.(false)
       addMessage({ role: 'bot', text: "Je n'ai pas réussi à charger les destinations — on réessaie ?" })
     }
@@ -380,7 +379,7 @@ export default function ChatWidget() {
   const [dateRange, setDateRange]             = useState({ departure: '', return_date: '' })
   const [travelersCount, setTravelersCount]   = useState<number | ''>('')
   const [budgetAmount, setBudgetAmount]       = useState<number | ''>('')
-  // Préférences utilisateur chargées au montage : ville de départ (home_city) ET
+  // Préférences utilisateur chargées au montage : ville de départ (home_city)
   // style de voyage (default_mode). Le mode vient de la PRÉFÉRENCE, jamais de
   // l'occasion → si une préf de mode existe, on saute l'étape « style » du quiz.
   const [homeCity, setHomeCity] = useState<string>('')
@@ -411,7 +410,7 @@ export default function ChatWidget() {
         }
       })
       .catch(() => {})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // FIX 10 : [] pour ne pas recharger les préférences à chaque render (boucle infinie)
   }, [])
 
   const scrollRef  = useRef<HTMLDivElement>(null)

@@ -554,7 +554,6 @@ export async function assemblerPack({
     },
     tips: [
       { title: 'Conseil pratique', content: texteIA.conseil1 ?? "Réservez à l'avance" },
-      { title: 'Sur place',        content: texteIA.conseil2 ?? 'Explorez les quartiers locaux' },
     ],
   };
 }

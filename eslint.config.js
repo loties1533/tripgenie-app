@@ -1,10 +1,9 @@
-// =============================================
+
 // TRIPGENIE — ESLint (flat config, non-bloquant)
 // Objectif : filet de sécurité léger (imports inutilisés, hooks React,
 // anti-patterns) SANS casser le build. Tout est en "warn", jamais "error".
 // Les console.* sont volontairement tolérés (logging assumé côté serveur).
 // Lancer : npm run lint
-// =============================================
 
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
@@ -24,7 +23,7 @@ export default tseslint.config(
     ],
   },
 
-  // Base JS + TS recommandé (sans analyse de types → rapide, pas de tsconfig requis)
+  // Base JS + TS recommandé (sans analyse de types  rapide, pas de tsconfig requis)
   js.configs.recommended,
   ...tseslint.configs.recommended,
 
@@ -42,7 +41,7 @@ export default tseslint.config(
     },
   },
 
-  // --- Serveur (Node / Express, ESM) ---
+  // Serveur (Node / Express, ESM) 
   {
     files: ['server/**/*.ts'],
     languageOptions: {
@@ -50,7 +49,7 @@ export default tseslint.config(
     },
   },
 
-  // --- Client (React + Vite, navigateur) ---
+  // Client (React + Vite, navigateur)
   {
     files: ['client-react/src/**/*.{ts,tsx}'],
     plugins: { 'react-hooks': reactHooks },
@@ -59,7 +58,7 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      // Nouvelles règles react-hooks v7 (react-compiler) → warn, pas bloquant
+      // Nouvelles règles react-hooks v7 warn, pas bloquant
       'react-hooks/set-state-in-effect': 'warn',
       'react-hooks/purity': 'warn',
     },
