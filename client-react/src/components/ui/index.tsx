@@ -3,7 +3,7 @@ import React from 'react'
 
 export { default as GenerationLoader } from './GenerationLoader'
 
-// Skeleton loader
+// Squelette de chargement
 export function Skeleton({ className }: { className?: string }) {
   return <div className={clsx('skeleton', className)} />
 }
@@ -40,7 +40,7 @@ export function TabBar({ tabs, active, onChange }: { tabs: any[], active: string
   )
 }
 
-// Section header
+// En-tête de section
 export function SectionTitle({ children, sub }: { children: React.ReactNode, sub?: string }) {
   return (
     <div className="mb-4">

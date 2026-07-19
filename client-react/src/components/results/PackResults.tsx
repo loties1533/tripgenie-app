@@ -8,7 +8,7 @@ import PackSkeleton from './PackSkeleton'
 import TripMap from './TripMap'
 import VoteButtons from './VoteButtons'
 
-// ---- Internal Components ----
+// ---- Composants internes ----
 const TagBadge = ({ text }: { text?: string }) => {
   if (!text) return null
   return (
@@ -28,7 +28,7 @@ function lienReservation(item: any, destination: string): string {
   return `https://www.google.com/search?q=${q}`
 }
 
-// ---- Flight card ----
+// ---- Carte vol ----
 function FlightCard({ flight, packId, destination }: { flight: any; packId: string; destination: string }) {
   const isReturn  = flight.type === 'return'
   // Skyscanner pré-rempli (route IATA + dates + voyageurs) = le lien qui ouvre le
@@ -100,7 +100,7 @@ function FlightCard({ flight, packId, destination }: { flight: any; packId: stri
   )
 }
 
-// ---- Itinerary day ----
+// ---- Jour d'itinéraire ----
 function ItineraryDay({ day, destination }: { day: any; destination: string }) {
   const [open, setOpen] = useState(true)
 
@@ -162,7 +162,7 @@ function ItineraryDay({ day, destination }: { day: any; destination: string }) {
   )
 }
 
-// ---- Budget breakdown chart ----
+// ---- Camembert de répartition du budget ----
 function BudgetChart({ breakdown }: { breakdown: any }) {
   if (!breakdown) return null
   const totalNum = parseInt(breakdown.total as string) || 0
@@ -221,7 +221,7 @@ function BudgetChart({ breakdown }: { breakdown: any }) {
   )
 }
 
-// ---- Event card ----
+// ---- Carte événement ----
 function EventCard({ event, destination }: { event: any; destination: string }) {
   const bookingUrl = lienReservation(event, destination)
 
@@ -240,8 +240,8 @@ function EventCard({ event, destination }: { event: any; destination: string }) 
   )
 }
 
-// ---- Activity card ----
-// MAIN PACK RESULTS
+// ---- Carte activité ----
+// COMPOSANT PRINCIPAL DU PACK
 const TABS = [
   { id: 'overview',    label: 'Aperçu' },
   { id: 'hotels',      label: 'Hôtels' },
@@ -281,7 +281,7 @@ export default function PackResults() {
     </div>
   ) : null
 
-  // Function to center map on an item
+  // Centre la carte sur un élément
   const gererLocalisation = async (name: string) => {
     setActiveTab('overview')
     try {
@@ -289,7 +289,7 @@ export default function PackResults() {
       const data = await res.json()
       if (data && data.length > 0) {
         setFocusedLocation([parseFloat(data[0].lat), parseFloat(data[0].lon)])
-        // Scroll to top to see the map
+        // Remonte en haut pour voir la carte
         window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     } catch (err) {
@@ -297,7 +297,7 @@ export default function PackResults() {
     }
   }
 
-  // Function to share via WhatsApp
+  // Partage via WhatsApp
   const handleShare = () => {
     const url = window.location.href
     // Formate une date ISO (2026-08-15T00:00:00.000Z) en date lisible (15/08/2026).
@@ -316,7 +316,7 @@ export default function PackResults() {
     window.open(waUrl, '_blank')
   }
 
-  // ---- Internal Cards with Locate & Vote button ----
+  // ---- Cartes internes avec bouton Localiser + Vote ----
   const LocalHotelCard = ({ hotel }: { hotel: any }) => (
     <div className="glass rounded-sm p-4 flex flex-col gap-3 group hover:border-gold/30 transition-colors">
       <div className="flex gap-3">
@@ -403,9 +403,9 @@ export default function PackResults() {
       {/* Bandeau Mode Survie — visible uniquement quand isMock: true */}
       {MockBanner}
 
-      {/* Hero banner */}
+      {/* Bandeau d'accueil */}
       <div className="glass-premium rounded-sm p-4 sm:p-6 relative overflow-hidden min-h-[220px] sm:min-h-[260px] flex items-end">
-        {/* Background Image */}
+        {/* Image de fond */}
         <div className="absolute inset-0 z-0">
           <img
             src={donneesPack.photo_url || `https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80`}
@@ -480,14 +480,14 @@ export default function PackResults() {
             </div>
           )}
 
-          {/* Overview */}
+          {/* Aperçu */}
           {donneesPack.overview && (
             <p className="mt-4 text-sm leading-relaxed text-muted border-l-2 border-gold/40 pl-4">
               {donneesPack.overview}
             </p>
           )}
 
-          {/* Tips */}
+          {/* Conseils */}
           {(donneesPack.tips?.length ?? 0) > 0 && (
             <div className="mt-3 space-y-1">
               {donneesPack.tips?.map((tip, i) => (
@@ -502,10 +502,10 @@ export default function PackResults() {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Onglets */}
       <TabBar tabs={TABS} active={activeTab} onChange={setActiveTab} />
 
-      {/* Tab content */}
+      {/* Contenu de l'onglet */}
       
         <div key={activeTab}
 >

@@ -58,7 +58,7 @@ export default function PackSkeleton() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-ink">
 
-      {/* Background image qui change */}
+      {/* Image de fond qui change */}
       
         <div
           key={current}
@@ -69,7 +69,7 @@ export default function PackSkeleton() {
             alt="loading"
             className="w-full h-full object-cover"
           />
-          {/* Overlay noir profond */}
+          {/* Voile noir profond */}
           <div className="absolute inset-0 bg-ink/70" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/60" />
         </div>
@@ -128,7 +128,7 @@ export default function PackSkeleton() {
         </div>
       </div>
 
-      {/* Quote en bas */}
+      {/* Citation en bas */}
       <div className="absolute bottom-10 left-0 right-0 text-center z-10">
         <p className="text-white/20 text-xs italic tracking-wider">
           "Les plus beaux voyages commencent par une envie."

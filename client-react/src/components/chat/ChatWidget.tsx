@@ -3,7 +3,7 @@ import { useChatStore, useSearchStore } from '../../store'
 import { chatOnboarding, getDestinations, getPreferences } from '../../lib/api'
 import Logo from '../ui/Logo'
 
-// ---- FIX 3 : date locale — évite le décalage UTC/local pour les users UTC- ----
+// ---- CORRECTIF 3 : date locale — évite le décalage UTC/local pour les users UTC- ----
 // toISOString() retourne UTC ; pour UTC-5 à 23h30, ça donne "demain".
 // localDateStr() utilise les méthodes locales du navigateur → toujours le bon jour.
 function localDateStr(d: Date): string {
@@ -16,7 +16,7 @@ function ajouterJours(n: number): string {
   return localDateStr(d)
 }
 
-// ---- FIX 6 : utilitaire centralisé — était dupliqué 3 fois ----
+// ---- CORRECTIF 6 : utilitaire centralisé — était dupliqué 3 fois ----
 function computeReturnDate(departure: string, durationDays: number): string {
   return localDateStr(new Date(new Date(departure).getTime() + durationDays * 86400000))
 }
@@ -42,11 +42,11 @@ function buildRecapMessage(data: Record<string, unknown>): string {
   const travelers = data.travelers
     ? `${data.travelers} personne${(data.travelers as number) > 1 ? 's' : ''}`
     : '—'
-  // FIX 5 : budget peut arriver en string depuis l'IA — Number() avant toLocaleString
+  // CORRECTIF 5 : budget peut arriver en string depuis l'IA — Number() avant toLocaleString
   const budget = data.budget
     ? `${Number(data.budget).toLocaleString('fr-FR')}€`
     : '—'
-  // FIX 5 : departure manquant = avertissement visible, pas '—' silencieux
+  // CORRECTIF 5 : departure manquant = avertissement visible, pas '—' silencieux
   const departure = (data.departure as string) || 'date non précisée'
   const duration  = data.duration
     ? `${data.duration} jour${(data.duration as number) > 1 ? 's' : ''}`
@@ -98,7 +98,7 @@ const QUIZ_STEPS = [
       { label: '2 personnes',       data: { travelers: 2 } },
       { label: '3-4 personnes',     data: { travelers: 4 } },
       { label: '5-8 personnes',     data: { travelers: 6 } },
-      // Au-delà de 8 : on laisse saisir le nombre EXACT (input inline), pas un preset flou.
+      // Au-delà de 8 : on laisse saisir le nombre EXACT (saisie en ligne), pas un preset flou.
       { label: 'Nombre exact…', data: null            },
     ]
   },
@@ -208,7 +208,7 @@ function InlineInput({
   onConfirm: () => void
   onCancel: () => void
 }) {
-  // FIX 3 : date locale — pas de décalage UTC pour les users Americas
+  // CORRECTIF 3 : date locale — pas de décalage UTC pour les users Americas
   const today = localDateStr(new Date())
 
   const canConfirm = mode === 'date'
@@ -326,7 +326,7 @@ async function traiterMessageIA(value: string, ctx: any) {
 async function suggestDestinations(
   chatData: any,
   ctx: any,
-  // FIX 11 : ref de montage — empêche setField sur composant démonté
+  // CORRECTIF 11 : ref de montage — empêche setField sur composant démonté
   guard?: { mounted: { current: boolean } }
 ) {
   const { addMessage, setTyping, setField, setReady } = ctx
@@ -371,7 +371,7 @@ export default function ChatWidget() {
   const { setField } = useSearchStore()
 
   const [input, setInput]   = useState('')
-  // FIX 12 : sendingRef = ref pour éviter la race condition sendMessage/sendChip
+  // CORRECTIF 12 : sendingRef = ref pour éviter la race condition sendMessage/sendChip
   const sendingRef          = useRef(false)
   const [sending, setSending] = useState(false) // pour l'UI (spinner)
   const [awaitingConfirm, setAwaitingConfirm] = useState(false)
@@ -410,15 +410,15 @@ export default function ChatWidget() {
         }
       })
       .catch(() => {})
-  // FIX 10 : [] pour ne pas recharger les préférences à chaque render (boucle infinie)
+  // CORRECTIF 10 : [] pour ne pas recharger les préférences à chaque render (boucle infinie)
   }, [])
 
   const scrollRef  = useRef<HTMLDivElement>(null)
   const inputRef   = useRef<HTMLTextAreaElement>(null)
   const initRef    = useRef<boolean>(false)
-  // FIX 11 : ref de montage — empêche setField sur composant démonté.
+  // CORRECTIF 11 : ref de montage — empêche setField sur composant démonté.
   // Note : on REMET à true à chaque (re)montage : en React.StrictMode (dev), le cycle
-  // mount→unmount→remount laisserait sinon mountedRef à false → le guard bloquerait
+  // mount→unmount→remount laisserait sinon mountedRef à false → la garde bloquerait
   // setField('concepts') et les cartes n'apparaîtraient jamais ("ça charge, rien n'arrive").
   const mountedRef = useRef(true)
   useEffect(() => {
@@ -440,7 +440,7 @@ export default function ChatWidget() {
     }
   }, [])
 
-  // FIX 2 : réinitialiser les états locaux quand resetChat() est appelé (messages vidés)
+  // CORRECTIF 2 : réinitialiser les états locaux quand resetChat() est appelé (messages vidés)
   useEffect(() => {
     if (messages.length === 0) {
       setAwaitingConfirm(false)
@@ -461,7 +461,7 @@ export default function ChatWidget() {
 
   // Handler chip quiz
   const handleQuizChip = useCallback(async (chip: any) => {
-    // Chip d'input inline (data === null)
+    // Pastille de saisie en ligne (data === null)
     if (chip.data === null) {
       if (chip.label.includes('Date précise'))   setInputMode('date')
       if (chip.label.includes('Nombre exact'))   setInputMode('travelers')
@@ -477,7 +477,7 @@ export default function ChatWidget() {
     const currentStep = QUIZ_STEPS[quizStep]
     const isLast      = quizStep === QUIZ_STEPS.length - 1
 
-    // FIX 6 : recalcul return_date via utilitaire centralisé
+    // CORRECTIF 6 : recalcul return_date via utilitaire centralisé
     if (currentStep.key === 'duration' && chipData?.duration && chatData.departure) {
       mergeChatData({ return_date: computeReturnDate(chatData.departure as string, chipData.duration as number) })
     }
@@ -501,7 +501,7 @@ export default function ChatWidget() {
       const next = QUIZ_STEPS[quizStep + pas]
       setTimeout(() => addMessage({ role: 'bot', text: next.question }), 300)
     }
-  // FIX 9 : awaitingConfirm retiré des deps (non lu dans le corps du callback)
+  // CORRECTIF 9 : awaitingConfirm retiré des deps (non lu dans le corps du callback)
   }, [quizStep, chatData, modePref, premiumPref])
 
   // Confirmation récap
@@ -514,7 +514,7 @@ export default function ChatWidget() {
       merged.return_date = computeReturnDate(merged.departure as string, merged.duration as number)
     }
 
-    // FIX 5 : validation departure avant d'envoyer à l'IA
+    // CORRECTIF 5 : validation departure avant d'envoyer à l'IA
     if (!merged.departure) {
       setAwaitingConfirm(true)
       setTimeout(() => addMessage({
@@ -527,14 +527,14 @@ export default function ChatWidget() {
     addMessage({ role: 'user', text: "C'est parfait !" })
     setTimeout(() => addMessage({ role: 'bot', text: "C'est parti, je cherche vos destinations…" }), 200)
     setReady(true)
-    // FIX 11 : passage du guard de montage
+    // CORRECTIF 11 : passage de la garde de montage
     await suggestDestinations(merged, { addMessage, setTyping, setField, setReady }, { mounted: mountedRef })
   }, [chatData, homeCity])
 
-  // ---- Modifier → reset chatData + retour step 0 ----
+  // ---- Modifier → réinitialise chatData + retour à l'étape 0 ----
   const handleModify = useCallback(() => {
     setAwaitingConfirm(false)
-    // FIX 7 : réinitialiser chatData pour éviter les données fantômes du quiz précédent.
+    // CORRECTIF 7 : réinitialiser chatData pour éviter les données fantômes du quiz précédent.
     // Le mode retombe sur la PRÉFÉRENCE si elle existe, sinon 'party' → Modifier ne
     // réécrase pas le style choisi par l'utilisateur (préférence prime).
     mergeChatData({ travelers: null, profile: null, mode: modePref || 'party', premium: premiumPref ?? false, budget: null, departure: null, return_date: null, duration: null })
@@ -542,9 +542,9 @@ export default function ChatWidget() {
     setTimeout(() => addMessage({ role: 'bot', text: QUIZ_STEPS[0].question }), 200)
   }, [modePref, premiumPref])
 
-  // Confirm input inline
+  // Confirmation de la saisie en ligne
   const handleInlineConfirm = useCallback(async () => {
-    // FIX 4 : try/finally — inputMode toujours réinitialisé même en cas d'exception
+    // CORRECTIF 4 : try/finally — inputMode toujours réinitialisé même en cas d'exception
     try {
       if (inputMode === 'date') {
         const dateDepart = dateRange.departure
@@ -572,7 +572,7 @@ export default function ChatWidget() {
         }
 
       } else if (inputMode === 'travelers') {
-        // FIX 8 : !travelersCount est faux positif sur 0 → guard explicite
+        // CORRECTIF 8 : !travelersCount est faux positif sur 0 → garde explicite
         if (travelersCount === '') return
         await handleQuizChip({
           label: `${travelersCount} personne${(travelersCount as number) > 1 ? 's' : ''}`,
@@ -587,10 +587,10 @@ export default function ChatWidget() {
         })
       }
     } catch {
-      // FIX 4 : en cas d'erreur, on informe sans bloquer l'UI
+      // CORRECTIF 4 : en cas d'erreur, on informe sans bloquer l'interface
       addMessage({ role: 'bot', text: 'Quelque chose a coincé de mon côté — on réessaie ?' })
     } finally {
-      // FIX 4 : toujours nettoyer l'état inline
+      // CORRECTIF 4 : toujours nettoyer l'état inline
       setInputMode(null)
       setDateRange({ departure: '', return_date: '' })
       setTravelersCount('')
@@ -601,7 +601,7 @@ export default function ChatWidget() {
   // Envoi texte libre
   const sendMessage = useCallback(async () => {
     const text = input.trim()
-    // FIX 12 : sendingRef.current = toujours à jour (pas de stale closure comme avec le state)
+    // CORRECTIF 12 : sendingRef.current = toujours à jour (pas de stale closure comme avec le state)
     if (!text || sendingRef.current) return
     sendingRef.current = true
     setSending(true)
@@ -622,7 +622,7 @@ export default function ChatWidget() {
 
   // Clic sur un chip de réponse bot
   const sendChip = useCallback(async (label: string) => {
-    // FIX 12 : sendingRef empêche la race condition avec sendMessage
+    // CORRECTIF 12 : sendingRef empêche la race condition avec sendMessage
     if (sendingRef.current || isTyping) return
     sendingRef.current = true
     setSending(true)
@@ -750,7 +750,7 @@ export default function ChatWidget() {
         
       </div>
 
-      {/* Input texte libre (mode freeform uniquement) */}
+      {/* Saisie texte libre (mode libre uniquement) */}
       {!quizMode && (
         <div className="px-4 pb-4 pt-2">
           <div className="flex gap-2 items-end bg-white/60 backdrop-blur-md border border-gold/20 rounded-sm p-1 shadow-inner">

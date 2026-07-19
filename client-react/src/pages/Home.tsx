@@ -37,7 +37,7 @@ function PhotoVille({ city, photo }: { city: string; photo?: string }) {
   )
 }
 
-/* ─────────────── Hero compact (visible uniquement sans pack) ─────────────── */
+/* ─────────────── Bandeau compact (visible uniquement sans pack) ─────────────── */
 const HERO_SLIDES = [
   { img: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=1920&q=90', city: "Côte d'Azur" },
   { img: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1920&q=90', city: 'Maldives' },
@@ -171,7 +171,7 @@ function ConceptsVoyage() {
     const dateRetour = normaliserDate(chatData.return_date as string) || new Date(new Date(dateDepart).getTime() + 86400000 * ((chatData.duration as number) || 7)).toISOString().slice(0, 10)
 
     try {
-      // FIX 10 : generatePack() passe par api.ts qui respecte VITE_API_URL
+      // CORRECTIF 10 : generatePack() passe par api.ts qui respecte VITE_API_URL
       // et throw automatiquement si !res.ok avec le message d'erreur serveur
       const reponse = await generatePack({
         destination: dest.city,
@@ -280,14 +280,13 @@ export default function Home() {
     <PageLayout>
       <Seo path="/" />
 
-      {/* Hero : visible uniquement sur l'accueil vide */}
+      {/* Bandeau d'accueil : visible uniquement sur l'accueil vide */}
       {!pack && !concepts && !isLoading && <Hero />}
 
       {/* ── Split layout quand le pack est affiché inline (user non connecté) ── */}
       
         {hasPack ? (
           <div
-            key="pack-view"
             className="mt-2"
             id="pack-results"
           >
@@ -304,14 +303,14 @@ export default function Home() {
             <PackResults />
           </div>
         ) : (
-          <div key="form-view">
+          <div>
             {/* Chat onboarding */}
             {!concepts && !isLoading && <ChatSection />}
 
             {/* Sélection destination */}
             {concepts && !isLoading && <ConceptsVoyage />}
 
-            {/* Skeleton */}
+            {/* Squelette de chargement */}
             {isLoading && (
               <GenerationLoader destination={destination} />
             )}

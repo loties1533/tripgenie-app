@@ -1,3 +1,4 @@
+// Racine de l'app : monte React Query, les routes et les notifications (Toaster).
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -9,6 +10,7 @@ import TripDetail  from './pages/TripDetail'
 import Login       from './pages/Login'
 import Preferences from './pages/Preferences'
 
+// Cache partagé : une donnée reste « fraîche » 5 min avant d'être rechargée, 1 seule reprise si erreur
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { staleTime: 1000 * 60 * 5, retry: 1 }

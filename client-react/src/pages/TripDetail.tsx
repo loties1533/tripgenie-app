@@ -51,7 +51,7 @@ export default function TripDetail() {
     }
   }
 
-  /* ---- Loading ---- */
+  /* ---- Chargement ---- */
   if (isLoading) {
     return (
       <PageLayout>
@@ -66,7 +66,7 @@ export default function TripDetail() {
     )
   }
 
-  /* ---- Error ---- */
+  /* ---- Erreur ---- */
   if (error) {
     return (
       <PageLayout>
@@ -82,7 +82,7 @@ export default function TripDetail() {
     )
   }
 
-  /* ---- Content ---- */
+  /* ---- Contenu ---- */
   return (
     <PageLayout>
       <Seo title="Votre voyage" noindex />
@@ -90,7 +90,7 @@ export default function TripDetail() {
         <>
           <div className="flex gap-5 items-start">
 
-            {/* ── Left : Pack ── */}
+            {/* ── Gauche : Pack ── */}
             <div className="flex-1 min-w-0">
 
               {/* Barre d'actions */}
@@ -104,7 +104,7 @@ export default function TripDetail() {
                 </p>
 
                 <div className="flex gap-2">
-                  {/* Bouton Modifier : visible partout, mais sur mobile ouvre la bottom sheet */}
+                  {/* Bouton Modifier : visible partout, mais sur mobile ouvre le panneau du bas */}
                   <button
                     onClick={() => setChatOpen(v => !v)}
                     className={`text-sm px-4 py-2 rounded-sm font-bold transition-all border flex items-center gap-1.5 ${
@@ -118,7 +118,7 @@ export default function TripDetail() {
                 </div>
               </div>
 
-              {/* Workflow statut */}
+              {/* Suivi du statut */}
               {status && (
                 <div className="flex items-center gap-2 mb-4 flex-wrap">
                   <span className="text-[10px] uppercase tracking-widest text-muted font-semibold">Statut :</span>
@@ -147,17 +147,16 @@ export default function TripDetail() {
               <PackResults />
             </div>
 
-            {/* ── Right : Chat modifier (desktop uniquement lg+) ── */}
+            {/* ── Droite : chat de modification (bureau uniquement, lg+) ── */}
             
               {chatOpen && (
                 <div
-                  key="modify-panel"
                   className="hidden lg:flex flex-col flex-shrink-0 sticky top-20"
                   style={{ width: 340, height: 'calc(100vh - 6rem)' }}
                 >
                   <div className="glass-premium rounded-sm overflow-hidden h-full flex flex-col border border-gold/20">
 
-                    {/* Header du panel */}
+                    {/* En-tête du panneau */}
                     <div className="px-4 py-3 border-b border-gold/10 flex items-center justify-between
                                     bg-gradient-to-r from-gold/5 to-transparent">
                       <div className="flex items-center gap-2.5">
@@ -206,18 +205,17 @@ export default function TripDetail() {
 
           </div>
 
-          {/* ── Mobile : Bottom sheet (< lg uniquement) ── */}
+          {/* ── Mobile : panneau du bas (< lg uniquement) ── */}
           
             {chatOpen && (
               <>
-                {/* Overlay sombre */}
+                {/* Fond sombre */}
                 <div
-                  key="mobile-overlay"
                   className="fixed inset-0 z-40 bg-black/60 lg:hidden"
                   onClick={() => setChatOpen(false)}
                 />
 
-                {/* Sheet qui monte du bas */}
+                {/* Panneau qui monte du bas */}
                 <div
                   key="mobile-chat-sheet"
                   className="fixed bottom-0 left-0 right-0 z-50 lg:hidden rounded-t-sm overflow-hidden"
@@ -230,7 +228,7 @@ export default function TripDetail() {
                       <div className="w-10 h-1 rounded-sm bg-white/20" />
                     </div>
 
-                    {/* Header */}
+                    {/* En-tête */}
                     <div className="px-4 py-3 border-b border-gold/10 flex items-center justify-between
                                     bg-gradient-to-r from-gold/5 to-transparent flex-shrink-0">
                       <div className="flex items-center gap-2.5">

@@ -1,3 +1,4 @@
+// Page connexion / inscription : un seul formulaire, l'onglet actif décide de l'action.
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { PageLayout } from '../components/layout'
@@ -21,6 +22,7 @@ export default function LoginPage() {
     if (!email || !motDePasse) return setErreur('Remplis tous les champs')
     setChargement(true)
     try {
+      // L'onglet actif choisit l'action : connexion ou création de compte
       const reponse = onglet === 'login'
         ? await login(email, motDePasse)
         : await signup(email, motDePasse, name)
@@ -53,7 +55,7 @@ export default function LoginPage() {
             <p className="text-sm text-muted mt-1">Votre assistant voyage IA</p>
           </div>
 
-          {/* Tabs */}
+          {/* Onglets */}
           <div className="flex gap-1 p-1 bg-parchment-dark rounded-sm mb-6">
             {['login', 'signup'].map(t => (
               <button key={t} onClick={() => { setOnglet(t); setErreur('') }}
@@ -64,7 +66,7 @@ export default function LoginPage() {
             ))}
           </div>
 
-          {/* Form */}
+          {/* Formulaire */}
           <div className="space-y-3">
             {onglet === 'signup' && (
               <input value={name} onChange={e => setName(e.target.value)}

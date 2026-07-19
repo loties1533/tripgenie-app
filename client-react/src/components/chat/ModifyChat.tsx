@@ -133,7 +133,7 @@ export default function ModifyChat({ tripId, mode }: ModifyChatProps) {
         </div>
       )}
 
-      {/* Input */}
+      {/* Saisie */}
       <div className="border-t border-gold/10 p-3">
         <div className="flex gap-2">
           <input

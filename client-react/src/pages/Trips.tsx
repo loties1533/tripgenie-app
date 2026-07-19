@@ -81,7 +81,7 @@ export default function Trips() {
       <Seo title="Mes voyages" path="/trips" noindex />
       <div className="py-2">
 
-        {/* ── Header ── */}
+        {/* ── En-tête ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-ink">Mes Voyages</h1>
@@ -111,14 +111,14 @@ export default function Trips() {
           </div>
         </div>
 
-        {/* ── Loading ── */}
+        {/* ── Chargement ── */}
         {isLoading && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[1,2,3,4,5,6].map(i => <SkeletonCard key={i} />)}
           </div>
         )}
 
-        {/* ── Error ── */}
+        {/* ── Erreur ── */}
         {error && (
           <div className="text-center py-20 glass rounded-sm border border-red-500/20">
             <p className="text-muted mb-4">Impossible de charger vos voyages.</p>
@@ -126,7 +126,7 @@ export default function Trips() {
           </div>
         )}
 
-        {/* ── Empty ── */}
+        {/* ── Vide ── */}
         {!isLoading && trips.length === 0 && (
           <div className="text-center py-24 glass-premium rounded-sm">
             <h3 className="text-2xl font-bold text-ink mb-2">
@@ -139,10 +139,10 @@ export default function Trips() {
           </div>
         )}
 
-        {/* ── Grid ── */}
+        {/* ── Grille ── */}
         {trips.length > 0 && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {trips.map((trip, i) => (
+            {trips.map((trip) => (
               <div key={trip.id}
                 role="button"
                 tabIndex={0}
@@ -176,7 +176,7 @@ export default function Trips() {
                   </button>
                 </div>
 
-                {/* Mode + Statut badges */}
+                {/* Badges mode + statut */}
                 <div className="mb-4 relative z-10 flex items-center gap-2 flex-wrap">
                   <ModeBadge mode={trip.mode} premium={trip.premium} />
                   {trip.status === 'confirmed' && (
@@ -193,7 +193,7 @@ export default function Trips() {
                   )}
                 </div>
 
-                {/* Score bar */}
+                {/* Barre de score */}
                 <div className="mb-4 relative z-10">
                   <div className="flex items-center justify-between mb-1.5">
                     <p className="text-[10px] uppercase tracking-widest text-muted font-semibold">Score</p>

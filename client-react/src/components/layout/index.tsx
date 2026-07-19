@@ -30,7 +30,7 @@ export function Header() {
           </div>
         </Link>
 
-        {/* Nav — Desktop */}
+        {/* Navigation — bureau */}
         <nav className="hidden sm:flex items-center bg-parchment-dark/50 p-1 rounded-sm border border-gold/10">
           <Link to="/"
             className={`px-4 py-1.5 rounded-sm text-sm font-medium transition-all
@@ -60,9 +60,9 @@ export function Header() {
           )}
         </nav>
 
-        {/* Right actions */}
+        {/* Actions à droite */}
         <div className="flex items-center gap-2">
-          {/* Desktop user actions */}
+          {/* Actions utilisateur — bureau */}
           {user
             ? <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-gold/20">
                 <div className="flex flex-col items-end">
@@ -80,7 +80,7 @@ export function Header() {
               </Link>
           }
 
-          {/* Hamburger — Mobile only */}
+          {/* Menu hamburger — mobile uniquement */}
           <button
             onClick={() => setMenuOpen(o => !o)}
             className="sm:hidden w-9 h-9 rounded-sm bg-parchment-dark border border-gold/10
@@ -92,7 +92,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile menu drawer */}
+      {/* Menu déroulant mobile */}
       
         {menuOpen && (
           <div
@@ -153,7 +153,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      {/* Footer */}
+      {/* Pied de page */}
       <footer className="mt-24 border-t border-gray-200 bg-parchment-dark">
         <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
