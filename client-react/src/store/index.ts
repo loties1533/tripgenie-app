@@ -28,7 +28,7 @@ interface SearchState {
 export const useSearchStore = create<SearchState>()(
   persist(
     (set) => ({
-      // Form
+      // Formulaire
       destination: '',
       origin:      'Paris',
       departure:   '',

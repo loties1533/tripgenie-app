@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// Fix for default marker icons in React Leaflet
+// Corrige les icônes de marqueur par défaut de React Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -11,7 +11,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 })
 
-// Component to handle map centering when coords change
+// Recentre la carte quand les coordonnées changent
 function ChangeView({ center, zoom }: { center: [number, number], zoom: number }) {
   const map = useMap()
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function TripMap({ destination, hotels = [], focusedLocation = nu
         }
         setMarkers(hotelMarkers)
       } catch (err) {
-        console.error("Mapping error:", err)
+        console.error("Erreur de cartographie :", err)
       } finally {
         setLoading(false)
       }

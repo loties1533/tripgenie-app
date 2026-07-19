@@ -1,8 +1,10 @@
+// Vote « pour / contre » sur un élément du pack — un compteur de consensus
+// partagé : chaque invité d'un voyage voit les votes des autres.
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { saveVote, getVotes } from '../../lib/api'
 
-interface TripVote { item_id: string; vote_type: boolean }
+interface TripVote { item_id: string; vote_type: boolean } // vote_type : true = pour, false = contre
 
 // Icône pouce (SVG) — pivotée de 180° pour le pouce vers le bas
 function ThumbIcon({ down = false }: { down?: boolean }) {
@@ -18,9 +20,10 @@ function ThumbIcon({ down = false }: { down?: boolean }) {
 
 const VoteButtons = ({ packId, itemId }: { packId: string, itemId: string }) => {
   const [voteUtilisateur, setVoteUtilisateur] = useState<boolean | null>(null)
-  const desactive = !packId
+  const desactive = !packId // pas de packId = pack pas encore sauvegardé → vote impossible
   const queryClient = useQueryClient()
 
+  // On relit les votes toutes les 10s pour afficher ceux des autres invités presque en direct
   const { data } = useQuery({
     queryKey: ['votes', packId],
     queryFn: () => getVotes(packId),
@@ -38,6 +41,7 @@ const VoteButtons = ({ packId, itemId }: { packId: string, itemId: string }) => 
     try {
       await saveVote(packId, itemId, estPositif, '')
       setVoteUtilisateur(estPositif)
+      // On invalide le cache pour rafraîchir les compteurs sans attendre le prochain refetch
       queryClient.invalidateQueries({ queryKey: ['votes', packId] })
     } catch (err) { console.error(err) }
   }
