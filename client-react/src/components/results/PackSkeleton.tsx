@@ -131,7 +131,7 @@ export default function PackSkeleton() {
       {/* Citation en bas */}
       <div className="absolute bottom-10 left-0 right-0 text-center z-10">
         <p className="text-white/20 text-xs italic tracking-wider">
-          "Les plus beaux voyages commencent par une envie."
+          "Les plus beaux voyages commencent par une envie"
         </p>
       </div>
     </div>

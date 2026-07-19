@@ -349,7 +349,7 @@ async function suggestDestinations(
     if (destinations.length) {
       setField('concepts', destinations)
     } else {
-      // Échec : l'IA n'a pas renvoyé de destinations → on ne bloque pas l'utilisateur, on lui propose de réessayer
+      // Échec : l'IA n'a pas renvoyé de destinations : on ne bloque pas l'utilisateur, on lui propose de réessayer
       setReady?.(false)
       addMessage({ role: 'bot', text: "Je n'ai pas réussi à charger les destinations — on réessaie ?" })
     }
@@ -385,7 +385,7 @@ export default function ChatWidget() {
   const [homeCity, setHomeCity] = useState<string>('')
   const [modePref, setModePref] = useState<string>('')
   // Préférence de niveau de prix (default_premium) : null = non définie → on POSE
-  // la question dans le quiz ; sinon on la seede et on saute l'étape « premium ».
+  // la question dans le quiz ; sinon on la seede et on saute l'étape « premium »
   const [premiumPref, setPremiumPref] = useState<boolean | null>(null)
   useEffect(() => {
     getPreferences()
@@ -393,7 +393,7 @@ export default function ChatWidget() {
         if (!preferences) return
         if (preferences.home_city) {
           setHomeCity(preferences.home_city)
-          // Persiste l'origine si l'utilisateur n'a rien précisé → génération depuis sa ville.
+          // Persiste l'origine si l'utilisateur n'a rien précisé → génération depuis sa ville
           if (!chatData.origin) seedChatData({ origin: preferences.home_city })
         }
         if (preferences.default_mode) {
@@ -404,7 +404,7 @@ export default function ChatWidget() {
           setPremiumPref(preferences.default_premium)
           seedChatData({ premium: preferences.default_premium })
         }
-        // Centres d'intérêt → orientent destinations ET activités (sur-mesure).
+        // Centres d'intérêt → orientent destinations ET activités (sur-mesure)
         if (preferences.preferred_prefs?.length) {
           seedChatData({ interests: preferences.preferred_prefs })
         }
@@ -452,9 +452,9 @@ export default function ChatWidget() {
   }, [messages.length])
 
   useEffect(() => {
-    // On scrolle UNIQUEMENT le conteneur des messages (pas la page).
+    // On scrolle UNIQUEMENT le conteneur des messages (pas la page)
     // scrollIntoView() faisait remonter tous les ancêtres scrollables, dont la
-    // fenêtre → toute la page sautait en bas au moindre message / focus input.
+    // fenêtre → toute la page sautait en bas au moindre message / focus input
     const el = scrollRef.current
     if (el) el.scrollTop = el.scrollHeight
   }, [messages, isTyping])
@@ -490,9 +490,9 @@ export default function ChatWidget() {
       setAwaitingConfirm(true)
       setTimeout(() => addMessage({ role: 'bot', text: buildRecapMessage(merged), chips: [] }), 200)
     } else {
-      // On avance jusqu'à la prochaine étape NON pré-remplie par les préférences.
+      // On avance jusqu'à la prochaine étape NON pré-remplie par les préférences
       // 'style' (si default_mode) et 'premium' (si default_premium) sont seedés en
-      // amont → on les saute pour ne pas reposer une question déjà tranchée.
+      // amont → on les saute pour ne pas reposer une question déjà tranchée
       const dejaSeedee = (key: string) =>
         (key === 'style' && !!modePref) || (key === 'premium' && premiumPref !== null)
       let pas = 1
@@ -555,7 +555,7 @@ export default function ChatWidget() {
         addMessage({ role: 'user', text: label })
 
         if (dateRetour) {
-          // Dates complètes → durée DÉRIVÉE des dates, on saute l'étape durée → récap.
+          // Dates complètes → durée DÉRIVÉE des dates, on saute l'étape durée → récap
           const durationDays = Math.max(1, Math.round((new Date(dateRetour).getTime() - new Date(dateDepart).getTime()) / 86400000))
           mergeChatData({ departure: dateDepart, return_date: dateRetour, duration: durationDays })
           nextQuizStep() // départ → durée (dernier step) pour cohérence d'état
@@ -564,7 +564,7 @@ export default function ChatWidget() {
           setTimeout(() => addMessage({ role: 'bot', text: buildRecapMessage(merged), chips: [] }), 300)
         } else {
           // Seule la date de départ est fournie → on demande la durée comme étape
-          // normale (plus de durée « fantôme » de 7 jours imposée en douce).
+          // normale (plus de durée « fantôme » de 7 jours imposée en douce)
           mergeChatData({ departure: dateDepart })
           nextQuizStep() // départ → durée
           const durationStep = QUIZ_STEPS.find(s => s.key === 'duration')!
@@ -615,7 +615,7 @@ export default function ChatWidget() {
     } finally {
       sendingRef.current = false
       setSending(false)
-      // preventScroll : re-focus l'input SANS que le navigateur fasse défiler la page.
+      // preventScroll : re-focus l'input SANS que le navigateur fasse défiler la page
       inputRef.current?.focus({ preventScroll: true })
     }
   }, [input, chatData, turnCount, homeCity])
