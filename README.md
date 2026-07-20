@@ -298,6 +298,9 @@ Le mode `surprise` utilise une pondération à part (score global 60% + original
 | sonner | Notifications (toasts) |
 | Leaflet | Carte interactive |
 | Recharts | Graphique budget breakdown |
+| react-helmet-async | Balises meta dynamiques (SEO par page) |
+| date-fns | Formatage des dates |
+| clsx | Classes CSS conditionnelles |
 
 ### Backend
 | Technologie | Rôle |
@@ -394,7 +397,7 @@ tests/
     ├── collaborators.test.ts          — gestion collaborateurs
     └── preferences.test.ts            — préférences utilisateur
 ─────────────────────────────────────────────────────────────────
-  sélection représentative — 54 fichiers / 899 tests au total, services externes mockés (zéro clé API requise)
+  18 fichiers / 303 tests au total, services externes mockés (zéro clé API requise)
 ```
 
 ---
